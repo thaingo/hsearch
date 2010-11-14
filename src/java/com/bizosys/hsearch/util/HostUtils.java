@@ -3,7 +3,7 @@ package com.bizosys.hsearch.util;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.util.StringUtils;
 
 public class HostUtils {
 	private static String HOST_NAME = null;

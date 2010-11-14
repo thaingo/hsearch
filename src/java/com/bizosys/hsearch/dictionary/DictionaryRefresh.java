@@ -8,9 +8,9 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.services.batch.BatchTask;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.services.batch.BatchTask;
 
 import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HTableWrapper;

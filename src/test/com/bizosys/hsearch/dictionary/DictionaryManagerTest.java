@@ -6,8 +6,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.dictionary.DictEntry;

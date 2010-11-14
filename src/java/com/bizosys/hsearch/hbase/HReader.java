@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.oneline.ApplicationFault;
+import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.util.RecordScalar;

@@ -5,11 +5,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.pipes.PipeIn;
-import org.apache.oneline.services.ServiceFactory;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
+import com.bizosys.oneline.services.ServiceFactory;
 
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;

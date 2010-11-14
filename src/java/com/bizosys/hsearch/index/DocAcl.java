@@ -2,7 +2,7 @@ package com.bizosys.hsearch.index;
 
 import java.util.List;
 
-import org.apache.oneline.ApplicationFault;
+import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.common.Access;
 import com.bizosys.hsearch.common.HDocument;

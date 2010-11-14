@@ -1,6 +1,6 @@
 package com.bizosys.hsearch.util;
 
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.util.StringUtils;
 
 public class IpUtil {
 	public static final int computeHouse(String strIp) {

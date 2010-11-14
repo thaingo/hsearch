@@ -6,10 +6,10 @@ import java.util.List;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.pipes.PipeIn;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.DocTerms;

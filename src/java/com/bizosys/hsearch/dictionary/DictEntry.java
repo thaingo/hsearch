@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.Storable;

@@ -2,7 +2,7 @@ package com.bizosys.ferrari;
 
 import java.lang.reflect.Method;
 
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.util.StringUtils;
 
 import junit.framework.Test;
 

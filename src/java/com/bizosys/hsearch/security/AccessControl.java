@@ -1,8 +1,8 @@
 package com.bizosys.hsearch.security;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.Access;
 import com.bizosys.hsearch.common.Storable;

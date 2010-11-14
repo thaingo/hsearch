@@ -3,7 +3,7 @@ package com.bizosys.hsearch.index;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.oneline.ApplicationFault;
+import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.HDocument;

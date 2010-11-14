@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.services.batch.BatchTask;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.services.batch.BatchTask;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;

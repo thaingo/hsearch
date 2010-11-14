@@ -7,8 +7,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import org.apache.hadoop.util.StringUtils;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.services.ServiceFactory;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.services.ServiceFactory;
 
 import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.Storable;

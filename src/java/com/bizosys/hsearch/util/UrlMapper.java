@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 public class UrlMapper {
 

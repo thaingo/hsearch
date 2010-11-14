@@ -1,7 +1,7 @@
 package com.bizosys.hsearch.index;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 /**
  * @author karan

@@ -8,7 +8,7 @@ import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.WhitespaceTokenizer;
 import org.apache.lucene.analysis.standard.StandardFilter;
-import org.apache.oneline.ApplicationFault;
+import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.outpipe.L;

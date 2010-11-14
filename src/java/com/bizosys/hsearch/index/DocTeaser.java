@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.oneline.ApplicationFault;
+import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.HDocument;

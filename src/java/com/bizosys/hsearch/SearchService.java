@@ -5,15 +5,15 @@ import java.text.ParseException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.pipes.PipeIn;
-import org.apache.oneline.services.Request;
-import org.apache.oneline.services.Response;
-import org.apache.oneline.services.Service;
-import org.apache.oneline.services.ServiceMetaData;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
+import com.bizosys.oneline.services.Request;
+import com.bizosys.oneline.services.Response;
+import com.bizosys.oneline.services.Service;
+import com.bizosys.oneline.services.ServiceMetaData;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.index.IndexWriter;

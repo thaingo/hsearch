@@ -4,10 +4,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.pipes.PipeIn;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.dictionary.DictEntry;
 import com.bizosys.hsearch.dictionary.DictionaryManager;

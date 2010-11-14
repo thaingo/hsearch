@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.pipes.PipeOut;
-import org.apache.oneline.services.async.AsyncProcessor;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeOut;
+import com.bizosys.oneline.services.async.AsyncProcessor;
 
 import com.bizosys.hsearch.index.TermList;
 import com.bizosys.hsearch.query.HQuery;

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.oneline.ApplicationFault;
+import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.util.FileReaderUtil;

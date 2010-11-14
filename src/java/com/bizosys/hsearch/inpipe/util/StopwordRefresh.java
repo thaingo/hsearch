@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.lucene.analysis.StopFilter;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.services.batch.BatchTask;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.services.batch.BatchTask;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;

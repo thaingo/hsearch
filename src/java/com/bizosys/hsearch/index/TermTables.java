@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;

@@ -3,7 +3,7 @@ package com.bizosys.ferrari;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.util.StringUtils;
 
 import junit.framework.Test;
 

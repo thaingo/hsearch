@@ -3,7 +3,7 @@ package com.bizosys.hsearch.index;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.oneline.SystemFault;
+import com.bizosys.oneline.SystemFault;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;

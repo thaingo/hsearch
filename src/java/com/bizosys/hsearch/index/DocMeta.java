@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.IStorable;

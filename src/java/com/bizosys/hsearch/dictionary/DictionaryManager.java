@@ -4,16 +4,16 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.services.Request;
-import org.apache.oneline.services.Response;
-import org.apache.oneline.services.Service;
-import org.apache.oneline.services.ServiceMetaData;
-import org.apache.oneline.services.scheduler.ExpressionBuilder;
-import org.apache.oneline.services.scheduler.ScheduleTask;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.services.Request;
+import com.bizosys.oneline.services.Response;
+import com.bizosys.oneline.services.Service;
+import com.bizosys.oneline.services.ServiceMetaData;
+import com.bizosys.oneline.services.scheduler.ExpressionBuilder;
+import com.bizosys.oneline.services.scheduler.ScheduleTask;
+import com.bizosys.oneline.util.StringUtils;
 
 public class DictionaryManager implements Service{
 	

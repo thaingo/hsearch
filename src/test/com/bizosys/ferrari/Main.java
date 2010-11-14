@@ -2,8 +2,8 @@ package com.bizosys.ferrari;
 
 import junit.framework.TestCase;
 
-import org.apache.oneline.conf.Configuration;
-import org.apache.oneline.services.ServiceFactory;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.services.ServiceFactory;
 
 public class Main extends TestCase {
 	

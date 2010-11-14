@@ -16,8 +16,8 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.SystemFault;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.util.Record;

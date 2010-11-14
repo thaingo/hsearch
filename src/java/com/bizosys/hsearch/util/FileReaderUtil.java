@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.oneline.ApplicationFault;
-import org.apache.oneline.util.StringUtils;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 public class FileReaderUtil {
 	public static Logger l = Logger.getLogger(FileReaderUtil.class.getName());
