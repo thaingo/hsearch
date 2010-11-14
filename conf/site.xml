@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<configuration>
+
+	<property>
+	  <name>plugin.folders</name>
+	  <value>services</value>
+	  <description>Number of revisions kept for the record field</description>
+	</property>
+
+	<property>
+	  <name>record_rev</name>
+	  <value>1</value>
+	  <description>Number of revisions kept for the record field</description>
+	</property>
+
+	<property>
+	  <name>services</name>
+	  <value>com.bizosys.hsearch.schema.SchemaManager,com.bizosys.hsearch.index.RunPlanManager,com.bizosys.hsearch.dictionary.DictionaryManager,com.bizosys.hsearch.inpipe.util.StopwordManager</value>
+	  <description>These are customized services bundled inside the package; 
+	  Not in plugin folders.</description>
+	</property>
+
+	<property>
+	  <name>inpipes</name>
+	  <value></value>
+	  <description>Comma Separated Input Pipe List</description>
+	</property>
+
+	<property>
+	  <name>outpipes</name>
+	  <value></value>
+	  <description>Comma Separated Output Pipe List</description>
+	</property>
+	
+	<property>
+	  <name>stemming</name>
+	  <value>true</value>
+	  <description>Enable the stemming</description>
+	</property>
+	
+	<property>
+	  <name>dictionary.refresh</name>
+	  <value>30</value>
+	  <description>Dictionary Refresh period in minutes</description>
+	</property>
+	
+	<property>
+	  <name>dictionary.merge.words</name>
+	  <value>1000</value>
+	  <description>Words will be separed by Tab and kept as a line</description>
+	</property>
+	
+	<property>
+	  <name>dictionary.page.Size</name>
+	  <value>1000</value>
+	  <description>How many words come as a page for dictionry browsing.</description>
+	</property>
+	
+	<property>
+	  <name>index.documents.merge</name>
+	  <value>10000</value>
+	  <description>How many documents should be merged in the index</description>
+	</property>	
+	
+	<property>
+	  <name>stopword.refresh</name>
+	  <value>30</value>
+	  <description>This refreshes the stop words at 30 Minutes Interval.</description>
+	</property>	
+	
+</configuration>

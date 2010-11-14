@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<project>
+
+  <property name="java.home" value="D:\jdk1.6.0_03\"/>
+  <property name="name" value="${ant.project.name}"/>
+  <property name="root" value="${basedir}"/>
+	
+  <!-- load plugin-specific properties first -->
+  <property file="${user.home}/${name}.build.properties" />
+  <property file="${root}/build.properties" />
+
+  <property name="project.root" location="${root}/../../../"/>
+
+  <property name="src.dir" location="${root}/src/java"/>
+  <property name="src.test" location="${root}/src/test"/>
+
+  <available file="${src.test}" type="dir" property="test.available"/>
+
+  <property name="conf.dir" location="${project.root}/conf"/>
+
+  <property name="root.build.dir" location="${project.root}/build"/>
+  <property name="build.dir" location="${root.build.dir}/${name}"/>
+  <property name="build.classes" location="${build.dir}/classes"/>
+  <property name="build.test" location="${build.dir}/test"/>
+  <property name="build.web.dir" location="${project.root}/build/webapps/${name}"/>
+
+  <property name="deploy.dir" location="${project.root}/build/plugins/${name}"/>
+
+  <!-- load defaults last so that they can be overridden above -->
+  <property file="${project.root}/default.properties" />
+
+  <path id="plugin.deps"/>
+
+  <fileset id="lib.jars" dir="${root}" includes="lib/*.jar"/>
+
+  <!-- the normal classpath -->
+  <path id="classpath">
+    <pathelement location="${build.classes}"/>
+    <fileset refid="lib.jars"/>
+    <pathelement location="${project.root}/build/classes"/>
+    <fileset dir="${project.root}/lib">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="${java.home}/lib">
+      <include name="*.jar" />
+    </fileset>
+    <path refid="plugin.deps"/>
+  </path>
+
+  <!-- the unit test classpath -->
+  <path id="test.classpath">
+    <pathelement location="${build.test}" />
+    <pathelement location="${project.root}/build/test/classes"/>
+    <pathelement location="${project.root}/src/test"/>
+    <pathelement location="${conf.dir}"/>
+    <pathelement location="${project.root}/build"/>
+    <path refid="classpath"/>
+  </path>
+
+  <!-- ====================================================== -->
+  <!-- Stuff needed by all targets                            -->
+  <!-- ====================================================== -->
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.test}"/>
+    <mkdir dir="${build.web.dir}"/>
+
+    <antcall target="init-plugin"/>
+  </target>
+
+  <!-- to be overridden by sub-projects --> 
+  <target name="init-plugin"/>
+
+  <!--
+   ! Used to build plugin compilation dependencies
+   ! (to be overridden by plugins)
+   !-->
+  <target name="deps-jar"/>
+
+  <!--
+   ! Used to deploy plugin runtime dependencies
+   ! (to be overridden by plugins)
+   !-->
+  <target name="deps-test"/>
+
+  <!-- ====================================================== -->
+  <!-- Compile the Java files                                 -->
+  <!-- ====================================================== -->
+  <target name="compile" depends="init,deps-jar">
+    <echo message="Compiling plugin: ${name}"/>
+  	<echo message="Java home: ${java.home} - ${ant.java.version} : javac.version - ${javac.version}"/>
+    <javac 
+     encoding="${build.encoding}" 
+     srcdir="${src.dir}"
+     includes="**/*.java"
+     destdir="${build.classes}"
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <target name="compile-core">
+    <ant target="compile-core" inheritall="false" dir="${project.root}"/>
+    <ant target="compile"/>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Make plugin .jar                                                   -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="jar" depends="compile">
+    <jar jarfile="${build.dir}/${name}.jar" basedir="${build.classes}">
+		<fileset dir="${src.dir}" includes="**/*.xml" />
+   	</jar>
+  </target>
+
+  <target name="jar-core" depends="compile-core">
+    <jar
+        jarfile="${build.dir}/${name}.jar"
+        basedir="${build.classes}"
+        />
+  </target>
+
+  <target name="deploy" depends="jar, deps-test, custom_deploy">
+    <mkdir dir="${deploy.dir}"/>
+    <copy file="plugin.xml" todir="${deploy.dir}" 
+          preservelastmodified="true"/>
+    <available property="lib-available"
+                 file="${build.dir}/${name}.jar"/>
+    <antcall target="copy-generated-lib"/>
+    <copy todir="${deploy.dir}" flatten="true">
+      <fileset refid="lib.jars"/>
+    </copy>
+  </target>
+
+	<target name="copy-generated-lib" if="lib-available">
+    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compile test code                                                  --> 
+  <!-- ================================================================== -->
+  <target name="compile-test" depends="compile" if="test.available">
+    <javac 
+     encoding="${build.encoding}" 
+     srcdir="${src.test}"
+     includes="**/*.java"
+     destdir="${build.test}"
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
+      <classpath refid="test.classpath"/>
+    </javac>    
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Run unit tests                                                     --> 
+  <!-- ================================================================== -->
+  <target name="test" depends="compile-test, deploy" if="test.available">
+    <echo message="Testing plugin: ${name}"/>
+
+    <junit printsummary="yes" haltonfailure="no" fork="yes"
+      errorProperty="tests.failed" failureProperty="tests.failed">
+      <sysproperty key="test.data" value="${build.test}/data"/>
+      <sysproperty key="test.input" value="${root}/data"/>
+      <classpath refid="test.classpath"/>
+      <formatter type="plain" />
+      <batchtest todir="${build.test}" unless="testcase">
+        <fileset dir="${src.test}"
+                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+      </batchtest>
+      <batchtest todir="${build.test}" if="testcase">
+        <fileset dir="${src.test}" includes="**/${testcase}.java"/>
+      </batchtest>
+    </junit>
+
+    <fail if="tests.failed">Tests failed!</fail>
+
+  </target>   
+	
+  <target name="custom_deploy">
+  </target>	
+
+  <!-- ================================================================== -->
+  <!-- Clean.  Delete the build files, and their directories              -->
+  <!-- ================================================================== -->
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+</project>

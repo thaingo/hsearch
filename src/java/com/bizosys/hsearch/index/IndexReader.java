@@ -1,0 +1,30 @@
+package com.bizosys.hsearch.index;
+
+import java.util.List;
+
+import org.apache.oneline.ApplicationFault;
+import org.apache.oneline.SystemFault;
+import org.apache.oneline.pipes.PipeOut;
+
+import com.bizosys.hsearch.common.MappedDocId;
+
+/**
+ * 
+ * @author karan
+ *
+ */
+public class IndexReader {
+
+	/**
+	 * Raw index reading to find the matching documents.
+	 * Based on this Id, we will read the document body section to show
+	 * @param singleTerm
+	 * @param pipes
+	 * @return
+	 * @throws ApplicationFault
+	 * @throws SystemFault
+	 */
+	public List<MappedDocId> find(String singleTerm, List<PipeOut> pipes) throws ApplicationFault, SystemFault{
+		return null;
+	}
+}

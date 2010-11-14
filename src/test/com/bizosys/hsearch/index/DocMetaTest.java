@@ -1,0 +1,47 @@
+package com.bizosys.hsearch.index;
+
+import java.util.Date;
+
+import junit.framework.TestCase;
+
+import com.bizosys.ferrari.TestFerrari;
+
+public class DocMetaTest extends TestCase {
+
+	public static void main(String[] args) throws Exception {
+		DocMetaTest t = new DocMetaTest();
+        TestFerrari.testAll(t);
+	}
+	
+	public void testSerialize(String type, String state, 
+		String orgunit, String geohouse, Long created, Long modified, 
+		Long validTill, Boolean secuity, Boolean sentiment) throws Exception {
+
+		DocMeta meta = new DocMeta();
+		meta.docType = type;
+		meta.state = state;
+		meta.orgUnit = orgunit;
+		meta.geoHouse= geohouse;
+		meta.bornOn = new Date(created);
+		meta.modifiedOn = new Date(modified);
+		meta.deathOn = new Date(validTill);
+		meta.securityHigh = secuity;
+		meta.sentimentPositive = sentiment;
+		
+		byte[] bytes = meta.toBytes();
+		DocMeta deserialized = new DocMeta(bytes);
+		
+		assertEquals(type, deserialized.docType);
+		assertEquals(state, deserialized.state);
+		assertEquals(orgunit, deserialized.orgUnit);
+		assertEquals(geohouse, deserialized.geoHouse);
+
+		assertEquals(created.longValue(), deserialized.bornOn.getTime());
+		assertEquals(modified.longValue(), deserialized.modifiedOn.getTime());
+		assertEquals(validTill.longValue(), deserialized.deathOn.getTime());
+		
+		assertEquals(secuity.booleanValue(), deserialized.securityHigh);
+		assertEquals(sentiment.booleanValue(), deserialized.sentimentPositive);
+		
+	}
+}

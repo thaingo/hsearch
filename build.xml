@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<project name="hsearch">
+
+	<!-- Load all the default properties, and any the user wants    -->
+	<!-- to contribute (without having to type -D or edit this file -->
+	<property file="${user.home}/build.properties" />
+	<property file="${basedir}/build.properties" />
+	<property file="${basedir}/default.properties" />
+	<property name="test.junit.output.format" value="plain" />
+	<property name="warfilename" value="${context.root}.war"/>
+
+	<tstamp>
+		<format property="build.time" pattern="dd MMM yyyy hh:mm aa"/>
+	</tstamp>
+	
+	<!-- the normal classpath -->
+	<path id="classpath">
+		<pathelement location="${build.classes}" />
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${hbase.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${java.home}/lib">
+			<include name="rt.jar" />
+		</fileset>
+	</path>
+
+	<!-- the unit test classpath -->
+	<dirname property="plugins.classpath.dir" file="${build.plugins}" />
+
+	<path id="test.classpath">
+		<pathelement location="${test.build.classes}" />
+		<pathelement location="${conf.dir}" />
+		<pathelement location="${test.src.dir}" />
+		<pathelement location="${plugins.classpath.dir}" />
+		<path refid="classpath" />
+	</path>
+
+	<!-- ====================================================== -->
+	<!-- Stuff needed by all targets                            -->
+	<!-- ====================================================== -->
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes}" />
+
+		<mkdir dir="${test.build.dir}" />
+		<mkdir dir="${test.build.classes}" />
+		
+		<copy todir="${conf.dir}" verbose="true">
+			<fileset dir="${conf.dir}" includes="**/*.template" />
+			<mapper type="glob" from="*.template" to="*" />
+		</copy>
+	</target>
+
+	<!-- ====================================================== -->
+	<!-- Compile the Java files                                 -->
+	<!-- TODO:: Add depends="init,generator" once the code generation is fixed -->
+	<!-- ====================================================== -->
+	<target name="compile" depends="compile-core, compile-plugins" />
+
+	<target name="compile-core" depends="init">
+	  	<echo message="Java home: ${java.home} - ${ant.java.version} : javac.version - ${javac.version}"/>
+		<javac encoding="${build.encoding}" 
+			destdir="${build.classes}" debug="${javac.debug}" optimize="${javac.optimize}" 
+			target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
+			<classpath refid="classpath" />
+		    <src path="${src.dir}"/>
+		</javac>
+	</target>
+	
+	<target name="compile-tests" depends="init">
+		<javac encoding="${build.encoding}" 
+			destdir="${test.build.dir}" debug="${javac.debug}" optimize="${javac.optimize}" 
+			target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}"
+			excludes="com/oneline/sensor/mcx/**/*.java">
+			<classpath refid="classpath" />
+			<classpath refid="test.classpath" />
+		    <src path="${test.src.dir}" />
+		</javac>
+	</target>
+	
+	<target name="compile-plugins">
+		<ant dir="${plugins.dir}" target="deploy" inheritAll="false" />
+	</target>
+
+	<target name="compile-a-plugin-jar">
+		<property name="sensor.name" value="session-usage" />
+		<ant dir="src/plugin/${sensor.name}" target="deploy" inheritAll="false" />
+	</target>
+	
+	<!-- ================================================================== -->
+	<!-- Make jar of the core package -->
+	<!-- ================================================================== -->
+	<target name="jar-core" depends="compile-core">
+		<jar jarfile="${build.dir}/${final.name}-core.jar" basedir="${build.classes}">
+			<manifest>
+				<attribute name="Created-By" value="${company} (${build.time})"/>
+				<attribute name="Version" value="${version}"/>
+			</manifest>			
+		</jar>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Make Test class jar -->
+	<!-- ================================================================== -->
+	<target name="jar-test" depends="compile-tests">
+		<jar jarfile="${build.dir}/${final.name}-test.jar" basedir="${test.build.dir}">
+			<manifest>
+				<attribute name="Created-By" value="${company}(${build.time})"/>
+				<attribute name="Version" value="${version}"/>
+			</manifest>			
+		</jar>
+	</target>
+	
+	<!-- ================================================================== -->
+	<!-- All source file jar -->
+	<!-- ================================================================== -->
+	<target name="jar-src">
+		<jar jarfile="${build.dir}/${final.name}-src.jar" basedir="${basedir}/src">
+			<manifest>
+				<attribute name="Created-By" value="${company}(${build.time})"/>
+				<attribute name="Version" value="${version}"/>
+			</manifest>			
+		</jar>
+	</target>
+	
+	<!-- ================================================================== -->
+	<!-- Make Term Filter jar   -->
+	<!-- ================================================================== -->
+	<target name="jar-termfilter" depends="compile-core">
+		<jar jarfile="${build.dir}/${final.name}-termfilter.jar" basedir="${build.classes}" includes="">
+			<include name="org/apache/hadoop/hsearch/filter/*.class"/>
+			<manifest>
+				<attribute name="Created-By" value="${company}(${build.time})"/>
+				<attribute name="Version" value="${version}"/>
+			</manifest>			
+		</jar>
+	</target>
+	
+	
+	
+	<!-- ================================================================== -->
+	<!-- All source file jar -->
+	<!-- ================================================================== -->
+	<target name="jar-examples">
+		<jar jarfile="${build.dir}/${final.name}-examples.jar" basedir="${basedir}/src/test">
+			<manifest>
+				<attribute name="Created-By" value="${company}(${build.time})"/>
+				<attribute name="Version" value="${version}"/>
+			</manifest>			
+		</jar>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Make war  -->
+	<!-- ================================================================== -->
+	<macrodef name="makewardef">
+		<attribute name="sitexml"/>
+		<attribute name="warfilename"/>
+		<attribute name="jarfilestoinclude"/>
+		
+		<sequential>
+		
+			<copy todir="${web.src.dir}/WEB-INF/classes/services" verbose="true">
+				<fileset dir="${build.dir}/plugins"/>
+			</copy>
+			
+			<copy todir="${web.src.dir}/WEB-INF/classes/" verbose="true">
+				<fileset dir="${conf.dir}"/>
+			</copy>
+			
+			<war destfile="${build.dir}/@{warfilename}" webxml="${web.src.dir}/WEB-INF/web.xml">
+
+				<fileset dir="${web.src.dir}" />
+
+				<lib dir="${lib.dir}" >
+					<include name="@{jarfilestoinclude}"/>
+					<exclude name="rt.jar" />
+				</lib>
+
+				<lib dir="${build.dir}">
+					<include name="*.jar" />
+				</lib>
+
+				<manifest>
+					<attribute name="Created-By" value="${company}(${build.time})"/>
+					<attribute name="Version" value="${version}"/>
+				</manifest>			
+			</war>
+		</sequential>
+	
+	</macrodef>
+
+
+	<!-- ================================================================== -->
+	<!-- D I S T R I B U T I O N  Targets                                   -->
+	<!-- ================================================================== -->
+	<target name="release.plugin">
+		<property name="sensor.name" value="session-usage" />
+		<ant dir="src/plugin/${sensor.name}" target="deploy" inheritAll="false" />
+		<copy file="${build.dir}/${sensor.name}/${sensor.name}.jar" todir="${web.src.dir}/WEB-INF/classes/plugins/${sensor.name}" />
+	</target>
+
+	<target name="release" depends="clean.all, init, jar-src, jar-examples, jar-core, jar-test, compile-plugins">
+	</target>
+	
+	<!-- ================================================================== -->
+	<!-- Clean.  Delete the build files, and their directories              -->
+	<!-- ================================================================== -->
+	<target name="clean.all">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="clean.build">
+		<delete dir="${build.dir}" />
+	</target>
+
+</project>
