@@ -78,7 +78,7 @@ public class DocWeight {
         idWtL[high] = pivot;
 
         while( low < high ) {
-            while ( ((DocWeight)idWtL[low]).compare( (DocWeight)pivot )  != 1  && low < high) low++;
+            while ( ((DocWeight)idWtL[low]).compare( pivot )  != 1  && low < high) low++;
             while (pivot.compare((DocWeight)idWtL[high]) != 1 && low < high ) high--;
             if( low < high ) {
                 temp = (DocWeight)idWtL[low]; idWtL[low] = idWtL[high]; idWtL[high] = temp;
