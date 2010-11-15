@@ -7,12 +7,12 @@ public class DocWeight {
 	/**
 	 * Document ID
 	 */
-	String id;
+	public String id;
 	
 	/**
 	 * Document weight
 	 */
-	float wt;
+	public float wt;
 	
 	/**
 	 * Constructor
@@ -38,6 +38,10 @@ public class DocWeight {
 
 	/**
 	 * Sort based on the weight in descentding order
+	 * <lu>
+	 * <li>This sort does not take extra memory for arraying</li>
+	 * <li>It's relatively faster by </li>
+	 * </lu> 
 	 * @param out
 	 * @throws Exception
 	 */
