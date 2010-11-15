@@ -25,6 +25,7 @@ public class ComputeStaticRanking implements PipeOut{
 
 	public boolean visit(Object objQuery) throws ApplicationFault, SystemFault {
 		
+		L.l.debug("ComputeStaticRank ENTER");
 		HQuery query = (HQuery) objQuery;
 		QueryContext ctx = query.ctx;
 		QueryPlanner planner = query.planner;
@@ -33,10 +34,13 @@ public class ComputeStaticRanking implements PipeOut{
 		Map<String, DocWeight> sortedStaticMap = computeWeight(ctx, planner);
 		result.sortedStaticWeights = sortedStaticMap.values().toArray();
 		DocWeight.sort(result.sortedStaticWeights);
+		sortedStaticMap.clear();
+		sortedStaticMap = null;
 		return true;
 	}
 
 	private Map<String, DocWeight> computeWeight(QueryContext ctx, QueryPlanner planner) {
+		
 		Iterator<List<QueryTerm>> stepsItr = planner.sequences.iterator();
 		int stepsT = planner.sequences.size();
 		StringBuilder sb = new StringBuilder(100);
@@ -55,7 +59,6 @@ public class ComputeStaticRanking implements PipeOut{
 		Map<String, DocWeight> docWeightMap = new Hashtable<String, DocWeight>(250);
 
 		for ( int stepsIndex=0; stepsIndex<stepsT; stepsIndex++) {
-			
 			qts = stepsItr.next();
 			stepsItr.remove();
 			if ( null == qts) continue;
@@ -63,38 +66,41 @@ public class ComputeStaticRanking implements PipeOut{
 			qtSize = qts.size();
 			qtItr = qts.iterator();
 			for ( int qtIndex=0; qtIndex<qtSize; qtIndex++) {
-				QueryTerm qt = qtItr.next();
-				qtItr.remove(); 
+				QueryTerm qt = qtItr.next(); qtItr.remove(); 
 				if ( null == qt) continue;
 				
 				Map<Long, TermList> founded = qt.foundIds;
 				if ( null == founded) continue;
+				
 				bucketItr = founded.keySet().iterator();
 				termSize = founded.size();
+				
 				for (int termIndex=0; termIndex < termSize; termIndex++ ) {
 					bucketId = bucketItr.next();
 					tl = founded.get(bucketId);
-					if ( null != tl) {
-						bytePos = -1;
- 						for ( short docPos : tl.docPos ) {
- 							bytePos++;
- 							if ( -1 == docPos) continue;
- 							sb.delete(0, 100);
- 							sb.append(bucketId).append('_').append(docPos);
- 							mappedDocId = sb.toString();
- 							thisWt = (tl.termWeight[bytePos] * qt.preciousNess) + 1;
-							if ( docWeightMap.containsKey(mappedDocId) ) {
-								docWeightMap.get(mappedDocId).add(thisWt); 
- 							} else {
- 								docWeightMap.put(mappedDocId, new DocWeight(mappedDocId, thisWt) ); 								
- 							}
- 						}
- 						tl.cleanup();
- 						bucketItr.remove();
- 					}
+					if ( null == tl) continue;
+
+					bytePos = -1;
+					for ( short docPos : tl.docPos ) {
+						bytePos++;
+						if ( -1 == docPos) continue;
+						sb.delete(0, 100);
+						sb.append(bucketId).append('_').append(docPos);
+						mappedDocId = sb.toString();
+						thisWt = (tl.termWeight[bytePos] * qt.preciousNess) + 1;
+						if ( docWeightMap.containsKey(mappedDocId) ) {
+							docWeightMap.get(mappedDocId).add(thisWt); 
+						} else {
+							docWeightMap.put(mappedDocId, new DocWeight(mappedDocId, thisWt) ); 								
+						}
+					}
+					tl.cleanup();
+					bucketItr.remove();
 				}
+				founded.clear();
 			}
 		}
+		planner.sequences.clear();
 		return docWeightMap;
 	}
 	
