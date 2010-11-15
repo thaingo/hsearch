@@ -2,25 +2,17 @@ package com.bizosys.hsearch.query;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.hsearch.util.GeoId;
 import com.bizosys.hsearch.util.IpUtil;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 public class QueryContext {
-	
-	/**
-	 * It contains the document and their weights
-	 * bucket_docpos	weight
-	 */
-	public Map<String, Float> docweight = new Hashtable<String, Float>(250);
 	
 	public String id = null;
 
