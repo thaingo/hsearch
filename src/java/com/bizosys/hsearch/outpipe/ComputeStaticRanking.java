@@ -1,5 +1,6 @@
 package com.bizosys.hsearch.outpipe;
 
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,11 @@ import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
 
 import com.bizosys.hsearch.index.TermList;
+import com.bizosys.hsearch.query.DocWeight;
 import com.bizosys.hsearch.query.HQuery;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryPlanner;
+import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.hsearch.query.QueryTerm;
 
 public class ComputeStaticRanking implements PipeOut{
@@ -25,7 +28,15 @@ public class ComputeStaticRanking implements PipeOut{
 		HQuery query = (HQuery) objQuery;
 		QueryContext ctx = query.ctx;
 		QueryPlanner planner = query.planner;
+		QueryResult result = query.result;
 		
+		Map<String, DocWeight> sortedStaticMap = computeWeight(ctx, planner);
+		result.sortedStaticWeights = sortedStaticMap.values().toArray();
+		DocWeight.sort(result.sortedStaticWeights);
+		return true;
+	}
+
+	private Map<String, DocWeight> computeWeight(QueryContext ctx, QueryPlanner planner) {
 		Iterator<List<QueryTerm>> stepsItr = planner.sequences.iterator();
 		int stepsT = planner.sequences.size();
 		StringBuilder sb = new StringBuilder(100);
@@ -41,6 +52,8 @@ public class ComputeStaticRanking implements PipeOut{
 		Iterator<QueryTerm> qtItr = null;
 		String mappedDocId = null;
 		
+		Map<String, DocWeight> docWeightMap = new Hashtable<String, DocWeight>(250);
+
 		for ( int stepsIndex=0; stepsIndex<stepsT; stepsIndex++) {
 			
 			qts = stepsItr.next();
@@ -70,10 +83,10 @@ public class ComputeStaticRanking implements PipeOut{
  							sb.append(bucketId).append('_').append(docPos);
  							mappedDocId = sb.toString();
  							thisWt = (tl.termWeight[bytePos] * qt.preciousNess) + 1;
- 							if ( ctx.docweight.containsKey(mappedDocId) ) {
- 								ctx.docweight.put(mappedDocId, ctx.docweight.get(mappedDocId) + thisWt);
+							if ( docWeightMap.containsKey(mappedDocId) ) {
+								docWeightMap.get(mappedDocId).add(thisWt); 
  							} else {
- 								ctx.docweight.put(mappedDocId, thisWt); 								
+ 								docWeightMap.put(mappedDocId, new DocWeight(mappedDocId, thisWt) ); 								
  							}
  						}
  						tl.cleanup();
@@ -82,7 +95,7 @@ public class ComputeStaticRanking implements PipeOut{
 				}
 			}
 		}
-		return true;
+		return docWeightMap;
 	}
 	
 	public boolean commit() throws ApplicationFault, SystemFault {
