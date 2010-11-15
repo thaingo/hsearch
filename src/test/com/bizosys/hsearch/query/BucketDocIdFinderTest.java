@@ -56,7 +56,7 @@ public class BucketDocIdFinderTest extends TestCase {
 	public void testIndexRead() throws Exception  {
 
 		QueryContext ctx = new QueryContext("+Bizosys +Sunil Abinash");
-		QueryPlanner qp = processQuery(ctx);
+		QueryPlanner qp = processQuery(ctx).planner;
 		
 		if ( null != qp.mustTerms) {
 			for (QueryTerm term : qp.mustTerms) {
@@ -73,12 +73,14 @@ public class BucketDocIdFinderTest extends TestCase {
 	public void testWeighing() throws Exception  {
 
 		QueryContext ctx = new QueryContext("+Bizosys Sunil +Abinash");
-		QueryPlanner qp = processQuery(ctx);
+		HQuery query = processQuery(ctx);
+		QueryPlanner qp = query.planner;
 		
-		for ( String key : ctx.docweight.keySet() ) {
-			System.out.println(key + " : " + ctx.docweight.get(key).toString());
+		for ( Object docWt: query.result.sortedStaticWeights) {
+			DocWeight dw = (DocWeight )docWt;
+			System.out.println(dw.id + " : " + dw.wt);
 
-			List<NVBytes> values = HReader.getCompleteRow(IOConstants.TABLE_CONTENT, key.getBytes());
+			List<NVBytes> values = HReader.getCompleteRow(IOConstants.TABLE_CONTENT, dw.id.getBytes());
 			if ( null == values) continue;
 			for (NVBytes bytes : values) {
 				System.out.println(bytes.toString());
@@ -121,7 +123,7 @@ public class BucketDocIdFinderTest extends TestCase {
 		return hdoc;
 	}
 	
-	private QueryPlanner processQuery(QueryContext ctx) throws Exception {
+	private HQuery processQuery(QueryContext ctx) throws Exception {
 		QueryPlanner planner = new QueryPlanner();
 		HQuery query = new HQuery(ctx, planner);
 		
@@ -132,7 +134,7 @@ public class BucketDocIdFinderTest extends TestCase {
 		//new ComputeStaticRanking().visit(query);
 		//System.out.println( "Query Planner \n" + planner);
 		//System.out.println( "Query Context \n" + ctx);
-		return planner;
+		return query;
 	}
 	
 	private List<PipeIn> getStandardPipes() {
