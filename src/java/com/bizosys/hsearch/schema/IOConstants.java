@@ -2,10 +2,11 @@ package com.bizosys.hsearch.schema;
 
 public class IOConstants {
 
-	public static final String TABLE_CONTENT = "content";
-	public static final String TABLE_IDMAP = "idmap";
-	public static final String TABLE_CONFIG = "config";
 	public static final String TABLE_DICTIONARY = "dictionary";
+	public static final String TABLE_IDMAP = "idmap";
+	public static final String TABLE_PREVIEW = "preview";
+	public static final String TABLE_CONTENT = "content";
+	public static final String TABLE_CONFIG = "config";
 
 	/**
 	 * Read this IO Section During Search
@@ -18,13 +19,6 @@ public class IOConstants {
 
 	public static final String META = "m";
 	public static final byte[] META_BYTES = META.getBytes();
-
-	public static final String SOCIAL = "s";
-	public static final byte[] SOCIAL_BYTES = SOCIAL.getBytes();
-
-	public static final String BUCKET = "b";
-	public static final byte[] BUCKET_BYTES = BUCKET.getBytes();
-
 	
 	/**
 	 * Read this Section During Search Page Display

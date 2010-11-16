@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.common;
+package com.bizosys.hsearch.filter;
 
 /**
  * TODO:: Allow the regular expression here.
@@ -28,35 +28,35 @@ public class Access {
 	}
 	 
 	 public void addAnonymous() {
-		 list.add(new Storable(UIDC + ANY) );
+		 list.add((UIDC + ANY).getBytes() );
 	}
 	
 	public void addAcl(String acl) {
-		 list.add(new Storable(acl));
+		 list.add(acl.getBytes());
 	}
 	
 	public void addUid(String uid) {
-		list.add(new Storable(UIDC + uid) );
+		list.add((UIDC + uid).getBytes() );
 	}
 	
 	public void addRole(String role) {
-		list.add(new Storable(ROLEC + role) );
+		list.add((ROLEC + role).getBytes() );
 	}
 
 	public void addTeam(String team) {
-		list.add(new Storable(TEAMC + team) );
+		list.add((TEAMC + team).getBytes() );
 	}
 
 	public void addOrgUnit(String ou) {
-		list.add(new Storable(OUC + ou) );
+		list.add((OUC + ou).getBytes() );
 	}
 
 	public void addOrgUnitAndUid(String ou, String uid) {
-		list.add(new Storable(OU_UIDC + ou + "." + uid) );
+		list.add((OU_UIDC + ou + "." + uid).getBytes() );
 	}
 	
 	public void addOrgUnitAndRole(String ou, String role) {
-		list.add(new Storable(OU_ROLEC + ou + "." + role) );
+		list.add((OU_ROLEC + ou + "." + role).getBytes() );
 	}
 	
 	public StorableList getAccessList() {

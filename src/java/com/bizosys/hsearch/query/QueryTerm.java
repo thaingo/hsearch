@@ -15,6 +15,7 @@ import com.bizosys.hsearch.schema.ILanguageMap;
 public class QueryTerm implements Comparator<QueryTerm> {
 	
 	public String wordOrig = null;
+	public String wordOrigLower = null;
 	public String wordStemmed = null;
 	
 	public boolean isOptional = true;
@@ -44,6 +45,7 @@ public class QueryTerm implements Comparator<QueryTerm> {
 	public void setTerm(String fld, String val, int matchingType){
 		val = val.replace('_', ' ').trim();
 		this.wordOrig = val;
+		this.wordOrigLower = this.wordOrig.toLowerCase();
 		if ( null != fld ) {
 			this.isTermType = true;
 			this.termType = fld;

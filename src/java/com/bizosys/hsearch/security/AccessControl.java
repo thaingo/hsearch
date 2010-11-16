@@ -4,9 +4,9 @@ import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.util.StringUtils;
 
-import com.bizosys.hsearch.common.Access;
 import com.bizosys.hsearch.common.Storable;
-import com.bizosys.hsearch.common.StorableList;
+import com.bizosys.hsearch.filter.Access;
+import com.bizosys.hsearch.filter.StorableList;
 
 public class AccessControl {
 	

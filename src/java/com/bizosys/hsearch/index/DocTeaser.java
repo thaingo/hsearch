@@ -11,6 +11,7 @@ import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.NV;
+import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.hsearch.util.UrlMapper;
 
@@ -67,26 +68,26 @@ public class DocTeaser {
 		this.preview =  aDoc.preview;
 	}
 	
-	public DocTeaser (List<ByteField> inputBytes) throws ApplicationFault {
-		
-		for (ByteField fld : inputBytes) {
-			switch(fld.name.charAt(0)) {
+	public DocTeaser (byte[] id, List<NVBytes> inputBytes) throws ApplicationFault {
+		this.id = new Storable(id, Storable.BYTE_STRING);
+		for (NVBytes fld : inputBytes) {
+			switch(fld.name[0]) {
 				case IOConstants.TEASER_URL:
-					String codedUrl = Storable.getString(fld.toBytes());
+					String codedUrl = Storable.getString(fld.data);
 					setUrl(UrlMapper.getInstance().decoding(codedUrl));
 					break;
 				case IOConstants.TEASER_TITLE:
-					setTitle(Storable.getString(fld.toBytes()));
+					setTitle(Storable.getString(fld.data));
 					break;
 				case IOConstants.TEASER_CACHE:
-					setCacheText(Storable.getString(fld.toBytes()));
+					setCacheText(Storable.getString(fld.data));
 					break;
 				case IOConstants.TEASER_PREVIEW:
-					setPreview(Storable.getString(fld.toBytes()));
+					setPreview(Storable.getString(fld.data));
 					break;
 			}
 		}
-	}	
+	}
 
 	public void toNVs(List<NV> nvs) throws ApplicationFault {
 

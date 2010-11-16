@@ -95,6 +95,33 @@ public class HReader {
 		}
 	}
 	
+	public static byte[] getScalar (String tableName, 
+			byte[] family, byte[] col, byte[] pk) throws ApplicationFault{
+		
+		if ( null == family || null == col || null == pk ) return null;
+		
+		HBaseFacade facade = null;
+		HTableWrapper table = null;
+		try {
+			facade = HBaseFacade.getInstance();
+			table = facade.getTable(tableName);
+			Get getter = new Get(pk);
+			Result result = table.get(getter);
+			return result.getValue(family, col);
+		} catch (Exception ex) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Input during exception = Table : [").append(tableName);
+			sb.append("] , Family : [").append(Storable.getString(family));
+			sb.append("] , Column : [").append(Storable.getString(col));
+			sb.append("] , Key : [").append(Storable.getString(pk));
+			sb.append(']');
+			throw new ApplicationFault(sb.toString(), ex);
+		} finally {
+			if ( null != facade && null != table) facade.putTable(table);
+		}
+	}
+	
+	
 	public static void getAllValues(String tableName, NV kv, IScanCallBack callback ) 
 		throws ApplicationFault {
 		

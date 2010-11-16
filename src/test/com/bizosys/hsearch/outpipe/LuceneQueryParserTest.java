@@ -167,31 +167,31 @@ public class LuceneQueryParserTest extends TestCase {
 	public void testOrgunitFilter() throws Exception  {
 		QueryContext ctx = new QueryContext("ou:icici abinash");
 		parseQuery(ctx); 
-		assertEquals("icici", Storable.getString(ctx.orgUnit.toBytes()) );
+		assertEquals("icici", Storable.getString(ctx.tenant.toBytes()) );
 	}
 
 	public void testBornBeforeFilter() throws Exception  {
 		QueryContext ctx = new QueryContext("bornb:1145353454334 abinash");
 		parseQuery(ctx); 
-		assertEquals(1145353454334L, ctx.bornBefore.longValue());
+		assertEquals(1145353454334L, ctx.createdBefore.longValue());
 	}
 
 	public void testBornAfterFilter() throws Exception  {
 		QueryContext ctx = new QueryContext("borna:2165353454334 abinash");
 		parseQuery(ctx); 
-		assertEquals(2165353454334L, ctx.bornAfter.longValue());
+		assertEquals(2165353454334L, ctx.createdAfter.longValue());
 	}
 
 	public void testTouchAfterFilter() throws Exception  {
 		QueryContext ctx = new QueryContext("toucha:1145353454334 abinash");
 		parseQuery(ctx); 
-		assertEquals(1145353454334L, ctx.touchAfter.longValue());
+		assertEquals(1145353454334L, ctx.modifiedAfter.longValue());
 	}
 
 	public void testTouchBeforeFilter() throws Exception  {
 		QueryContext ctx = new QueryContext("touchb:2165353454334 abinash");
 		parseQuery(ctx); 
-		assertEquals(2165353454334L, ctx.touchBefore.longValue());
+		assertEquals(2165353454334L, ctx.modifiedBefore.longValue());
 	}
 	
 	public void testAreaInKmRadiusFilter() throws Exception  {

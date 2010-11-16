@@ -19,16 +19,14 @@ public class QueryPlanner {
 	public void addMustTerm(QueryTerm aTerm) {
 		aTerm.isOptional = false;
 		if ( null != aTerm.wordOrig) sb.append(aTerm.wordOrig).append(' ');
-		if ( null == mustTerms) mustTerms = 
-			new ArrayList<QueryTerm>();
+		if ( null == mustTerms) mustTerms = new ArrayList<QueryTerm>();
 		mustTerms.add(aTerm);
 	}
 	
 	public void addOptionalTerm(QueryTerm aTerm) {
 		aTerm.isOptional = true;
 		if ( null != aTerm.wordOrig) sb.append(aTerm.wordOrig).append(' ');
-		if ( null == optionalTerms) optionalTerms = 
-			new ArrayList<QueryTerm>();
+		if ( null == optionalTerms) optionalTerms = new ArrayList<QueryTerm>();
 		optionalTerms.add(aTerm);
 	}
 	

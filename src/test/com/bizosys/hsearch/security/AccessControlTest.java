@@ -6,8 +6,8 @@ import junit.framework.TestCase;
 
 
 import com.bizosys.ferrari.TestFerrari;
-import com.bizosys.hsearch.common.Access;
-import com.bizosys.hsearch.common.StorableList;
+import com.bizosys.hsearch.filter.Access;
+import com.bizosys.hsearch.filter.StorableList;
 import com.bizosys.hsearch.security.AccessControl;
 import com.bizosys.hsearch.security.WhoAmI;
 

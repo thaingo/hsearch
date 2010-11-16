@@ -20,11 +20,11 @@ public class DocMetaTest extends TestCase {
 		DocMeta meta = new DocMeta();
 		meta.docType = type;
 		meta.state = state;
-		meta.orgUnit = orgunit;
+		meta.tenant = orgunit;
 		meta.geoHouse= geohouse;
-		meta.bornOn = new Date(created);
+		meta.createdOn = new Date(created);
 		meta.modifiedOn = new Date(modified);
-		meta.deathOn = new Date(validTill);
+		meta.validTill = new Date(validTill);
 		meta.securityHigh = secuity;
 		meta.sentimentPositive = sentiment;
 		
@@ -33,12 +33,12 @@ public class DocMetaTest extends TestCase {
 		
 		assertEquals(type, deserialized.docType);
 		assertEquals(state, deserialized.state);
-		assertEquals(orgunit, deserialized.orgUnit);
+		assertEquals(orgunit, deserialized.tenant);
 		assertEquals(geohouse, deserialized.geoHouse);
 
-		assertEquals(created.longValue(), deserialized.bornOn.getTime());
+		assertEquals(created.longValue(), deserialized.createdOn.getTime());
 		assertEquals(modified.longValue(), deserialized.modifiedOn.getTime());
-		assertEquals(validTill.longValue(), deserialized.deathOn.getTime());
+		assertEquals(validTill.longValue(), deserialized.validTill.getTime());
 		
 		assertEquals(secuity.booleanValue(), deserialized.securityHigh);
 		assertEquals(sentiment.booleanValue(), deserialized.sentimentPositive);

@@ -71,5 +71,7 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="hbase/lib/hsearch-0.89-termfilter.jar"/>
 	<classpathentry kind="lib" path="hbase/lib/hadoop-gpl-compression-0.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache-core-2.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.5.11.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

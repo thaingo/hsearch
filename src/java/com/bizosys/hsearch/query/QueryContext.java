@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.hsearch.util.GeoId;
@@ -15,11 +14,6 @@ import com.bizosys.oneline.util.StringUtils;
 public class QueryContext {
 	
 	public String id = null;
-
-	public QueryContext(String queryString) throws ApplicationFault {
-		this.queryString = queryString;
-	}
-
 
 	/* ************************************************
 	 * Who and When this querying happend *****
@@ -48,10 +42,15 @@ public class QueryContext {
 	 * ***********************************************/
 
 	/**
-	 * Query terms Must and optional
+	 * Query term as it is..
 	 */
 	public String queryString = null;
 	
+	/**
+	 * Scroll till (This is a number based on the page
+	 */
+	public int scroll = 0;
+
 	/**
 	 * The document type which needs to be scanned
 	 * Table Name / File Extension / Dna Name   
@@ -73,27 +72,19 @@ public class QueryContext {
 	/**
 	 * Just the department (HR, PRODUCTION)
 	 */
-	public Storable orgUnit = null;
+	public Storable tenant = null;
 
 	/**
-	 * Born Before Date
+	 * Original Document Creation time
 	 */
-	public Long bornBefore = null;
+	public Long createdAfter = null;
+	public Long createdBefore = null;
 
 	/**
-	 * Born After Date
+	 * Document modification time
 	 */
-	public Long bornAfter = null;
-
-	/**
-	 * Touched After Date
-	 */
-	public Long touchAfter = null;
-
-	/**
-	 * Touched Before Date
-	 */
-	public Long touchBefore = null;
+	public Long modifiedAfter = null;
+	public Long modifiedBefore = null;
 	
 	/**
 	 * Area proximity where things will be looked into.
@@ -109,33 +100,7 @@ public class QueryContext {
 	 * The latitude, longitude
 	 */
 	private GeoId geoId = null;
-	public void setGeoId(GeoId geoId){
-		this.geoId = geoId;
-	}
-	
-	public GeoId getGeoId() throws ApplicationFault {
-		if ( null != geoId) return geoId;
-		
-		if ( null == this.ipAddress 
-			|| "0.0.0.0".equals(this.ipAddress)
-			|| "127.0.0.1".equals(this.ipAddress)
-			|| "localhost".equals(this.ipAddress)) {
-			return null;
-		}
-			
-		int ip = IpUtil.computeHouse(this.ipAddress);
-		Location loc = null;
-		try {
-			loc = new GeoService().getLocation(ip);
-		} catch (Exception ex) {
-			L.l.fatal("outflow.QueryContext GeoService Invocation Failure", ex);
-			throw new ApplicationFault(ex);
-		}
-			
-		if ( null == loc) return null;
-		geoId = GeoId.convertLatLng(loc.latitude, loc.longitude);
-		return geoId; 
-	}	
+
 
 	/* ************************************************
 	 * How to Rank *****
@@ -169,13 +134,6 @@ public class QueryContext {
 	public static String CLUSTER_STRUCTURE = "structure";
 	public Map<String, String> cluster = null; //orgUnit=META
 	
-	/**
-	 * A analysis report on the QueryContext
-	 */
-	public Map<byte[][], byte[]> equalsMatching = null;
-	public Map<byte[][], Long> lessThanMatching = null;
-	public Map<byte[][], Long> greaterThanMatching = null;
-	public Map<ByteField, Integer> metaMatching = null;
 	public boolean isTouchStone = false;
 	public int totalTerms = 0;
 	
@@ -185,15 +143,37 @@ public class QueryContext {
 	public boolean isOrgUnit = false;
 	public boolean isDocType = false;
 	
-	/**
-	 * Matching phrases.. They are needed to compute the teaser.
-	 */
-	public String allMatchPhrase = null;
-	public String twoMatchPhrase = null;
-	public String firstMatchPhrase = null;
-	public String getAllMatchPhrase() {
-		return allMatchPhrase;
+	public QueryContext(String queryString) throws ApplicationFault {
+		this.queryString = queryString;
 	}
+	
+	public void setGeoId(GeoId geoId){
+		this.geoId = geoId;
+	}
+	
+	public GeoId getGeoId() throws ApplicationFault {
+		if ( null != geoId) return geoId;
+		
+		if ( null == this.ipAddress 
+			|| "0.0.0.0".equals(this.ipAddress)
+			|| "127.0.0.1".equals(this.ipAddress)
+			|| "localhost".equals(this.ipAddress)) {
+			return null;
+		}
+			
+		int ip = IpUtil.computeHouse(this.ipAddress);
+		Location loc = null;
+		try {
+			loc = new GeoService().getLocation(ip);
+		} catch (Exception ex) {
+			L.l.fatal("outflow.QueryContext GeoService Invocation Failure", ex);
+			throw new ApplicationFault(ex);
+		}
+			
+		if ( null == loc) return null;
+		geoId = GeoId.convertLatLng(loc.latitude, loc.longitude);
+		return geoId; 
+	}		
 	
 	/**
 	 * This populates the query Context element from the 
@@ -217,23 +197,29 @@ public class QueryContext {
 		case ReserveQueryWord.RESERVE_docType:
 			this.docType = value;
 			break;
+			
+		case ReserveQueryWord.RESERVE_scroll:
+			this.scroll = new Integer(value);
+			if ( this.scroll < 0 ) this.scroll = 0;
+			break;
+			
 		case ReserveQueryWord.RESERVE_state:
 			this.state = new Storable(value);
 			break;
 		case ReserveQueryWord.RESERVE_orgunit:
-			this.orgUnit = new Storable(value);
+			this.tenant = new Storable(value);
 			break;
 		case ReserveQueryWord.RESERVE_bornBefore:
-			this.bornBefore = Long.parseLong(value);
+			this.createdBefore = Long.parseLong(value);
 			break;
 		case ReserveQueryWord.RESERVE_bornAfter:
-			this.bornAfter = Long.parseLong(value);
+			this.createdAfter = Long.parseLong(value);
 			break;
 		case ReserveQueryWord.RESERVE_touchAfter:
-			this.touchAfter = Long.parseLong(value);
+			this.modifiedAfter = Long.parseLong(value);
 			break;
 		case ReserveQueryWord.RESERVE_touchBefore:
-			this.touchBefore = Long.parseLong(value);
+			this.modifiedBefore = Long.parseLong(value);
 			break;
 		case ReserveQueryWord.RESERVE_areaInKmRadius:
 			this.areaInKmRadius = Integer.parseInt(value);
@@ -381,11 +367,11 @@ public class QueryContext {
 		if ( null != queryString  ) sb.append("queryString =").append(queryString).append('\n');
 		if ( null != docType   ) sb.append("docType  =").append(docType).append('\n');
 		if ( null != state    ) sb.append("state   =").append(state.getValue()  ).append('\n');
-		if ( null != orgUnit   ) sb.append("orgUnit  =").append(orgUnit.getValue() ).append('\n');
-		if ( null != bornBefore   ) sb.append("bornBefore  =").append(new Date(bornBefore).toString() ).append('\n');
-		if ( null != bornAfter    ) sb.append("bornAfter   =").append(new Date(bornAfter ).toString() ).append('\n');
-		if ( null != touchAfter    ) sb.append("touchAfter   =").append(new Date(touchAfter ).toString() ).append('\n');
-		if ( null != touchBefore    ) sb.append("touchBefore   =").append(new Date(touchBefore ).toString() ).append('\n');
+		if ( null != tenant   ) sb.append("orgUnit  =").append(tenant.getValue() ).append('\n');
+		if ( null != createdBefore   ) sb.append("bornBefore  =").append(new Date(createdBefore).toString() ).append('\n');
+		if ( null != createdAfter    ) sb.append("bornAfter   =").append(new Date(createdAfter ).toString() ).append('\n');
+		if ( null != modifiedAfter    ) sb.append("touchAfter   =").append(new Date(modifiedAfter ).toString() ).append('\n');
+		if ( null != modifiedBefore    ) sb.append("touchBefore   =").append(new Date(modifiedBefore ).toString() ).append('\n');
 		if ( -1 != areaInKmRadius  ) sb.append("areaInKmRadius    =").append(areaInKmRadius).append('\n');
 		if ( null != matchIp    ) sb.append("matchIp =").append(matchIp  ).append('\n');
 		if ( null != geoId ) sb.append("geoId  =").append(geoId.toString()   ).append('\n');

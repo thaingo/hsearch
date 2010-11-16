@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.bizosys.hsearch.filter.Access;
+
 
 public class HDocument {
 
@@ -98,12 +100,12 @@ public class HDocument {
 	/**
 	 * These are author keywords or meta section of the page
 	 */
-	public List<String> authorKeywords = null;
+	public List<String> tags = null;
 
 	/**
 	 * These are user keywords formed from the search terms
 	 */
-	public List<String> readerKeywords = null;
+	public List<String> socialText = null;
 
 	
 	/**

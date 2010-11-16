@@ -49,13 +49,13 @@ public class BucketDocIdFinderTest extends TestCase {
 		BucketDocIdFinderTest t = new BucketDocIdFinderTest();
 		
         //TestFerrari.testRandom(t);
-		//t.populateDevelopers();
+		t.populateDevelopers();
 		t.testWeighing();
 	}
 
 	public void testIndexRead() throws Exception  {
 
-		QueryContext ctx = new QueryContext("+Bizosys +Sunil Abinash");
+		QueryContext ctx = new QueryContext("bizosys");
 		QueryPlanner qp = processQuery(ctx).planner;
 		
 		if ( null != qp.mustTerms) {
@@ -72,20 +72,26 @@ public class BucketDocIdFinderTest extends TestCase {
 	
 	public void testWeighing() throws Exception  {
 
-		QueryContext ctx = new QueryContext("+Bizosys Sunil +Abinash");
+		QueryContext ctx = new QueryContext("Karana bizosys abinasha");
 		HQuery query = processQuery(ctx);
 		QueryPlanner qp = query.planner;
 		
+		StringBuilder sb = new StringBuilder();
 		for ( Object docWt: query.result.sortedStaticWeights) {
 			DocWeight dw = (DocWeight )docWt;
-			System.out.println(dw.id + " : " + dw.wt);
-
+			sb.append("\nStatic Ranking: ").append(dw.id).append(" , ").append(dw.wt);
+ 		}
+		for ( Object docWt: query.result.sortedStaticWeights) {
+			DocWeight dw = (DocWeight )docWt;
+			sb.append("\n---------").append(dw.id);
 			List<NVBytes> values = HReader.getCompleteRow(IOConstants.TABLE_CONTENT, dw.id.getBytes());
 			if ( null == values) continue;
 			for (NVBytes bytes : values) {
-				System.out.println(bytes.toString());
+				sb.append('\n').append(bytes.toString());
 			}
  		}
+		
+		System.out.println(sb.toString());
 	}
 
 	public void populateDevelopers() throws Exception {

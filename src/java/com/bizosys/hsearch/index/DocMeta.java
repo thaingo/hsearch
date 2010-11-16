@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.util.StringUtils;
-
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.util.StringUtils;
 
 /**
  * An empty meta is currently only 6 byte length.
@@ -31,7 +31,7 @@ public class DocMeta implements IStorable, IDimension {
 	 * Just the Organization Unit (HR, PRODUCTION, SI)
 	 * If there are multi level separate it with \ or .
 	 */
-	public String orgUnit = null;
+	public String tenant = null;
 
 	/**
 	 * Northing of a place
@@ -66,18 +66,18 @@ public class DocMeta implements IStorable, IDimension {
 	/**
 	 * These are author keywords or meta section of the page
 	 */
-	public List<String> authorKeywords = null;
+	public String tags = null;
 
 	/**
 	 * These are user keywords formed from the search terms
 	 */
-	public List<String> readerKeywords = null;
+	public String socialText = null;
 
 	
 	/**
 	 * Which date the document is created. 
 	 */
-	public Date bornOn = null;
+	public Date createdOn = null;
 
 	/**
 	 * Which date the document is last updated. 
@@ -85,9 +85,9 @@ public class DocMeta implements IStorable, IDimension {
 	public Date modifiedOn = null;
 	
 	/**
-	 * When the document is scheduled to die or died
+	 * Till what date this document is valid
 	 */
-	public Date deathOn = null;
+	public Date validTill = null;
 	
 	/**
 	 * From which IP address is this document created. 
@@ -117,15 +117,17 @@ public class DocMeta implements IStorable, IDimension {
 	}
 	
 	public DocMeta(HDocument meta) {
-		this.authorKeywords = meta.authorKeywords;
-		this.bornOn = meta.bornOn;
-		this.deathOn = meta.deathOn;
+		if ( null != meta.tags) 
+			this.tags  = StringUtils.listToString(meta.tags, '\t') ;
+		this.createdOn = meta.bornOn;
+		this.validTill = meta.deathOn;
 		this.docType = meta.docType;
 		this.eastering = meta.eastering;
 		this.modifiedOn = meta.modifiedOn;
 		this.northing = meta.northing;
-		this.orgUnit = meta.tenant;
-		this.readerKeywords = meta.readerKeywords;
+		this.tenant = meta.tenant;
+		if ( null != meta.socialText) 
+			this.socialText = StringUtils.listToString(meta.socialText, '\t') ;
 		this.securityHigh = meta.securityHigh;
 		this.sentimentPositive = meta.sentimentPositive;
 		this.state = meta.state;
@@ -160,7 +162,7 @@ public class DocMeta implements IStorable, IDimension {
 		pos++;
 		byte[] orgUnitB = new byte[orgUnitLen];
 		System.arraycopy(bytes, pos, orgUnitB, 0, orgUnitLen);
-		this.orgUnit = Storable.getString(orgUnitB);
+		this.tenant = Storable.getString(orgUnitB);
 		pos = pos + orgUnitLen;
 		
 		byte geoHouseLen = bytes[pos];
@@ -203,34 +205,24 @@ public class DocMeta implements IStorable, IDimension {
 		if (flag_1[bitPos++]) {
 			short len = Storable.getShort(pos, bytes);
 			pos = pos + 2;
-			byte[] keywords = new byte[len];
-			System.arraycopy(bytes, pos, keywords, 0, len);
-
-		    StringTokenizer tokenizer = new StringTokenizer (Storable.getString(keywords),"\t");
-		    this.authorKeywords = new ArrayList<String>();
-		    while (tokenizer.hasMoreTokens()) {
-		    	this.authorKeywords.add(tokenizer.nextToken());
-		    }			
-			pos = pos+ keywords.length;
+			byte[] tagsB = new byte[len];
+			System.arraycopy(bytes, pos, tagsB, 0, len);
+		    this.tags = Storable.getString(tagsB);
+			pos = pos + tagsB.length;
 		}
 		
 		if (flag_1[bitPos++]) {
 			short len = Storable.getShort(pos, bytes);
 			pos = pos + 2;
-			byte[] keywords = new byte[len];
-			System.arraycopy(bytes, pos, keywords, 0, len);
-
-		    StringTokenizer tokenizer = new StringTokenizer (Storable.getString(keywords),"\t");
-		    this.readerKeywords = new ArrayList<String>();
-		    while (tokenizer.hasMoreTokens()) {
-		    	this.readerKeywords.add(tokenizer.nextToken());
-		    }			
-			pos = pos+ keywords.length;
+			byte[] socialTextB = new byte[len];
+			System.arraycopy(bytes, pos, socialTextB, 0, len);
+		    this.socialText = Storable.getString(socialTextB);
+			pos = pos + socialTextB.length;
 		}
 		
 		bitPos = 0;
 		if (flag_2[bitPos++]) {
-			this.bornOn = new Date(Storable.getLong(pos, bytes));
+			this.createdOn = new Date(Storable.getLong(pos, bytes));
 			pos = pos+ 8;
 		}
 		
@@ -240,7 +232,7 @@ public class DocMeta implements IStorable, IDimension {
 		}
 		
 		if (flag_2[bitPos++]) {
-			this.deathOn = new Date(Storable.getLong(pos, bytes));
+			this.validTill = new Date(Storable.getLong(pos, bytes));
 			pos = pos+ 8;
 		}
 	}
@@ -279,8 +271,8 @@ public class DocMeta implements IStorable, IDimension {
 		
 		byte orgUnitLen = (byte) 0;
 		byte[] orgUnitB = null;
-		if ( null != this.orgUnit) {
-			orgUnitB = Storable.putString(this.orgUnit);
+		if ( null != this.tenant) {
+			orgUnitB = Storable.putString(this.tenant);
 			orgUnitLen = (byte) orgUnitB.length;
 		}
 		
@@ -319,27 +311,25 @@ public class DocMeta implements IStorable, IDimension {
 			iphouseB = Storable.putInt(this.ipHouse);
 		}
 		
-		boolean isAuthorKeywords = false;
-		byte[] authKeywordsB = null;
-		if ( null != this.authorKeywords ) {
-			isAuthorKeywords = true;
-			authKeywordsB = Storable.putString( 
-				StringUtils.listToString(this.authorKeywords, '\t') );
+		boolean isTags = false;
+		byte[] tagsB = null;
+		if ( null != this.tags ) {
+			isTags = true;
+			tagsB = Storable.putString(this.tags);
 		}
 		
-		boolean isReaderKeywords = false;
-		byte[] readerKeywordsB = null;
-		if ( null != this.readerKeywords ) {
-			isReaderKeywords = true;
-			readerKeywordsB = Storable.putString( 
-				StringUtils.listToString(this.readerKeywords, '\t') );
-		}		
+		boolean isSocialText = false;
+		byte[] socialTextB = null;
+		if ( null != this.socialText ) {
+			isSocialText = true;
+			socialTextB  = Storable.putString(this.socialText);
+		}
 		
 		boolean isBornOn = false;
 		byte[] bornOnB = null;
-		if ( null != this.bornOn) {
+		if ( null != this.createdOn) {
 			isBornOn = true;
-			bornOnB = Storable.putLong(this.bornOn.getTime());
+			bornOnB = Storable.putLong(this.createdOn.getTime());
 		}
 		
 		boolean isModifiedOn = false;
@@ -351,13 +341,13 @@ public class DocMeta implements IStorable, IDimension {
 		
 		boolean isDeathOn = false;
 		byte[] deathOnB = null;
-		if ( null != this.deathOn) {
+		if ( null != this.validTill) {
 			isDeathOn = true;
-			deathOnB = Storable.putLong(this.deathOn.getTime());
+			deathOnB = Storable.putLong(this.validTill.getTime());
 		}
 		
 		byte flag_1 = Storable.bitsToByte(new boolean[] {
-			isEastering, isNorthing, isWeight, isIpHouse, securityHigh, sentimentPositive, isAuthorKeywords, isReaderKeywords});
+			isEastering, isNorthing, isWeight, isIpHouse, securityHigh, sentimentPositive, isTags, isSocialText});
 		
 		byte flag_2 = Storable.bitsToByte(new boolean[] {
 			isBornOn, isModifiedOn, isDeathOn, false, false, false, false, false});
@@ -370,10 +360,9 @@ public class DocMeta implements IStorable, IDimension {
 		if ( isNorthing ) totalBytes = totalBytes + 4;
 		if ( isWeight  ) totalBytes = totalBytes + 4;
 		if ( isIpHouse  ) totalBytes = totalBytes + 4;
-		if ( isAuthorKeywords  ) totalBytes = 
-			totalBytes + authKeywordsB.length + 2;
-		if ( isReaderKeywords ) totalBytes = 
-			totalBytes + readerKeywordsB.length + 2;
+		if ( isTags  ) totalBytes = totalBytes + tagsB.length + 2;
+		if ( isSocialText ) totalBytes = 
+			totalBytes + socialTextB.length + 2;
 			
 		if ( isBornOn ) totalBytes = totalBytes + 8;
 		if ( isModifiedOn ) totalBytes = totalBytes + 8;
@@ -431,18 +420,18 @@ public class DocMeta implements IStorable, IDimension {
 			pos = pos+ 4;
 		}
 		
-		if (isAuthorKeywords) {
-			System.arraycopy(Storable.putShort((short)authKeywordsB.length), 0, bytes, pos, 2);
+		if (isTags) {
+			System.arraycopy(Storable.putShort((short)tagsB.length), 0, bytes, pos, 2);
 			pos = pos + 2;
-			System.arraycopy(authKeywordsB, 0, bytes, pos, authKeywordsB.length);
-			pos = pos+ authKeywordsB.length;
+			System.arraycopy(tagsB, 0, bytes, pos, tagsB.length);
+			pos = pos+ tagsB.length;
 		}
 		
-		if (isReaderKeywords) {
-			System.arraycopy(Storable.putShort((short)readerKeywordsB.length), 0, bytes, pos, 2);
+		if (isSocialText) {
+			System.arraycopy(Storable.putShort((short)socialTextB.length), 0, bytes, pos, 2);
 			pos = pos + 2;
-			System.arraycopy(readerKeywordsB, 0, bytes, pos, readerKeywordsB.length);
-			pos = pos+ readerKeywordsB.length;
+			System.arraycopy(socialTextB, 0, bytes, pos, socialTextB.length);
+			pos = pos+ socialTextB.length;
 		}
 		
 		if (isBornOn) {
@@ -468,25 +457,17 @@ public class DocMeta implements IStorable, IDimension {
 	 */
 	public void cleanup() {
 		this.state = null;
-		this.orgUnit = null;
+		this.tenant = null;
 		this.northing = 0.0f;
 		this.eastering = 0.0f;
 		this.weight = 0;
 		this.docType = null;
 		this.securityHigh = false;
-		if ( null != authorKeywords ) {
-			this.authorKeywords.clear();
-			this.authorKeywords = null;
-		}
-		
-		if ( null != readerKeywords ) {
-			this.readerKeywords.clear();
-			this.readerKeywords = null;
-		}
-		this.bornOn = null;
+		this.tags = null;
+		this.socialText = null;
+		this.createdOn = null;
 		this.modifiedOn = null;
-		this.deathOn = null;
-		
+		this.validTill = null;
 		this.ipHouse = 0;
 		this.geoHouse = null;
 	}
@@ -495,20 +476,16 @@ public class DocMeta implements IStorable, IDimension {
 	public String toString() {
 		StringBuilder writer = new StringBuilder();
 		writer.append("<m>");
-		if ( null != this.authorKeywords) {
-			writer.append("<a>");
-			writer.append(StringUtils.listToString(this.authorKeywords, '\t'));
-			writer.append("</a>");
+		if ( null != this.tags) {
+			writer.append("<a>").append(this.tags).append("</a>");
 		}
-		if ( null != this.bornOn ) writer.append("<b>").append(this.bornOn.toString()).append("</b>");
-		if ( null != this.deathOn) writer.append("<d>").append(this.deathOn.toString()).append("</d>");
+		if ( null != this.createdOn ) writer.append("<b>").append(this.createdOn.toString()).append("</b>");
+		if ( null != this.validTill) writer.append("<d>").append(this.validTill.toString()).append("</d>");
 		if ( StringUtils.isNonEmpty(this.geoHouse) ) writer.append("<g>").append(this.geoHouse).append("</g>");
 		if ( null != this.modifiedOn) writer.append("<m>").append(this.modifiedOn.toString()).append("</m>");
-		if ( StringUtils.isNonEmpty(this.orgUnit) ) writer.append("<o>").append(this.orgUnit).append("</o>");
-		if ( null != this.readerKeywords) {
-			writer.append("<r>");
-			writer.append(StringUtils.listToString(this.readerKeywords, '\t'));
-			writer.append("</r>");
+		if ( StringUtils.isNonEmpty(this.tenant) ) writer.append("<o>").append(this.tenant).append("</o>");
+		if ( null != this.socialText) {
+			writer.append("<r>").append(this.socialText).append("</r>");
 		}
 		if ( StringUtils.isNonEmpty(this.state) ) writer.append("<s>").append(this.state).append("</s>");
 		if ( StringUtils.isNonEmpty(this.docType) ) writer.append("<t>").append(this.docType).append("</t>");
@@ -518,18 +495,46 @@ public class DocMeta implements IStorable, IDimension {
 		return writer.toString();
 	}
 
-	public void addAuthorKeywords(List<String> keywordsToAdd) {
-		if (this.authorKeywords == null) this.authorKeywords = keywordsToAdd;
-		else this.authorKeywords.addAll(keywordsToAdd);
-	}
-
-	public void addReaderKeywords(List<String> keywordsToAdd) {
-		if (this.readerKeywords == null) this.readerKeywords = keywordsToAdd;
-		else this.readerKeywords.addAll(keywordsToAdd);
-	}
-
 	public void toNVs(List<NV> nvs) throws ApplicationFault {
 		nvs.add(new NV(IOConstants.SEARCH_BYTES,IOConstants.META_BYTES, this));
-		
+	}
+	
+	public void addTags(List<String> tagL) {
+		if (this.tags == null) {
+			this.tags = StringUtils.listToString(tagL, '\t') ; 
+		} else {
+			this.tags = this.tags + '\t' +  
+				StringUtils.listToString(tagL, '\t') ;
+		}
+	}
+
+	public List<String> getTags() {
+		if ( null == tags) return null;
+		List<String> tagL = new ArrayList<String>();
+		StringTokenizer tokenizer = new StringTokenizer(tags,"\t");
+	    while (tokenizer.hasMoreTokens()) {
+	    	tagL.add(tokenizer.nextToken());
+	    }
+	    return tagL;
+	}
+	
+	
+	public void addSocialText(List<String> socialText) {
+		if (this.socialText == null) {
+			this.socialText = StringUtils.listToString(socialText, '\t') ; 
+		} else {
+			this.socialText = this.socialText + '\t' +  
+				StringUtils.listToString(socialText, '\t') ;
+		}
+	}
+
+	public List<String> getSocialText() {
+		if ( null == socialText) return null;
+		List<String> socialTextL = new ArrayList<String>();
+		StringTokenizer tokenizer = new StringTokenizer(socialText,"\t");
+	    while (tokenizer.hasMoreTokens()) {
+	    	socialTextL.add(tokenizer.nextToken());
+	    }
+	    return socialTextL;
 	}
 }

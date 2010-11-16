@@ -17,8 +17,6 @@ public class ReserveQueryWord {
 	public static final int NO_RESERVE_WORD = -1;
 	
 	public static final int RESERVE_id = 0;
-	public static final int RESERVE_isDeadDocuments = 1;
-	public static final int RESERVE_isLiveDocuments = 2;
 	public static final int RESERVE_docType = 3;
 	public static final int RESERVE_state = 4;
 	public static final int RESERVE_orgunit = 5;
@@ -29,7 +27,7 @@ public class ReserveQueryWord {
 	public static final int RESERVE_areaInKmRadius = 10;
 	public static final int RESERVE_matchIp = 11;
 	public static final int RESERVE_latlng = 12;
-	//public static final int RESERVE_lng = 13;
+	public static final int RESERVE_scroll = 13;
 	public static final int RESERVE_boostTermWeight = 14;
 	public static final int RESERVE_boostDocumentWeight = 15;
 	public static final int RESERVE_boostIpProximity = 16;
@@ -51,9 +49,6 @@ public class ReserveQueryWord {
 
 	private ReserveQueryWord() {
 		reserveWord.put("olid", RESERVE_id);
-		
-		reserveWord.put("idd", RESERVE_isDeadDocuments);
-		reserveWord.put("ild", RESERVE_isLiveDocuments);
 		reserveWord.put("typ", RESERVE_docType);
 		reserveWord.put("ste", RESERVE_state);
 		reserveWord.put("ou", RESERVE_orgunit);
@@ -64,7 +59,7 @@ public class ReserveQueryWord {
 		reserveWord.put("aikr", RESERVE_areaInKmRadius);
 		reserveWord.put("matchip", RESERVE_matchIp);
 		reserveWord.put("latlng", RESERVE_latlng);
-		//reserveWord.put("lng", RESERVE_lng);
+		reserveWord.put("scroll", RESERVE_scroll);
 		reserveWord.put("termw", RESERVE_boostTermWeight);
 		reserveWord.put("docbst", RESERVE_boostDocumentWeight);
 		reserveWord.put("ipbst", RESERVE_boostIpProximity);

@@ -88,16 +88,16 @@ public abstract class TokenizeBase {
 		/**
 		 * Adding the Keywords
 		 */
-		if ( null != meta.authorKeywords || null != meta.readerKeywords) {
+		if ( null != meta.tags || null != meta.socialText) {
 			List<ByteField> keywords = new ArrayList<ByteField>();
-			if ( null != meta.authorKeywords ){
-				for (String keyword : meta.authorKeywords) {
+			if ( null != meta.tags ){
+				for (String keyword : meta.getTags()) {
 					keywords.add(new ByteField(TermType.KEYWORD, keyword));
 				}
 			}
 			
-			if ( null != meta.readerKeywords ){
-				for (String keyword : meta.readerKeywords) {
+			if ( null != meta.socialText ){
+				for (String keyword : meta.getSocialText()) {
 					keywords.add(new ByteField(TermType.KEYWORD, keyword));
 				}
 			}

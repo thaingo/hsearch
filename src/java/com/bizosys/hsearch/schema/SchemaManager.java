@@ -74,7 +74,8 @@ public class SchemaManager  implements Service {
 
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		try {
-			createDocumentDB(conf);
+			createPreview(conf);
+			createContent(conf);
 			createIdMap(conf);
 			createInvert(conf);
 			createConfigs(conf);
@@ -90,9 +91,8 @@ public class SchemaManager  implements Service {
 	/**
 	 * Column Family : Search (META, SOCIAL, BUCKET)
 	 * 				 : Teaser (ID, URL, TITLE, CACHE, PREVIEW)
-	 * 				 : Body (CONTENT, DOCUMENT, CITATION_FROM, CITATION_TO)
   	 */
-	public void createDocumentDB(Configuration conf) throws SystemFault, ApplicationFault{
+	public void createPreview(Configuration conf) throws SystemFault, ApplicationFault{
 		
 		int rev = conf.getInt("record.revision",1);
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
@@ -115,6 +115,22 @@ public class SchemaManager  implements Service {
 				teaserBloomFilter,
 				teaserRepMode);
 
+		colFamilies.add(search);
+		colFamilies.add(teaser);
+		HWriter.create(IOConstants.TABLE_PREVIEW, colFamilies);
+		
+	}
+		
+	
+	/**
+	 * Column Family : Body (FIELDS)
+	 * 				 : CITATION ( CITATION_FROM, CITATION_TO ) 
+  	 */
+	public void createContent(Configuration conf) throws SystemFault, ApplicationFault{
+		
+		int rev = conf.getInt("record.revision",1);
+		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
+		
 		HColumnDescriptor fields = 
 			new HColumnDescriptor( IOConstants.CONTENT_FIELDS_BYTES,
 				1, contentCompression, 
@@ -133,8 +149,6 @@ public class SchemaManager  implements Service {
 				contentBloomFilter,
 				contentRepMode);
 
-		colFamilies.add(search);
-		colFamilies.add(teaser);
 		colFamilies.add(fields);
 		colFamilies.add(citation);
 		HWriter.create(IOConstants.TABLE_CONTENT, colFamilies);

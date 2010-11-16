@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.bizosys.oneline.ApplicationFault;
 
-import com.bizosys.hsearch.common.Access;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
+import com.bizosys.hsearch.filter.Access;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
 

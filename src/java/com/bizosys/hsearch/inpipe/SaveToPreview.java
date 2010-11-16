@@ -56,7 +56,7 @@ public class SaveToPreview implements PipeIn {
 				doc.teaser.toNVs(nvs);
 				previewRecords.add(new Record(new Storable(id),nvs));
 			}
-			HWriter.insert(IOConstants.TABLE_CONTENT, previewRecords, true);
+			HWriter.insert(IOConstants.TABLE_PREVIEW, previewRecords, true);
 		} catch (Exception ex) {
 			throw new ApplicationFault("SaveToPreview : Failed.", ex);
 		}
