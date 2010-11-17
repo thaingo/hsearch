@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.filter.Access;
-import com.bizosys.hsearch.filter.StorableList;
+import com.bizosys.hsearch.filter.AccessList;
 import com.bizosys.hsearch.security.AccessControl;
 import com.bizosys.hsearch.security.WhoAmI;
 
@@ -26,12 +26,12 @@ public class AccessControlTest extends TestCase {
 		//Serialize access
 		Access access = new Access();
 		access.addUid(uid);
-		StorableList myAccess = access.getAccessList();
+		AccessList myAccess = access.getAccessList();
 		byte[] persist = myAccess.toBytes();
 		
 		//Deserialize access
 		Access setAccess = new Access(persist);
-		StorableList accessBytes = setAccess.getAccessList(); 
+		AccessList accessBytes = setAccess.getAccessList(); 
 		
 		//Check access
 		Assert.assertTrue(AccessControl.hasAccess(firstUser, accessBytes));
@@ -52,12 +52,12 @@ public class AccessControlTest extends TestCase {
 		//Serialize access
 		Access access = new Access();
 		access.addRole(role);
-		StorableList myAccess = access.getAccessList();
+		AccessList myAccess = access.getAccessList();
 		byte[] persist = myAccess.toBytes();
 		
 		//Deserialize access
 		Access setAccess = new Access(persist);
-		StorableList accessBytes = setAccess.getAccessList(); 
+		AccessList accessBytes = setAccess.getAccessList(); 
 		
 		//Check access
 		Assert.assertTrue(AccessControl.hasAccess(firstUser, accessBytes));
@@ -85,12 +85,12 @@ public class AccessControlTest extends TestCase {
 		access.addRole(role1);
 		access.addRole(role2);
 		access.addRole(role3);
-		StorableList myAccess = access.getAccessList();
+		AccessList myAccess = access.getAccessList();
 		byte[] persist = myAccess.toBytes();
 		
 		//Deserialize access
 		Access setAccess = new Access(persist);
-		StorableList accessBytes = setAccess.getAccessList(); 
+		AccessList accessBytes = setAccess.getAccessList(); 
 		
 		//Check access
 		Assert.assertTrue(AccessControl.hasAccess(firstUser, accessBytes));
@@ -117,12 +117,12 @@ public class AccessControlTest extends TestCase {
 		//Serialize access
 		Access access = new Access();
 		access.addOrgUnit(unit);
-		StorableList myAccess = access.getAccessList();
+		AccessList myAccess = access.getAccessList();
 		byte[] persist = myAccess.toBytes();
 		
 		//Deserialize access
 		Access setAccess = new Access(persist);
-		StorableList accessBytes = setAccess.getAccessList(); 
+		AccessList accessBytes = setAccess.getAccessList(); 
 		
 		//Check access
 		Assert.assertTrue(AccessControl.hasAccess(firstUser, accessBytes));
@@ -147,12 +147,12 @@ public class AccessControlTest extends TestCase {
 		//Serialize access
 		Access access = new Access();
 		access.addTeam(team);
-		StorableList myAccess = access.getAccessList();
+		AccessList myAccess = access.getAccessList();
 		byte[] persist = myAccess.toBytes();
 		
 		//Deserialize access
 		Access setAccess = new Access(persist);
-		StorableList accessBytes = setAccess.getAccessList(); 
+		AccessList accessBytes = setAccess.getAccessList(); 
 		
 		//Check access
 		Assert.assertTrue(AccessControl.hasAccess(firstUser, accessBytes));
@@ -174,12 +174,12 @@ public class AccessControlTest extends TestCase {
 		access.addTeam(team1);
 		access.addTeam(team2);
 		access.addTeam(team3);
-		StorableList myAccess = access.getAccessList();
+		AccessList myAccess = access.getAccessList();
 		byte[] persist = myAccess.toBytes();
 		
 		//Deserialize access
 		Access setAccess = new Access(persist);
-		StorableList accessBytes = setAccess.getAccessList(); 
+		AccessList accessBytes = setAccess.getAccessList(); 
 		
 		//Check access
 		Assert.assertTrue(AccessControl.hasAccess(firstUser, accessBytes));
