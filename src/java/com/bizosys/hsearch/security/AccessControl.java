@@ -6,7 +6,7 @@ import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.filter.Access;
-import com.bizosys.hsearch.filter.AccessList;
+import com.bizosys.hsearch.filter.AccessStorable;
 
 public class AccessControl {
 	
@@ -55,11 +55,11 @@ public class AccessControl {
 	 * @throws ApplicationFault
 	 * @throws SystemFault
 	 */
-	public static boolean hasAccess (WhoAmI whoami, AccessList access) 
+	public static boolean hasAccess (WhoAmI whoami, AccessStorable access) 
 		throws ApplicationFault, SystemFault {
 
 		Access acl = AccessControl.getAccessControl(whoami);
-		AccessList userAcls = acl.getAccessList();
+		AccessStorable userAcls = acl.toStorable();
 
 		boolean allow = false;
 		

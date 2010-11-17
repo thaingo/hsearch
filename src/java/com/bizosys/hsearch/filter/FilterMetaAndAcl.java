@@ -6,14 +6,14 @@ import java.io.IOException;
 
 public class FilterMetaAndAcl {
 	 
-	private AccessList viewAcls;
-	private byte[] keyword = null; //[search in tags]
-	private byte[] state = null;
-	private byte[] tenant = null;
-	private long createdBefore = -1;
-	private long createdAfter = -1;
-	private long modifiedBefore = -1;
-	private long modifiedAfter = -1;
+	public AccessStorable viewAcls;
+	public byte[] keyword = null; //[search in tags]
+	public byte[] state = null;
+	public byte[] tenant = null;
+	public long createdBefore = -1;
+	public long createdAfter = -1;
+	public long modifiedBefore = -1;
+	public long modifiedAfter = -1;
 	 
 	public byte[] bytesA = null;
 	 
@@ -30,7 +30,7 @@ public class FilterMetaAndAcl {
 	 * @param modifiedBefore
 	 * @param modifiedAfter
 	 */
-	public FilterMetaAndAcl(AccessList viewAcls, 
+	public FilterMetaAndAcl(AccessStorable viewAcls, 
 		byte[] keyword, byte[] state ,byte[] tenant,
 		long createdBefore, long createdAfter,long modifiedBefore, long modifiedAfter ) {
 
@@ -57,14 +57,8 @@ public class FilterMetaAndAcl {
 		if ( hasMB ) totalBytes = totalBytes + 8;
 		if ( hasMA ) totalBytes = totalBytes + 8;
 		
-		byte[] bytes = new byte[totalBytes + 4];
+		byte[] bytes = new byte[totalBytes];
 		int index=0;
-		bytes[0] = (byte)(totalBytes >> 24);
-		bytes[1] = (byte)(totalBytes >> 16 );
-		bytes[2] = (byte)(totalBytes >> 8 );
-		bytes[3] = (byte)(totalBytes);
-		index = index + 4;
-		
 		bytes[index++] = filterFlag;
 		if ( hasAcl ) index = writeBytes(aclB, bytes, index);
 		if ( hasKeyword ) index = writeBytes(keyword, bytes, index);
@@ -94,24 +88,28 @@ public class FilterMetaAndAcl {
 	}
 
 	public void writeHeader(DataOutput out) throws IOException {
+		out.write(this.bytesA.length);
 		out.write(this.bytesA);
 	}
 	 
 	public void readHeader(DataInput in) throws IOException {
 		int totalB = in.readInt();
+		System.out.println("Total Bytes:" + totalB);
 		this.bytesA = new byte[totalB];
 		in.readFully(this.bytesA, 0, totalB);
-		
+		deserialize();
+	}
+
+	public void deserialize() {
 		int index=0;
 		byte filterFlag = this.bytesA[index++];
 		boolean[] filterFlags =byteToBits(filterFlag);
-		
 		byte counter = 0;
-
-		if ( filterFlags[counter]) {
+		
+		if ( filterFlags[counter++]) {
 			short len = getShort(index, this.bytesA);
 			index = index + 2;
-			this.viewAcls = new AccessList(this.bytesA, index, len);
+			this.viewAcls = new AccessStorable(this.bytesA, index, len);
 			index = index + len;
 		}
 		
@@ -120,7 +118,6 @@ public class FilterMetaAndAcl {
 			this.keyword = new byte[len];
 			index = index + 2;
 			System.arraycopy(this.bytesA, index, this.keyword, 0, len);
-			System.out.println("this.keyword :" + new String(this.keyword) );
 			index = index + len;
 		}
 
@@ -129,7 +126,6 @@ public class FilterMetaAndAcl {
 			this.state = new byte[len];
 			index = index + 2;
 			System.arraycopy(this.bytesA, index, this.state, 0, len);
-			System.out.println("this.state :" + new String(this.state) );
 			index = index + len;
 		}
 
@@ -138,31 +134,26 @@ public class FilterMetaAndAcl {
 			this.tenant = new byte[len];
 			index = index + 2;
 			System.arraycopy(this.bytesA, index, this.tenant, 0, len);
-			System.out.println("this.tenant :" + new String(this.tenant) );
 			index = index + len;
 		}
 
 		if ( filterFlags[counter++]) {
 			this.createdBefore = getLong(index, this.bytesA);
-			System.out.println("this.createdBefore :" + this.createdBefore);
 			index = index + 8;
 		}
 		
 		if ( filterFlags[counter++]) {
 			this.createdAfter = getLong(index, this.bytesA);
-			System.out.println("this.createdAfter :" + this.createdAfter);
 			index = index + 8;
 		}
 		
 		if ( filterFlags[counter++]) {
 			this.modifiedBefore = getLong(index, this.bytesA);
-			System.out.println("this.modifiedBefore :" + this.modifiedBefore);
 			index = index + 8;
 		}
 
 		if ( filterFlags[counter++]) {
 			this.modifiedAfter = getLong(index, this.bytesA);
-			System.out.println("this.modifiedAfter :" + this.modifiedAfter);
 			index = index + 8;
 		}
 	}	
@@ -177,7 +168,7 @@ public class FilterMetaAndAcl {
 		if ( null == this.viewAcls) return false;
 		
 		short len = getShort(0, value);
-		AccessList foundAcls = new AccessList(value,2,len);
+		AccessStorable foundAcls = new AccessStorable(value,2,len);
 		for (Object objFoundAcl : foundAcls) {
 			if (compareBytes(0, (byte[]) objFoundAcl, Access.ANY_BYTES)) {
 				return true;

@@ -72,14 +72,14 @@ public class DocAcl implements IDimension, IStorable {
 		byte[] viewPermissionB = null;
 		if ( null != this.viewPermission ) {
 			isViewPerm = true;
-			viewPermissionB = this.viewPermission.getAccessList().toBytes();
+			viewPermissionB = this.viewPermission.toStorable().toBytes();
 		}
 		
 		boolean isEditPerm = false;
 		byte[] editPermissionB = null;
 		if ( null != this.editPermission ) {
 			isEditPerm = true;
-			editPermissionB = this.editPermission.getAccessList().toBytes();
+			editPermissionB = this.editPermission.toStorable().toBytes();
 		}
 		
 		int totalBytes = 4;

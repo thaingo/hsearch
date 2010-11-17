@@ -18,52 +18,52 @@ public class Access {
 	public static final byte[] ANY_BYTES = "0*".getBytes();
 	 
 	 
-	 AccessList list = new AccessList();
+	 AccessStorable storable = new AccessStorable();
 	 
 	 public Access() {
 	 }
 	 
 	 public Access(byte[] bytes) {
-		this.list = new AccessList(bytes);
-	}
+		this.storable = new AccessStorable(bytes);
+	 }
 	 
 	 public void addAnonymous() {
-		 list.add((UIDC + ANY).getBytes() );
+		 storable.add((UIDC + ANY).getBytes() );
 	}
 	
 	public void addAcl(String acl) {
-		 list.add(acl.getBytes());
+		 storable.add(acl.getBytes());
 	}
 	
 	public void addUid(String uid) {
-		list.add((UIDC + uid).getBytes() );
+		storable.add((UIDC + uid).getBytes() );
 	}
 	
 	public void addRole(String role) {
-		list.add((ROLEC + role).getBytes() );
+		storable.add((ROLEC + role).getBytes() );
 	}
 
 	public void addTeam(String team) {
-		list.add((TEAMC + team).getBytes() );
+		storable.add((TEAMC + team).getBytes() );
 	}
 
 	public void addOrgUnit(String ou) {
-		list.add((OUC + ou).getBytes() );
+		storable.add((OUC + ou).getBytes() );
 	}
 
 	public void addOrgUnitAndUid(String ou, String uid) {
-		list.add((OU_UIDC + ou + "." + uid).getBytes() );
+		storable.add((OU_UIDC + ou + "." + uid).getBytes() );
 	}
 	
 	public void addOrgUnitAndRole(String ou, String role) {
-		list.add((OU_ROLEC + ou + "." + role).getBytes() );
+		storable.add((OU_ROLEC + ou + "." + role).getBytes() );
 	}
 	
-	public AccessList getAccessList() {
-		return list;
+	public AccessStorable toStorable() {
+		return storable;
 	}
 	
 	public void clear() {
-		if ( null != this.list) this.list.clear();
+		if ( null != this.storable) this.storable.clear();
 	}
 }
