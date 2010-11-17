@@ -3,10 +3,7 @@ package com.bizosys.hsearch.outpipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bizosys.hsearch.util.FileReaderUtil;
-import com.bizosys.oneline.util.StringUtils;
-
-public class BuildTeaser_Highlighter {
+public class BuildTeaserHighlighter {
 	private static final byte[] WORD_DELIMITERS = new String(" .,;\r\n").getBytes();
 	private static final int WORD_DELIMITERS_LENGTH = WORD_DELIMITERS.length;
 	
@@ -15,29 +12,33 @@ public class BuildTeaser_Highlighter {
 	private int csize;
 	private int wsize[];
 	
-	public BuildTeaser_Highlighter(byte[] content, String[] words) {
+	public BuildTeaserHighlighter() {
+	}
+	
+	public BuildTeaserHighlighter(byte[] content, String[] words) {
+		setContent(content);
+		setWords(words);
+	}
+
+	public void setContent(byte[] content) {
 		this.bContent = content;
 		this.csize = this.bContent.length;
+	}
+	
+	public void setWords(String[] words) {
 		this.bWords = new byte[words.length][];
 		this.wsize = new int[this.bWords.length];
 		int loop = 0;
-		for (String word : words) 
-		{
+		for (String word : words) {
 			this.bWords[loop] = word.getBytes();
 			this.wsize[loop] = this.bWords[loop].length;
-			System.out.println("Word:" + word + " Length:" + this.wsize[loop]);
 			loop++;
 		}
-		System.out.println("To find in :" + new String(this.bContent));
-		
-		for (byte delim : WORD_DELIMITERS)
-		{
-			System.out.println("Delimiter:" + delim);
-		}
-			
 	}
 	
+	
 	public List<WordPosition> findTerms() {
+
 		int wordCount = this.wsize.length;
 		byte cbyte;
 		
@@ -110,37 +111,9 @@ public class BuildTeaser_Highlighter {
 		return posL;
 	}
 	
-	public static void main(String[] args) throws Exception
-	{
-		String[] wordL = new String[]{"abinash", "karan", "hbase"};
-		byte[] content = new String("I know abinash karan is a wonderful person. He worked on hsearch, an open source search engine built on hbase. " +
-				"This is a wonderful work by abinash, so lets enjoy.").getBytes();
+
+	public static class WordPosition {
 		
-		long start = System.currentTimeMillis();
-		List<WordPosition> posL = new BuildTeaser_Highlighter(content, wordL).findTerms();
-		System.out.println("Time taken in ms:" + (System.currentTimeMillis() - start) );
-		System.out.println(posL);
-	}
-	
-	public static void main1(String[] args) throws Exception
-	{
-		if (args == null || args.length != 2) 
-		{
-			System.out.println("Expecting 2 arguments - filename and search words like file.txt abinash_karan_hbase");
-			return;
-		}
-		
-		String fileName = args[0];
-		String words = args[1];
-		String[] wordL = StringUtils.getStrings(words, "_");
-		byte[] content = FileReaderUtil.getBytes(FileReaderUtil.getFile(fileName));
-		
-		List<WordPosition> posL = new BuildTeaser_Highlighter(content, wordL).findTerms();
-		System.out.println(posL);
-	}
-	
-	public static class WordPosition
-	{
 		int index; //Query keyword position (abinash karan hbase = 0,1,2
 		int start; //start position of the word in the given corpus
 		int end;   //End position start position + word length
