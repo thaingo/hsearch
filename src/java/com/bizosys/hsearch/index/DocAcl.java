@@ -21,21 +21,21 @@ public class DocAcl implements IDimension, IStorable {
 	/**
 	 * Who has edit access to the document
 	 */
-	public Access editAcl = null;
+	public Access viewPermission = null;
 	
 	/**
 	 * Who has view access to the document
 	 */
-	public Access viewAcl = null;
+	public Access editPermission = null;
 	
-	public DocAcl(Access editAcl, Access viewAcl) {
-		this.editAcl = editAcl;
-		this.viewAcl = viewAcl;
+	public DocAcl(Access viewAcl, Access editAcl) {
+		this.viewPermission = viewAcl;
+		this.editPermission = editAcl;
 	}
 	
 	public DocAcl(HDocument aDoc) {
-		this.editAcl = aDoc.editAcl;
-		this.viewAcl = aDoc.viewAcl;
+		this.viewPermission = aDoc.viewPermission;
+		this.editPermission = aDoc.editPermission;
 	}
 	
 	
@@ -52,7 +52,7 @@ public class DocAcl implements IDimension, IStorable {
 		if ( 0 != len ) {
 			byte[] editAclB = new byte[len];
 			System.arraycopy(bytes, pos, editAclB, 0, len);
-			this.editAcl = new Access(editAclB);
+			this.viewPermission = new Access(editAclB);
 			pos = pos + editAclB.length;
 		}
 
@@ -61,48 +61,48 @@ public class DocAcl implements IDimension, IStorable {
 		if ( 0 != len ) {
 			byte[] viewAclB = new byte[len];
 			System.arraycopy(bytes, pos, viewAclB, 0, len);
-			this.viewAcl = new Access(viewAclB);
+			this.editPermission = new Access(viewAclB);
 			pos = pos+ viewAclB.length;
 		}
 	}
 
 	public byte[] toBytes() {
-		boolean isEditAcl = false;
-		
-		byte[] editAclB = null;
-		if ( null != this.editAcl ) {
-			isEditAcl = true;
-			editAclB = this.editAcl.getAccessList().toBytes();
+
+		boolean isViewPerm = false;
+		byte[] viewPermissionB = null;
+		if ( null != this.viewPermission ) {
+			isViewPerm = true;
+			viewPermissionB = this.viewPermission.getAccessList().toBytes();
 		}
 		
-		boolean isViewAcl = false;
-		byte[] viewAclB = null;
-		if ( null != this.viewAcl ) {
-			isViewAcl = true;
-			viewAclB = this.viewAcl.getAccessList().toBytes();
+		boolean isEditPerm = false;
+		byte[] editPermissionB = null;
+		if ( null != this.editPermission ) {
+			isEditPerm = true;
+			editPermissionB = this.editPermission.getAccessList().toBytes();
 		}
 		
 		int totalBytes = 4;
-		if ( isEditAcl  ) totalBytes = totalBytes + editAclB.length;
-		if ( isViewAcl  ) totalBytes = totalBytes + viewAclB.length;
+		if ( isViewPerm  ) totalBytes = totalBytes + viewPermissionB.length;
+		if ( isEditPerm  ) totalBytes = totalBytes + editPermissionB.length;
 		
 		byte[] bytes = new byte[totalBytes];
 		int pos = 0;
 		
-		short editAclLen = ( isEditAcl) ? (short)editAclB.length : (short) 0;
-		System.arraycopy(Storable.putShort(editAclLen), 0, bytes, pos, 2);
+		short editPermLen = ( isViewPerm) ? (short)editPermissionB.length : (short) 0;
+		System.arraycopy(Storable.putShort(editPermLen), 0, bytes, pos, 2);
 		pos = pos + 2;
-		if ( isEditAcl) {
-			System.arraycopy(editAclB, 0, bytes, pos, editAclLen);
-			pos = pos+ editAclLen;
+		if (isEditPerm) {
+			System.arraycopy(viewPermissionB, 0, bytes, pos, editPermLen);
+			pos = pos+ editPermLen;
 		}
 		
-		short viewAclLen = ( isEditAcl) ? (short)viewAclB.length : (short) 0;
-		System.arraycopy(Storable.putShort(viewAclLen), 0, bytes, pos, 2);
+		short viewPermLen = ( isViewPerm) ? (short)viewPermissionB.length : (short) 0;
+		System.arraycopy(Storable.putShort(viewPermLen), 0, bytes, pos, 2);
 		pos = pos + 2;
-		if (isViewAcl) {
-			System.arraycopy(editAclB, 0, bytes, pos, viewAclLen);
-			pos = pos+ viewAclLen;
+		if ( isViewPerm) {
+			System.arraycopy(viewPermissionB, 0, bytes, pos, viewPermLen);
+			pos = pos+ viewPermLen;
 		}
 		
 		return bytes;
@@ -113,8 +113,8 @@ public class DocAcl implements IDimension, IStorable {
 	}
 
 	public void cleanup() {
-		this.editAcl = null;
-		this.viewAcl = null;
+		this.viewPermission = null;
+		this.editPermission = null;
 	}
 	
 	public static void main(String[] args) {

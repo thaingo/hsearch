@@ -56,14 +56,14 @@ public class HDocument {
 	
 	
 	/**
-	 * Who has edit access to the document
-	 */
-	public Access editAcl = null;
-	
-	/**
 	 * Who has view access to the document
 	 */
-	public Access viewAcl = null;
+	public Access viewPermission = null;
+	
+	/**
+	 * Who has edit access to the document
+	 */
+	public Access editPermission = null;
 
 	/**
 	 * The state of the docucment (Applied, Processed, Active, Inactive)

@@ -8,8 +8,10 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.bizosys.hsearch.common.Storable;
+import com.bizosys.hsearch.filter.Access;
 import com.bizosys.hsearch.filter.FilterMetaAndAcl;
 import com.bizosys.hsearch.filter.PreviewFilter;
+import com.bizosys.hsearch.filter.StorableList;
 import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
@@ -18,6 +20,7 @@ import com.bizosys.hsearch.query.DocWeight;
 import com.bizosys.hsearch.query.L;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.schema.IOConstants;
+import com.bizosys.hsearch.security.AccessControl;
 import com.bizosys.oneline.ApplicationFault;
 
 /**
@@ -28,20 +31,30 @@ import com.bizosys.oneline.ApplicationFault;
  */
 public class CheckMetaInfo_HBase {
 	
-	public PreviewFilter pf;
+	private PreviewFilter pf;
 	
 	public CheckMetaInfo_HBase(QueryContext ctx) {
-		PreviewFilter pf = new PreviewFilter();
-		FilterMetaAndAcl setting = pf.getFma();
-
-		if ( null != ctx.queryString ) setting.keyword = 
-			Storable.putString(ctx.queryString.toLowerCase());  
-		if ( null != ctx.state ) setting.state = ctx.state.toBytes();  
-		if ( null != ctx.tenant ) setting.tenant = ctx.tenant.toBytes();  
-		if ( null != ctx.createdAfter) setting.createdAfter = ctx.createdAfter.longValue();  
-		if ( null != ctx.createdBefore) setting.createdBefore = ctx.createdBefore.longValue();  
-		if ( null != ctx.modifiedAfter) setting.modifiedAfter = ctx.modifiedAfter.longValue();  
-		if ( null != ctx.modifiedBefore) setting.modifiedBefore = ctx.modifiedBefore.longValue();  
+		
+		StorableList aclB = null;
+		if ( null == ctx.user ) {
+			Access access = new Access();
+			access.addAnonymous();
+			aclB = access.getAccessList();
+		} else aclB = AccessControl.getAccessControl(ctx.user).getAccessList();
+		
+		byte[] tagB = ( ctx.matchTags) ? 
+				new Storable(ctx.queryString.toLowerCase()).toBytes() : null;
+		byte[] stateB = ( null == ctx.state ) ? null : ctx.state.toBytes();
+		byte[] tenantB = ( null == ctx.tenant ) ? null : ctx.tenant.toBytes();
+		long ca = ( null == ctx.createdAfter ) ? -1 : ctx.createdAfter.longValue();
+		long cb = ( null == ctx.createdBefore ) ? -1 : ctx.createdBefore.longValue();
+		long ma = ( null == ctx.modifiedAfter ) ? -1 : ctx.modifiedAfter.longValue();
+		long mb = ( null == ctx.modifiedBefore ) ? -1 : ctx.modifiedBefore.longValue();
+		
+		FilterMetaAndAcl setting = new FilterMetaAndAcl(aclB,
+			tagB, stateB, tenantB, ca, cb, ma, mb);
+		
+		this.pf = new PreviewFilter(setting);
 	}
 	
 	public List<DocMetaWeight> filter(Object[] staticL, 

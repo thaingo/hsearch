@@ -45,6 +45,7 @@ public class BuildTeaser implements PipeOut{
 			weightedTeasers.add(new DocTeaserWeight(idB, flds,metaWt.weight));
 		}
 		res.teasers = weightedTeasers.toArray();
+		DocTeaserWeight.sort(res.teasers);
 		return true;
 	}
 	
@@ -54,11 +55,6 @@ public class BuildTeaser implements PipeOut{
 	 * @param dtw
 	 */
 	private void scoreExactMatch(QueryPlanner planner, DocTeaserWeight dtw) {
-		for (List<QueryTerm> terms : planner.sequences) {
-			for (QueryTerm term : terms) {
-				if ( dtw.cacheText.toString().indexOf(term.)
-			}
-		}
 	}
 	
 	

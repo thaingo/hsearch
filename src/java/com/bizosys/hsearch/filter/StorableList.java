@@ -19,30 +19,24 @@ public class StorableList implements List {
 	}
 
 	public StorableList(byte[] inputBytes) {
-		this(inputBytes, 0);
+		this(inputBytes, 0, inputBytes.length);
 	}
 	
-	public StorableList(byte[] inputBytes, int seek) {
-		container = new ArrayList<byte[]>();
+	public StorableList(byte[] inputBytes, int offset, int length) {
+		if ( null == inputBytes) return;
+		this.container = new ArrayList<byte[]>();
+		int curPos = offset;
+		int endPos = offset + length;
 		
-		if ( null != inputBytes) {
-			int totalBytes = inputBytes.length;
-			while ( seek < totalBytes ) {
-				int contentSize = 0;  //The content size is in short
-				for (int i = 0; i < 2 ; i++) {
-					contentSize = (contentSize << 8) + (inputBytes[seek + i] & 0xff);
-				}
-				seek = seek + 2;
-				byte[] contentBytes = new byte[contentSize];
-				for (int i = 0; i < contentSize ; i++) {
-					contentBytes[i] = (inputBytes[seek + i]);
-				}
-				seek = seek + contentSize;
-				container.add(contentBytes);
-			}
+		while ( curPos < endPos ) {
+			int contentSize = 0;  //The content size is in short
+			contentSize = (inputBytes[curPos++] << 8 ) + ( inputBytes[curPos++] & 0xff );
+			byte[] contentBytes = new byte[contentSize];
+			System.arraycopy(inputBytes, curPos, contentBytes, 0, contentSize);
+			curPos = curPos + contentSize;
+			container.add(contentBytes);
 		}
-		
-	}	
+	}		
 	
 	public boolean add(Object storable) {
 		byte[] bytes = (byte[])storable; 
@@ -145,7 +139,6 @@ public class StorableList implements List {
 		return null;
 	}
 	
-////// ********************** //////////
 	public byte[] toBytes() {
 		byte[] outputBytes = null;
 		
@@ -162,12 +155,11 @@ public class StorableList implements List {
 				short byteSize = (short) bytes.length;
 				outputBytes[seek++] = (byte)(byteSize >> 8 & 0xff); 
 				outputBytes[seek++] = (byte)(byteSize & 0xff) ;
-				
-				for (byte b : bytes) {
-					outputBytes[seek++] = b;
-				}
+				System.arraycopy(bytes, 0, outputBytes, seek, byteSize);
+				seek = seek + byteSize;
 			}
 		}
 		return outputBytes;
 	}
+
 }

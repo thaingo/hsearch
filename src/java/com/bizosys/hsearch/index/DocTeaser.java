@@ -1,19 +1,14 @@
 package com.bizosys.hsearch.index;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.bizosys.oneline.ApplicationFault;
-
-import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.hsearch.util.UrlMapper;
+import com.bizosys.oneline.ApplicationFault;
 
 /**
  * Documents could be coming as structured or unstructured.
@@ -47,17 +42,6 @@ public class DocTeaser {
 	 */
 	public Storable preview =  null;
 
-	/**
-	 * All the calculated resolved terms out from regular texts
-	 */
-	public Map<String, String> resolvedTerms = null;
-	
-	/**
-	 * This is fresh content which has been given to 
-	 * the search engine instead of a body text. 
-	 */
-	protected Map<String, ByteField[]> structuredFields = null;
-	
 	public DocTeaser() {
 	}
 	
@@ -69,7 +53,9 @@ public class DocTeaser {
 	}
 	
 	public DocTeaser (byte[] id, List<NVBytes> inputBytes) throws ApplicationFault {
+		
 		this.id = new Storable(id, Storable.BYTE_STRING);
+		
 		for (NVBytes fld : inputBytes) {
 			switch(fld.name[0]) {
 				case IOConstants.TEASER_URL:
@@ -151,96 +137,24 @@ public class DocTeaser {
 	}
 
 	/**
-	 * Here resolved terms are maintained.
-	 * Example [Human Rights] =  dc:rights
-	 * @return
-	 */
-	public Map<String, String> getResolvedTerms() {
-		if ( null == this.resolvedTerms) 
-			this.resolvedTerms = new HashMap<String, String>();
-		return resolvedTerms;
-	}
-
-	public void setResolvedTerms(Map<String, String> resolved) {
-		if ( null == this.resolvedTerms) {
-			this.resolvedTerms = resolved;
-		} else {
-			this.resolvedTerms.putAll(resolved);
-		}
-	}
-	
-	/**
-	 * Here structured terms are maintained.
-	 * Example [dc:rights]   =   [ByteField Name:dc:rights , Value = Human Rights]
-	 * @return
-	 */
-	public Map<String, ByteField[]> getStructuredFields() {
-		return this.structuredFields;
-	}
-
-	public void addStructuredField(ByteField param) {
-		if ( null == this.structuredFields) {
-			this.structuredFields = new HashMap<String, ByteField[]>();
-			this.structuredFields.put(param.name, new ByteField[] {param});
-		} else {
-			if ( this.structuredFields.containsKey(param.name)) {
-				ByteField[] bfL = this.structuredFields.get(param.name);
-				
-				int bfT = bfL.length;
-				ByteField[] expaned =	new ByteField[bfT + 1];
-				System.arraycopy(bfL, 0, expaned, 0, bfT);
-				Arrays.fill(bfL, null);
-				bfL = null;
-				expaned[bfT] = param;
-				this.structuredFields.put(param.name, expaned);				
-			} else {
-				this.structuredFields.put(param.name, new ByteField[] {param});				
-			}
-		}
-	}
-	
-	/**
 	 * Clean up the entire set.
 	 */
 	public void cleanup() {
+		this.id =  null;
 		this.url =  null;
 		this.title =  null; 
 		this.cacheText =  null;
 		this.preview =  null;
-		
-		if ( null != resolvedTerms) {
-			this.resolvedTerms.clear();
-			this.resolvedTerms = null;
-		}
-		if ( null != structuredFields) {
-			this.structuredFields.clear();
-			this.structuredFields = null;
-		}
 	}
 	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder('\n');
+		if ( null != id ) sb.append("Id :").append(id);
 		if ( null != url ) sb.append("Url :").append(url);
 		if ( null != title ) sb.append("\nTitle :").append(title);
 		if ( null != cacheText ) sb.append("\nBody :").append(cacheText);
 		if ( null != preview ) sb.append("\nPreview :").append(preview);
-		if ( null != this.structuredFields) {
-			sb.append("StructuredFields :\n");
-			byte[] valObj = null;
-			for ( String key : this.structuredFields.keySet()) {
-				ByteField[] storable = this.structuredFields.get(key);
-				if ( (null != storable) ) {
-					for (ByteField field : storable) {
-						valObj = field.toBytes();
-						if ( null == valObj ) continue;
-						sb.append(field.name).append('=').append( new String(valObj) );
-						sb.append('\n');
-					}
-				}
-			}
-		}
-		
 		return sb.toString();
 	}
 }

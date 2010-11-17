@@ -27,19 +27,17 @@ public class ComputeDynamicRanking implements PipeOut{
 		QueryContext ctx = query.ctx;
 		QueryPlanner plan = query.planner;
 		int ipHouse = ( null == ctx.ipAddress ) ? 0 : IpUtil.computeHouse(ctx.ipAddress);
+		if ( null == result.sortedDynamicWeights) return true;
 		
-		if ( null == result.sortedDynamicWeights) {
-			for (Object metaO : result.sortedDynamicWeights) {
-				DocMetaWeight meta = (DocMetaWeight) metaO;
-				meta.weight = meta.weight + this.scoreFreshness(meta);
-				if ( 0 != ipHouse ) meta.weight = meta.weight +  
-					this.scoreIpProximity(meta, ipHouse);
-				meta.weight = meta.weight + this.scoreSocialText(meta, plan);
-				meta.weight = meta.weight + this.scoreTags(meta, plan);
-			}
-			DocMetaWeight.sort(result.sortedDynamicWeights);
+		for (Object metaO : result.sortedDynamicWeights) {
+			DocMetaWeight meta = (DocMetaWeight) metaO;
+			meta.weight = meta.weight + this.scoreFreshness(meta);
+			if ( 0 != ipHouse ) meta.weight = meta.weight +  
+				this.scoreIpProximity(meta, ipHouse);
+			meta.weight = meta.weight + this.scoreSocialText(meta, plan);
+			meta.weight = meta.weight + this.scoreTags(meta, plan);
 		}
-
+		DocMetaWeight.sort(result.sortedDynamicWeights);
 		return true;
 	}
 	

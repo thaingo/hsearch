@@ -17,34 +17,28 @@ public class StorableList implements List, IStorable {
 	public StorableList(int size) {
 		container =  new ArrayList<byte[]>(size);
 	}
-
+	
 	public StorableList(byte[] inputBytes) {
-		container = new ArrayList<byte[]>();
-		
-		if ( null != inputBytes) {
-			int totalBytes = inputBytes.length;
-			int seek = 0;
-			
-			while ( seek < totalBytes ) {
-
-				int contentSize = 0;  //The content size is in short
-				for (int i = 0; i < 2 ; i++) {
-					contentSize = (contentSize << 8) + (inputBytes[seek + i] & 0xff);
-				}
-				seek = seek + 2;
-				
-				byte[] contentBytes = new byte[contentSize];
-				for (int i = 0; i < contentSize ; i++) {
-					contentBytes[i] = (inputBytes[seek + i]);
-				}
-				seek = seek + contentSize;
-				
-				container.add(contentBytes);
-			}
-		}
-		
+		this(inputBytes, 0, inputBytes.length);
 	}
 	
+	public StorableList(byte[] inputBytes, int offset, int length) {
+		if ( null == inputBytes) return;
+		this.container = new ArrayList<byte[]>();
+		int curPos = offset;
+		int endPos = offset + length;
+		
+		while ( curPos < endPos ) {
+			int contentSize = 0;  //The content size is in short
+			contentSize = (inputBytes[curPos++] << 8 ) + ( inputBytes[curPos++] & 0xff );
+			byte[] contentBytes = new byte[contentSize];
+			System.arraycopy(inputBytes, curPos, contentBytes, 0, contentSize);
+			curPos = curPos + contentSize;
+			container.add(contentBytes);
+		}
+	}		
+		
+
 	public boolean add(Object storable) {
 		byte[] bytes = ((IStorable)storable).toBytes(); 
 		container.add(bytes); 
@@ -146,7 +140,6 @@ public class StorableList implements List, IStorable {
 		return null;
 	}
 	
-////// ********************** //////////
 	public byte[] toBytes() {
 		byte[] outputBytes = null;
 		
@@ -163,10 +156,8 @@ public class StorableList implements List, IStorable {
 				short byteSize = (short) bytes.length;
 				outputBytes[seek++] = (byte)(byteSize >> 8 & 0xff); 
 				outputBytes[seek++] = (byte)(byteSize & 0xff) ;
-				
-				for (byte b : bytes) {
-					outputBytes[seek++] = b;
-				}
+				System.arraycopy(bytes, 0, outputBytes, seek, byteSize);
+				seek = seek + byteSize;
 			}
 		}
 		return outputBytes;

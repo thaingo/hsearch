@@ -9,6 +9,7 @@ import com.bizosys.oneline.pipes.PipeOut;
 
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.NVBytes;
+import com.bizosys.hsearch.query.DocMetaWeight;
 import com.bizosys.hsearch.query.DocWeight;
 import com.bizosys.hsearch.query.HQuery;
 import com.bizosys.hsearch.query.QueryContext;
@@ -32,28 +33,10 @@ public class CheckMetaInfo implements PipeOut{
 		Object[] staticL = result.sortedStaticWeights;
 		if ( null == staticL) return true;
 		
-		/**
-		 * Bring the pointer to beginning from the end
-		 */
-		int staticT = staticL.length;
-		if ( staticT <= ctx.scroll) ctx.scroll = 0;
-		
-		int totalMatched = 0;
-		
-		for (int i=ctx.scroll; i< staticT; i++ ) {
-			if ( totalMatched > pageSize) break; //Just read enough for the page size 
-			
-			String id = ((DocWeight) staticL[i]).id;
-			byte [] meta = HReader.getScalar(IOConstants.TABLE_PREVIEW, 
-				IOConstants.SEARCH_BYTES, IOConstants.META_BYTES, id.getBytes());
-			
-		}
-
-		if ( null == values) continue;
-		for (NVBytes bytes : values) {
-			sb.append('\n').append(bytes.toString());
-		}
-		
+		CheckMetaInfo_HBase hbase = new CheckMetaInfo_HBase(ctx);
+		List<DocMetaWeight> dmwL = hbase.filter(staticL, ctx.scroll, this.pageSize);
+		if ( null == dmwL) return true;
+		result.sortedDynamicWeights = dmwL.toArray();
 		return true;
 	}
 	

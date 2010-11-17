@@ -47,6 +47,25 @@ public class StorableListTest extends TestCase {
 		StorableList s2 = new StorableList( sl.toBytes() );
 		assertEquals(val1.intValue(), Storable.getInt(0, (byte[])s2.get(0)));
 		assertEquals(val2.intValue(), Storable.getInt(0, (byte[])s2.get(1)));
-	}	
+	}
+	
+	public void testSeek(String val1, String val2) {
+		//System.out.println("val1 = " + val1 + " , val2 = " + val2);
+		StorableList sl = new StorableList();
+		sl.add(new ByteField("f1", val1));
+		sl.add(new ByteField("f2", val2));
+
+		byte[] a = new byte[100];
+		a[0] = 34;
+		a[1] = 33;
+		a[2] = 36;
+
+		byte[] i =  sl.toBytes();
+		System.arraycopy( i, 0, a, 3, i.length);
+		StorableList s2 = new StorableList( a,3,i.length);
+		assertEquals(val1, Storable.getString( (byte[])s2.get(0)));
+		assertEquals(val2, Storable.getString( (byte[])s2.get(1)));
+	}
+	
 	
 }

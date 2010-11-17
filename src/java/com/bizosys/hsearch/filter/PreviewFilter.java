@@ -10,12 +10,22 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
 public class PreviewFilter implements Filter {
-	FilterMetaAndAcl fma = new FilterMetaAndAcl();
+	private static final byte META_BYTE = "m".getBytes()[0];
+	private static final byte ACL_BYTE = "a".getBytes()[0];
+	FilterMetaAndAcl fma = null;
 	byte[] bytes = null;
 
 	public PreviewFilter(){}
+	
+	public PreviewFilter(FilterMetaAndAcl fma){
+		this.fma = fma;
+	}
+	
 	public FilterMetaAndAcl getFma(){
 		return this.fma;
+	}
+	public void setFma(FilterMetaAndAcl fma) {
+		this.fma = fma;
 	}
 
 	public boolean filterAllRemaining() {
@@ -26,11 +36,10 @@ public class PreviewFilter implements Filter {
 	 *  true to drop this key/value
 	 */
 	public ReturnCode filterKeyValue(KeyValue kv) {
-		if ( "a".getBytes()[0] == kv.getQualifier()[0]) {
-			// Match ACL 
-			return ReturnCode.SKIP;
-		} else if ("m".getBytes()[0] == kv.getQualifier()[0]) {
-			// Match Meta
+		if ( ACL_BYTE == kv.getQualifier()[0]) { // Match ACL
+			if ( ! this.fma.filterAcl(kv.getValue())) return ReturnCode.SKIP;
+		} else if (META_BYTE == kv.getQualifier()[0]) {
+			if ( ! this.fma.filterMeta(kv.getValue())) return ReturnCode.SKIP;
 		}
 		return ReturnCode.INCLUDE;
 	}
@@ -49,7 +58,7 @@ public class PreviewFilter implements Filter {
 		Iterator<KeyValue> kvItr = kvL.iterator();
 		for ( int i=0; i< kvL.size(); i++ ) {
 			KeyValue kv = kvItr.next();
-			if ("a".getBytes()[0] == kv.getQualifier()[0]) kvItr.remove();
+			if (ACL_BYTE == kv.getQualifier()[0]) kvItr.remove();
 		}
 	}
 	
@@ -73,11 +82,13 @@ public class PreviewFilter implements Filter {
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
+		if ( null == this.fma ) this.fma = new FilterMetaAndAcl();
 		this.fma.readHeader(in);
 	}
 	
 	@Override
 	public void write(DataOutput out) throws IOException {
+		if ( null == this.fma ) this.fma = new FilterMetaAndAcl();
 		fma.writeHeader(out);
 	}
 }

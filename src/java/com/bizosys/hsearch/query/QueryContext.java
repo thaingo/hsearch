@@ -12,11 +12,9 @@ import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.util.StringUtils;
 
 public class QueryContext {
-	
-	public String id = null;
 
 	/* ************************************************
-	 * Who and When this querying happend *****
+	 * This is about the client *****
 	 * ***********************************************/
 	
 	/**
@@ -33,6 +31,8 @@ public class QueryContext {
 	 * The user who is accessing it.  
 	 */
 	public WhoAmI user = null;
+	public boolean checkForEdit = false;
+
 
 	public long currentTime = new Date().getTime();
 	
@@ -42,9 +42,20 @@ public class QueryContext {
 	 * ***********************************************/
 
 	/**
+	 * TODO: Replace this 
+	 */
+	public String id = null;
+
+
+	/**
 	 * Query term as it is..
 	 */
 	public String queryString = null;
+	
+	/**
+	 * Search in Tags
+	 */
+	public boolean matchTags = false;	
 	
 	/**
 	 * Scroll till (This is a number based on the page
