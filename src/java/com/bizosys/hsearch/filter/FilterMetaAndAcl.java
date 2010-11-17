@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class FilterMetaAndAcl {
 	 
-	private StorableList viewAcls;
+	private AccessList viewAcls;
 	private byte[] keyword = null; //[search in tags]
 	private byte[] state = null;
 	private byte[] tenant = null;
@@ -30,7 +30,7 @@ public class FilterMetaAndAcl {
 	 * @param modifiedBefore
 	 * @param modifiedAfter
 	 */
-	public FilterMetaAndAcl(StorableList viewAcls, 
+	public FilterMetaAndAcl(AccessList viewAcls, 
 		byte[] keyword, byte[] state ,byte[] tenant,
 		long createdBefore, long createdAfter,long modifiedBefore, long modifiedAfter ) {
 
@@ -111,7 +111,7 @@ public class FilterMetaAndAcl {
 		if ( filterFlags[counter]) {
 			short len = getShort(index, this.bytesA);
 			index = index + 2;
-			this.viewAcls = new StorableList(this.bytesA, index, len);
+			this.viewAcls = new AccessList(this.bytesA, index, len);
 			index = index + len;
 		}
 		
@@ -177,7 +177,7 @@ public class FilterMetaAndAcl {
 		if ( null == this.viewAcls) return false;
 		
 		short len = getShort(0, value);
-		StorableList foundAcls = new StorableList(value,2,len);
+		AccessList foundAcls = new AccessList(value,2,len);
 		for (Object objFoundAcl : foundAcls) {
 			if (compareBytes(0, (byte[]) objFoundAcl, Access.ANY_BYTES)) {
 				return true;

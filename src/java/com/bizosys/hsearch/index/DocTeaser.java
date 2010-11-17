@@ -1,5 +1,7 @@
 package com.bizosys.hsearch.index;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import com.bizosys.hsearch.common.HDocument;
@@ -146,6 +148,42 @@ public class DocTeaser {
 		this.cacheText =  null;
 		this.preview =  null;
 	}
+	
+	public void toXml(Writer pw) throws IOException {
+		pw.append('<').append(IOConstants.TEASER).append('>');
+		if ( null != id ) {
+			pw.append('<').append(IOConstants.TEASER_ID).append('>');
+			pw.append( id.toString() );
+			pw.append('<').append(IOConstants.TEASER_ID).append("/>");
+		}
+		
+		if ( null != url ) {
+			pw.append('<').append(IOConstants.TEASER_URL).append('>');
+			pw.append( url.toString() );
+			pw.append('<').append(IOConstants.TEASER_URL).append("/>");
+		}
+		
+		if ( null != title ) {
+			pw.append('<').append(IOConstants.TEASER_TITLE).append('>');
+			pw.append( title.toString() );
+			pw.append('<').append(IOConstants.TEASER_TITLE).append("/>");
+		}
+
+		if ( null != cacheText ) {
+			pw.append('<').append(IOConstants.TEASER_CACHE).append('>');
+			pw.append( cacheText.toString() );
+			pw.append('<').append(IOConstants.TEASER_CACHE).append("/>");
+		}
+
+		if ( null != preview ) {
+			pw.append('<').append(IOConstants.TEASER_PREVIEW).append('>');
+			pw.append( preview.toString() );
+			pw.append('<').append(IOConstants.TEASER_PREVIEW).append("/>");
+		}
+		
+		pw.append('<').append(IOConstants.TEASER).append("/>\n");
+	}
+	
 	
 	@Override
 	public String toString() {

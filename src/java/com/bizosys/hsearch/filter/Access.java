@@ -18,13 +18,13 @@ public class Access {
 	public static final byte[] ANY_BYTES = "0*".getBytes();
 	 
 	 
-	 StorableList list = new StorableList();
+	 AccessList list = new AccessList();
 	 
 	 public Access() {
 	 }
 	 
 	 public Access(byte[] bytes) {
-		this.list = new StorableList(bytes);
+		this.list = new AccessList(bytes);
 	}
 	 
 	 public void addAnonymous() {
@@ -59,7 +59,7 @@ public class Access {
 		list.add((OU_ROLEC + ou + "." + role).getBytes() );
 	}
 	
-	public StorableList getAccessList() {
+	public AccessList getAccessList() {
 		return list;
 	}
 	

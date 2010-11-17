@@ -6,23 +6,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public class StorableList implements List {
+public class AccessList implements List {
 
 	List<byte[]> container = null;
 	
-	public StorableList() {
+	public AccessList() {
 		container = new ArrayList<byte[]>();
 	}
 	
-	public StorableList(int size) {
+	public AccessList(int size) {
 		container =  new ArrayList<byte[]>(size);
 	}
 
-	public StorableList(byte[] inputBytes) {
+	public AccessList(byte[] inputBytes) {
 		this(inputBytes, 0, inputBytes.length);
 	}
 	
-	public StorableList(byte[] inputBytes, int offset, int length) {
+	public AccessList(byte[] inputBytes, int offset, int length) {
 		if ( null == inputBytes) return;
 		this.container = new ArrayList<byte[]>();
 		int curPos = offset;

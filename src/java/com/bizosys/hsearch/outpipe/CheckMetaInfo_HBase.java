@@ -11,7 +11,7 @@ import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.filter.Access;
 import com.bizosys.hsearch.filter.FilterMetaAndAcl;
 import com.bizosys.hsearch.filter.PreviewFilter;
-import com.bizosys.hsearch.filter.StorableList;
+import com.bizosys.hsearch.filter.AccessList;
 import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
@@ -35,7 +35,7 @@ public class CheckMetaInfo_HBase {
 	
 	public CheckMetaInfo_HBase(QueryContext ctx) {
 		
-		StorableList aclB = null;
+		AccessList aclB = null;
 		if ( null == ctx.user ) {
 			Access access = new Access();
 			access.addAnonymous();
