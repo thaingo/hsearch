@@ -45,6 +45,7 @@ public class FilterIds {
 	public static final byte[] isMatchingColBytes( byte[] storeB, byte[] inB) {
 		if ( null == storeB ) return null;
 		if ( null == inB ) return null;
+		int inT = inB.length;
 		
 		int storeL = storeB.length;
 		int pos = 0, startPos=0;
@@ -69,7 +70,7 @@ public class FilterIds {
 				continue;
 			}
 			
-			if ( Byte.MIN_VALUE != inB[4]) { /** Doc Type code match needed*/
+			if ( inT > 4 && Byte.MIN_VALUE != inB[4]) { /** Doc Type code match needed*/
 				isMatched = false;
 				for (int i=0; i<termsT; i++ ) {
 					if ( storeB[pos+i] == inB[4] ) {
@@ -83,8 +84,7 @@ public class FilterIds {
 				continue;
 			}
 			
-				
-			if ( Byte.MIN_VALUE != inB[5]) { /** Term  Type code match needed*/
+			if ( inT > 5 && Byte.MIN_VALUE != inB[5]) { /** Term  Type code match needed*/
 				isMatched = false;
 				startPos = pos+termsT;
 				for (int i=0; i<termsT; i++ ) {
