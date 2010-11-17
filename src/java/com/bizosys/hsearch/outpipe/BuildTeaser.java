@@ -5,15 +5,11 @@ import java.util.List;
 
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.NVBytes;
-import com.bizosys.hsearch.index.DocMeta;
-import com.bizosys.hsearch.index.DocTeaser;
 import com.bizosys.hsearch.query.DocMetaWeight;
 import com.bizosys.hsearch.query.DocTeaserWeight;
 import com.bizosys.hsearch.query.HQuery;
 import com.bizosys.hsearch.query.QueryContext;
-import com.bizosys.hsearch.query.QueryPlanner;
 import com.bizosys.hsearch.query.QueryResult;
-import com.bizosys.hsearch.query.QueryTerm;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
@@ -48,16 +44,6 @@ public class BuildTeaser implements PipeOut{
 		DocTeaserWeight.sort(res.teasers);
 		return true;
 	}
-	
-	/**
-	 * Here we look for exact match on a very limited set to build the teaser.
-	 * @param planner
-	 * @param dtw
-	 */
-	private void scoreExactMatch(QueryPlanner planner, DocTeaserWeight dtw) {
-	}
-	
-	
 	
 	public boolean commit() throws ApplicationFault, SystemFault {
 		return true;

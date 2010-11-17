@@ -12,7 +12,6 @@ import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.util.StringUtils;
 
 /**

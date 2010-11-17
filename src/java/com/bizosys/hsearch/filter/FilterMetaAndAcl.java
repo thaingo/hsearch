@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class FilterMetaAndAcl {
 	 
-	public AccessStorable viewAcls;
+	public AccessStorable userAcl;
 	public byte[] keyword = null; //[search in tags]
 	public byte[] state = null;
 	public byte[] tenant = null;
@@ -79,11 +79,11 @@ public class FilterMetaAndAcl {
 	}
 
 	private int writeBytes(byte[] variableB, byte[] bytes, int index) {
-		int variableLen = variableB.length;
+		short variableLen = (short) variableB.length;
 		bytes[index++] = (byte)(variableLen >> 8 & 0xff);
 		bytes[index++] = (byte)(variableLen & 0xff);
 		System.arraycopy(variableB, 0, bytes, index, variableLen);
-		index = index + 2 + variableLen;
+		index = index + variableLen;
 		return index;
 	}
 
@@ -109,7 +109,7 @@ public class FilterMetaAndAcl {
 		if ( filterFlags[counter++]) {
 			short len = getShort(index, this.bytesA);
 			index = index + 2;
-			this.viewAcls = new AccessStorable(this.bytesA, index, len);
+			this.userAcl = new AccessStorable(this.bytesA, index, len);
 			index = index + len;
 		}
 		
@@ -163,19 +163,18 @@ public class FilterMetaAndAcl {
 	 * @param value
 	 * @return
 	 */
-	public boolean filterAcl( byte[] value)  {
+	public boolean allowAccess( byte[] value)  {
 		if ( null == value ) return true;
-		if ( null == this.viewAcls) return false;
-		
+		if ( null == this.userAcl) return false;
 		short len = getShort(0, value);
-		AccessStorable foundAcls = new AccessStorable(value,2,len);
-		for (Object objFoundAcl : foundAcls) {
-			if (compareBytes(0, (byte[]) objFoundAcl, Access.ANY_BYTES)) {
+		AccessStorable docAcls = new AccessStorable(value,2,len);
+		for (Object docAclO : docAcls) {
+			if (compareBytes(0, (byte[]) docAclO, Access.ANY_BYTES)) {
 				return true;
 			}
 			
-			for (Object userAcl : this.viewAcls) {
-				if ( compareBytes(0, (byte[]) objFoundAcl,
+			for (Object userAcl : this.userAcl) {
+				if ( compareBytes(0, (byte[]) docAclO,
 					(byte[]) userAcl) ) return true;
 			}
 		}
@@ -187,7 +186,7 @@ public class FilterMetaAndAcl {
 	 * @param storedB
 	 * @return
 	 */
-	public boolean filterMeta(byte[] storedB) {
+	public boolean allowMeta(byte[] storedB) {
 		
 		int pos = 0;
 		byte docTypeLen = storedB[pos++];
@@ -198,7 +197,6 @@ public class FilterMetaAndAcl {
 			if ( ! compareBytes(pos, storedB, state) ) return false;
 		}
 		pos = pos + stateLen;
-			
 		byte tenantLen = storedB[pos++];
 		if ( null != tenant) {
 			if ( ! compareBytes(pos, storedB, tenant) ) return false;
@@ -220,44 +218,33 @@ public class FilterMetaAndAcl {
 		if ( flag_1[bitPos++]) pos = pos+ 4; /** Weight */
 		if ( flag_1[bitPos++]) pos = pos+ 4; /** IP House */
 		bitPos = bitPos+ 2; /** Security and Sentiment */
-		if ( flag_1[bitPos++]) pos = pos+ 4; /** IP House */
 		if ( flag_1[bitPos++]) {  /** Tags Available*/
 			short len = getShort(pos, storedB);
 			pos = pos + 2;
 			if ( null != this.keyword ) {
-				boolean found = false;	
-				for ( int i=0; i<len ; i++) {
-					found = true;
-					for ( int j=0; j<this.keyword.length; j++) {
-						if ( storedB[pos+i+j] != keyword[j]) found = false;
-					}
-					if ( found) break;
-				}
-				if ( !found) return false;
+				if (this.keyword.length > len ) return false;
+				if ( -1 == indexOf(storedB, pos, pos+len,
+					this.keyword, 0, this.keyword.length) ) return false;
 			}
 			pos = pos+ len;
 		} else {
 			if ( null != this.keyword ) return false; //No tags found
 		}
-		
-		if (flag_1[bitPos++]) {
-			short len = getShort(pos, storedB);
-			pos = pos + 2 + len;
-		}
-		
+		//Social text, No need to read
 		bitPos = 0;
 		if (flag_2[bitPos++]) {
-			if ( -1 != createdBefore && createdBefore > getLong(pos, storedB) ) return false;
-			if ( -1 != createdAfter && createdAfter < getLong(pos, storedB) ) return false;
+			long createdOn =getLong(pos, storedB);
 			pos = pos+ 8;
+			if ( -1 != createdBefore && createdBefore > createdOn) return false;
+			if ( -1 != createdAfter && createdAfter < createdOn ) return false;
 		}
 		
 		if (flag_2[bitPos++]) {
-			if ( -1 != modifiedBefore && modifiedBefore > getLong(pos, storedB) ) return false;
-			if ( -1 != modifiedAfter && modifiedAfter < getLong(pos, storedB) ) return false;
+			long modifiedOn =getLong(pos, storedB);
 			pos = pos+ 8;
+			if ( -1 != modifiedBefore && modifiedBefore > modifiedOn) return false;
+			if ( -1 != modifiedAfter && modifiedAfter < modifiedOn) return false;
 		}
-		
 		return true;
 	}
 	
@@ -265,6 +252,7 @@ public class FilterMetaAndAcl {
 		byte[] inputBytes, byte[] compareBytes) {
 		
 		int compareBytesT = compareBytes.length;
+		if ( (offset + compareBytesT) > inputBytes.length ) return false;
 		if ( compareBytes[0] != inputBytes[offset]) return false;
 		if ( compareBytes[compareBytesT - 1] != inputBytes[compareBytesT + offset - 1] ) return false;
 		switch (compareBytesT) {
@@ -283,49 +271,9 @@ public class FilterMetaAndAcl {
 			compareBytes[3] == inputBytes[3+ offset] && 
 			compareBytes[2] == inputBytes[2+ offset] && 
 			compareBytes[4] == inputBytes[4+ offset];
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
-		case 14:
-		case 15:
-		case 16:
-		case 17:
-		case 18:
-		case 19:
-		case 20:
-		case 21:
-		case 22:
-		case 23:
-		case 24:
-		case 25:
-		case 26:
-		case 27:
-		case 28:
-		case 29:
-		case 30:
-			for ( int i=offset; i< compareBytesT - 1; i++) {
-				if ( compareBytes[i] != inputBytes[offset + i]) return false;
-			}
-			break;
-			
-		case 31:
-			
-			for ( int a = 1; a <= 6; a++) {
-				if ( ! 
-				(compareBytes[a] == inputBytes[a+offset] && 
-				compareBytes[a+6] == inputBytes[a+6+offset] && 
-				compareBytes[a+12] == inputBytes[a+12+offset] && 
-				compareBytes[a+18] == inputBytes[a+18+offset] && 
-				compareBytes[a+24] == inputBytes[a+24+offset]) ) return false;
-			}
-			break;
 		default:
-
-			for ( int i=offset; i< compareBytesT - 1; i++) {
+			compareBytesT--;
+			for ( int i=0; i< compareBytesT; i++) {
 				if ( compareBytes[i] != inputBytes[offset + i]) return false;
 			}
 		}
@@ -382,5 +330,25 @@ public class FilterMetaAndAcl {
 			(byte)(value ) };		
 	}    
     
-    
+    static int indexOf(byte[] source, int startPosition, int endPosition,
+    		byte[] target, int targetOffset, int targetCount ) {	
+    	
+    	byte first  = target[targetOffset];
+    	int i = startPosition;
+    	startSearchForFirstChar: 
+		while (true) {	
+			while (i <= endPosition && source[i] != first)i++;
+			if (i > endPosition) return -1;
+			int j = i + 1;
+			int end = j + targetCount - 1;
+			int k = targetOffset + 1;
+			while (j < end) {
+				if (source[j++] != target[k++]) {
+					i++;
+					continue startSearchForFirstChar;
+				}
+			}
+			return i - startPosition;
+		}
+	}
 }

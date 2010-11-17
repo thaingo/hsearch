@@ -2,20 +2,14 @@ package com.bizosys.hsearch.outpipe;
 
 import java.util.List;
 
+import com.bizosys.hsearch.query.DocMetaWeight;
+import com.bizosys.hsearch.query.HQuery;
+import com.bizosys.hsearch.query.QueryContext;
+import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
-
-import com.bizosys.hsearch.hbase.HReader;
-import com.bizosys.hsearch.hbase.NVBytes;
-import com.bizosys.hsearch.query.DocMetaWeight;
-import com.bizosys.hsearch.query.DocWeight;
-import com.bizosys.hsearch.query.HQuery;
-import com.bizosys.hsearch.query.QueryContext;
-import com.bizosys.hsearch.query.QueryPlanner;
-import com.bizosys.hsearch.query.QueryResult;
-import com.bizosys.hsearch.schema.IOConstants;
 
 public class CheckMetaInfo implements PipeOut{
 	

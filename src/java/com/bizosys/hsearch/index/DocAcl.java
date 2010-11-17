@@ -68,34 +68,23 @@ public class DocAcl implements IDimension, IStorable {
 
 	public byte[] toBytes() {
 
-		boolean isViewPerm = false;
-		byte[] viewPermissionB = null;
+		boolean isViewPerm = false; byte[] viewPermissionB = null;
 		if ( null != this.viewPermission ) {
 			isViewPerm = true;
 			viewPermissionB = this.viewPermission.toStorable().toBytes();
 		}
-		
-		boolean isEditPerm = false;
-		byte[] editPermissionB = null;
+		boolean isEditPerm = false; byte[] editPermissionB = null;
 		if ( null != this.editPermission ) {
 			isEditPerm = true;
 			editPermissionB = this.editPermission.toStorable().toBytes();
 		}
 		
-		int totalBytes = 4;
+		int totalBytes = 4; /** 2 + 2 the short lengths */
 		if ( isViewPerm  ) totalBytes = totalBytes + viewPermissionB.length;
 		if ( isEditPerm  ) totalBytes = totalBytes + editPermissionB.length;
 		
 		byte[] bytes = new byte[totalBytes];
 		int pos = 0;
-		
-		short editPermLen = ( isViewPerm) ? (short)editPermissionB.length : (short) 0;
-		System.arraycopy(Storable.putShort(editPermLen), 0, bytes, pos, 2);
-		pos = pos + 2;
-		if (isEditPerm) {
-			System.arraycopy(viewPermissionB, 0, bytes, pos, editPermLen);
-			pos = pos+ editPermLen;
-		}
 		
 		short viewPermLen = ( isViewPerm) ? (short)viewPermissionB.length : (short) 0;
 		System.arraycopy(Storable.putShort(viewPermLen), 0, bytes, pos, 2);
@@ -105,6 +94,13 @@ public class DocAcl implements IDimension, IStorable {
 			pos = pos+ viewPermLen;
 		}
 		
+		short editPermLen = ( isEditPerm) ? (short)editPermissionB.length : (short) 0;
+		System.arraycopy(Storable.putShort(editPermLen), 0, bytes, pos, 2);
+		pos = pos + 2;
+		if (isEditPerm) {
+			System.arraycopy(editPermissionB, 0, bytes, pos, editPermLen);
+			pos = pos+ editPermLen;
+		}
 		return bytes;
 	}
 

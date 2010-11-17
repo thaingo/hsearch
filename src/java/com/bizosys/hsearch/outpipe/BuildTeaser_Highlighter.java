@@ -145,17 +145,14 @@ public class BuildTeaser_Highlighter {
 		int start; //start position of the word in the given corpus
 		int end;   //End position start position + word length
 		
-		public WordPosition(int index, int start, int end) 
-		{
+		public WordPosition(int index, int start, int end) {
 			this.index = index;
 			this.start = start;
 			this.end = end;
 		}
 		
-		public String toString()
-		{
+		public String toString() {
 			return "index:" + index + ", start:" + start + ", end:" + end;
 		}
-	
 	}
 }

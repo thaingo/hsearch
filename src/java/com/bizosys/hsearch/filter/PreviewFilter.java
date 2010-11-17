@@ -37,9 +37,9 @@ public class PreviewFilter implements Filter {
 	 */
 	public ReturnCode filterKeyValue(KeyValue kv) {
 		if ( ACL_BYTE == kv.getQualifier()[0]) { // Match ACL
-			if ( ! this.fma.filterAcl(kv.getValue())) return ReturnCode.SKIP;
+			if ( ! this.fma.allowAccess(kv.getValue())) return ReturnCode.SKIP;
 		} else if (META_BYTE == kv.getQualifier()[0]) {
-			if ( ! this.fma.filterMeta(kv.getValue())) return ReturnCode.SKIP;
+			if ( ! this.fma.allowMeta(kv.getValue())) return ReturnCode.SKIP;
 		}
 		return ReturnCode.INCLUDE;
 	}
