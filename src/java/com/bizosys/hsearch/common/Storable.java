@@ -492,7 +492,7 @@ public class Storable implements IStorable {
 	@Override
 	public String toString() {
 		if ( null != this.asIsObject) return this.asIsObject.toString();
-		else return "None";
+		else return "";
 	}
 
 }
