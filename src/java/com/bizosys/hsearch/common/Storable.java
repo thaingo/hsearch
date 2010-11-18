@@ -309,49 +309,9 @@ public class Storable implements IStorable {
 						compareBytes[3] == inputBytes[3] && 
 						compareBytes[2] == inputBytes[2] && 
 						compareBytes[4] == inputBytes[4];
-					case 7:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-					case 16:
-					case 17:
-					case 18:
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-					case 27:
-					case 28:
-					case 29:
-					case 30:
-						for ( int i=0; i< compareBytesT - 1; i++) {
-							if ( compareBytes[i] != inputBytes[i]) return false;
-						}
-						break;
-						
-					case 31:
-						
-						for ( int a = 1; a <= 6; a++) {
-							if ( ! 
-							(compareBytes[a] == inputBytes[a] && 
-							compareBytes[a+6] == inputBytes[a+6] && 
-							compareBytes[a+12] == inputBytes[a+12] && 
-							compareBytes[a+18] == inputBytes[a+18] && 
-							compareBytes[a+24] == inputBytes[a+24]) ) return false;
-						}
-						break;
 					default:
-
-						for ( int i=0; i< compareBytesT - 1; i++) {
+						compareBytesT--;
+						for ( int i=0; i< compareBytesT; i++) {
 							if ( compareBytes[i] != inputBytes[i]) return false;
 						}
 				}

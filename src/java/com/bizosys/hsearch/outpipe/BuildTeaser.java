@@ -3,6 +3,8 @@ package com.bizosys.hsearch.outpipe;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bizosys.hsearch.common.Storable;
+import com.bizosys.hsearch.filter.TeaserFilter;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.query.DocMetaWeight;
@@ -32,12 +34,28 @@ public class BuildTeaser implements PipeOut{
 		int maxFetching = ( ctx.documentFetchLimit <  foundT) ? 
 				ctx.documentFetchLimit : foundT;
 		
-		List<DocTeaserWeight> weightedTeasers = new ArrayList<DocTeaserWeight>(maxFetching); 
+		List<DocTeaserWeight> weightedTeasers = new ArrayList<DocTeaserWeight>(maxFetching);
+		
+		/**
+		 * Make array list of words
+		 */
+		int termsMT = ( null == query.planner.mustTerms) ? 0 : query.planner.mustTerms.size();
+		int termsOT = ( null == query.planner.optionalTerms) ?
+			0 : query.planner.optionalTerms.size();
+		byte[][] wordsB = new byte[termsMT + termsOT][];
+		for ( int i=0; i<termsMT; i++) {
+			wordsB[i] = new Storable(query.planner.mustTerms.get(i).wordOrig).toBytes();
+		}
+		for ( int i=0; i<termsOT; i++) {
+			wordsB[i+termsMT] = new Storable(query.planner.optionalTerms.get(i).wordOrig).toBytes();
+		}
+		
+		TeaserFilter tf = new TeaserFilter(wordsB);
 		for ( int i=0; i< maxFetching; i++) {
 			DocMetaWeight metaWt =  (DocMetaWeight) res.sortedDynamicWeights[i];
 			byte[] idB = metaWt.id.getBytes();
 			List<NVBytes> flds = 
-				HReader.getCompleteRow(IOConstants.TABLE_PREVIEW, idB);
+				HReader.getCompleteRow(IOConstants.TABLE_PREVIEW, idB,tf);
 			weightedTeasers.add(new DocTeaserWeight(idB, flds,metaWt.weight));
 		}
 		res.teasers = weightedTeasers.toArray();

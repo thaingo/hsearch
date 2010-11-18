@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.outpipe;
+package com.bizosys.hsearch.filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +19,18 @@ public class BuildTeaserHighlighter {
 	public BuildTeaserHighlighter(byte[] content, String[] words) {
 		setContent(content);
 		setWords(words);
+	}
+	
+	public byte[] find(byte[] content, byte[][] words, int sectionSize) {
+		setContent(content);
+		this.bWords = words;
+		int wordsT = this.bWords.length;
+		this.wsize = new int[wordsT];
+		for (int i=0; i<wordsT; i++) {
+			this.wsize[i] = this.bWords[i].length;
+		}
+		List<WordPosition> wpL = findTerms();
+		return cutSection (wpL, sectionSize);
 	}
 
 	public void setContent(byte[] content) {

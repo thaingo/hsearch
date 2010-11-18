@@ -9,6 +9,8 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.Filter;
+
 import com.bizosys.oneline.ApplicationFault;
 
 import com.bizosys.hsearch.common.Storable;
@@ -53,8 +55,14 @@ public class HReader {
 			if ( null != facade && null != table) facade.putTable(table);
 		}
 	}
-	
+
 	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk) throws ApplicationFault{
+		return getCompleteRow (tableName, pk, null);
+	}
+	
+	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk, 
+		Filter filter) throws ApplicationFault{
+		
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
 		Result r = null;
@@ -62,6 +70,7 @@ public class HReader {
 			facade = HBaseFacade.getInstance();
 			table = facade.getTable(tableName);
 			Get getter = new Get(pk);
+			if  (null != filter) getter.setFilter(filter);
 			if ( table.exists(getter) ) {
 				r = table.get(getter);
 				List<NVBytes> nvs = new ArrayList<NVBytes>(r.list().size());
