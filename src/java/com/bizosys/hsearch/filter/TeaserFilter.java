@@ -83,7 +83,7 @@ public class TeaserFilter implements Filter {
 			int wLen = in.readByte() ;
 			index++;
 			this.bWords[i] = new byte[wLen];
-			in.readFully(this.bWords[i], index, wLen);
+			in.readFully(this.bWords[i], 0, wLen);
 			index = index + wLen;
 		}
 		

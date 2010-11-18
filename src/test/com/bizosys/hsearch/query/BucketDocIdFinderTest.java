@@ -16,6 +16,7 @@ import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.NVBytes;
+import com.bizosys.hsearch.index.DocTeaser;
 import com.bizosys.hsearch.index.IndexWriter;
 import com.bizosys.hsearch.inpipe.ComputeTokens;
 import com.bizosys.hsearch.inpipe.FilterLowercase;
@@ -28,6 +29,9 @@ import com.bizosys.hsearch.inpipe.SaveToIndex;
 import com.bizosys.hsearch.inpipe.SaveToPreview;
 import com.bizosys.hsearch.inpipe.TokenizeStandard;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
+import com.bizosys.hsearch.outpipe.BuildTeaser;
+import com.bizosys.hsearch.outpipe.CheckMetaInfo;
+import com.bizosys.hsearch.outpipe.ComputeDynamicRanking;
 import com.bizosys.hsearch.outpipe.ComputeStaticRanking;
 import com.bizosys.hsearch.outpipe.LuceneQueryParser;
 import com.bizosys.hsearch.outpipe.QuerySequencing;
@@ -49,7 +53,7 @@ public class BucketDocIdFinderTest extends TestCase {
 		BucketDocIdFinderTest t = new BucketDocIdFinderTest();
 		
         //TestFerrari.testRandom(t);
-		t.populateDevelopers();
+		//t.populateDevelopers();
 		t.testWeighing();
 	}
 
@@ -84,12 +88,12 @@ public class BucketDocIdFinderTest extends TestCase {
 		for ( Object docWt: query.result.sortedStaticWeights) {
 			DocWeight dw = (DocWeight )docWt;
 			sb.append("\n---------").append(dw.id);
-			List<NVBytes> values = HReader.getCompleteRow(IOConstants.TABLE_CONTENT, dw.id.getBytes());
-			if ( null == values) continue;
-			for (NVBytes bytes : values) {
-				sb.append('\n').append(bytes.toString());
-			}
  		}
+		
+		for ( Object teaserO: query.result.teasers) {
+			DocTeaserWeight teaser = (DocTeaserWeight)teaserO;
+			sb.append(">>Teaser : ").append(teaser.toString()).append('\n');
+ 		}		
 		
 		System.out.println(sb.toString());
 	}
@@ -137,9 +141,10 @@ public class BucketDocIdFinderTest extends TestCase {
 		new QuerySequencing().visit(query);
 		new SequenceProcessor().visit(query);
 		new ComputeStaticRanking().visit(query); 
-		//new ComputeStaticRanking().visit(query);
-		//System.out.println( "Query Planner \n" + planner);
-		//System.out.println( "Query Context \n" + ctx);
+		new CheckMetaInfo().visit(query);
+		new ComputeDynamicRanking().visit(query);
+		new ComputeDynamicRanking().visit(query);
+		new BuildTeaser().visit(query);
 		return query;
 	}
 	

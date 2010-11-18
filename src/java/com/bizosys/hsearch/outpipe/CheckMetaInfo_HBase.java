@@ -29,11 +29,11 @@ import com.bizosys.oneline.ApplicationFault;
  * @author karan
  *
  */
-public class CheckMetaInfo_HBase {
+class CheckMetaInfo_HBase {
 	
 	private PreviewFilter pf;
 	
-	public CheckMetaInfo_HBase(QueryContext ctx) {
+	protected CheckMetaInfo_HBase(QueryContext ctx) {
 		
 		AccessStorable aclB = null;
 		if ( null == ctx.user ) {
@@ -57,7 +57,7 @@ public class CheckMetaInfo_HBase {
 		this.pf = new PreviewFilter(setting);
 	}
 	
-	public List<DocMetaWeight> filter(Object[] staticL, 
+	protected List<DocMetaWeight> filter(Object[] staticL, 
 		int  scroll, int pageSize ) throws ApplicationFault {
 		
 		L.l.debug("BuildPreviewPage_HBase > Call START");

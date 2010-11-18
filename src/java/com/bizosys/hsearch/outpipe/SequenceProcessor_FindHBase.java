@@ -24,7 +24,7 @@ import com.bizosys.hsearch.query.QueryTerm;
  * @author karan
  *
  */
-public class SequenceProcessor_FindHBase implements Callable<Object> {
+class SequenceProcessor_FindHBase implements Callable<Object> {
 	
 	public TermFilter tf;
 	public List<byte[]> foundBuckets = new Vector<byte[]>();

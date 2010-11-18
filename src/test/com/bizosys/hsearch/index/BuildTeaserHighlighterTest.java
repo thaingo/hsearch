@@ -1,9 +1,6 @@
 package com.bizosys.hsearch.index;
 
-import java.util.Arrays;
 import java.util.List;
-
-import org.apache.lucene.util.ArrayUtil;
 
 import junit.framework.TestCase;
 
@@ -15,19 +12,18 @@ public class BuildTeaserHighlighterTest extends TestCase {
 
 	public static void main(String[] args) throws Exception {
 		BuildTeaserHighlighterTest t = new BuildTeaserHighlighterTest();
-        //TestFerrari.testAll(t);
-		t.testSearch();
+        TestFerrari.testAll(t);
+		//t.testSearch();
 	}
 	public void testSearch() throws Exception {
 		BuildTeaserHighlighter bth = new BuildTeaserHighlighter();
 		String[] wordL = new String[]{"muthannavaal", "claustrophobia", "banyan", "tree"};
 		byte[] content = sampleText.toLowerCase().getBytes();
+		//byte[] content = sampleText.getBytes();
 		bth.setContent(content);
 		bth.setWords(wordL);
 		List<WordPosition> wpL = bth.findTerms();
-		
-		System.out.println( new String(bth.cutSection(wpL, 180)) ); 
-
+		new String(bth.cutSection(wpL, 180)) ; 
 	}
 	
 	private static String sampleText = "We are at Shengalipuram, a.k.a Svayam-kalihara-puram, Siva-Kali-puram. " +
