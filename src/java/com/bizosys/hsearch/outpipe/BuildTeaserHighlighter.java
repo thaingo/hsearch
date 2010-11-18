@@ -1,6 +1,7 @@
 package com.bizosys.hsearch.outpipe;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BuildTeaserHighlighter {
@@ -35,7 +36,6 @@ public class BuildTeaserHighlighter {
 			loop++;
 		}
 	}
-	
 	
 	public List<WordPosition> findTerms() {
 
@@ -111,12 +111,60 @@ public class BuildTeaserHighlighter {
 		return posL;
 	}
 	
+	public byte[] cutSection (List<WordPosition> wpL, int sectionSize) {
+		int start = 0;
+		int end = sectionSize;
+		int sectionsT = (bContent.length/sectionSize) + 1;
+		int[] sections = new int[sectionsT];  
+		Arrays.fill(sections, 0);
+		
+		int cur = 0;
+		int max = 0;
+		int maxIndex = 0;
+		for ( int index=0; index< sectionsT; index++ ) {
+			start = index * 180;
+			end = start + 180;
+			for (WordPosition wp : wpL) {
+				if (wp.start > start && wp.end < end) {
+					cur = sections[index] + 1;
+					sections[index] = cur;
+					if ( cur > max ) {
+						max = cur;
+						maxIndex = index;
+					}
+				}
+			}
+		}
+		
+		int newMaxSection = 0;
+		for ( int index=1; index< sectionsT - 1; index++ ) {
+			if ( (sections[index] + sections[index+1] ) < max ) {
+				start = index * sectionSize + (sectionSize / 2) ;
+				end = start + sectionSize;
+				int found = 0;
+				for (WordPosition wp : wpL) {
+					if (wp.start > start && wp.end < end) found++;
+				}
+				if ( found > max){
+					newMaxSection = index;
+					max = found; 
+				}
+			}
+		}
+		
+		if ( newMaxSection > max) max = newMaxSection;
+		byte[] sectionB = new byte[sectionSize];
+		System.arraycopy(this.bContent, maxIndex++ * sectionSize,
+				sectionB , 0, sectionSize);
+		return sectionB; 
+	}
+	
 
 	public static class WordPosition {
 		
-		int index; //Query keyword position (abinash karan hbase = 0,1,2
-		int start; //start position of the word in the given corpus
-		int end;   //End position start position + word length
+		public int index; //Query keyword position (abinash karan hbase = 0,1,2
+		public int start; //start position of the word in the given corpus
+		public int end;   //End position start position + word length
 		
 		public WordPosition(int index, int start, int end) {
 			this.index = index;
