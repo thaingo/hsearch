@@ -134,8 +134,8 @@ public class BuildTeaserHighlighter {
 		int max = 0;
 		int maxIndex = 0;
 		for ( int index=0; index< sectionsT; index++ ) {
-			start = index * 180;
-			end = start + 180;
+			start = index * sectionSize;
+			end = start + sectionSize;
 			for (WordPosition wp : wpL) {
 				if (wp.start > start && wp.end < end) {
 					cur = sections[index] + 1;
