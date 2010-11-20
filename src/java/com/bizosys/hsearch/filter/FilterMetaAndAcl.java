@@ -88,13 +88,13 @@ public class FilterMetaAndAcl {
 	}
 
 	public void writeHeader(DataOutput out) throws IOException {
-		out.write(this.bytesA.length);
+		out.writeInt(this.bytesA.length);
 		out.write(this.bytesA);
 	}
 	 
 	public void readHeader(DataInput in) throws IOException {
 		int totalB = in.readInt();
-		System.out.println("Total Bytes:" + totalB);
+		System.out.println("FilterMetaAndAcl readHeader :" + totalB);
 		this.bytesA = new byte[totalB];
 		in.readFully(this.bytesA, 0, totalB);
 		deserialize();
@@ -165,6 +165,7 @@ public class FilterMetaAndAcl {
 	 */
 	public boolean allowAccess( byte[] value)  {
 		if ( null == value ) return true;
+		System.out.println("ACL Size :" + value.length);
 		if ( null == this.userAcl) return false;
 		short len = getShort(0, value);
 		AccessStorable docAcls = new AccessStorable(value,2,len);

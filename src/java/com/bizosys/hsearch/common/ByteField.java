@@ -131,7 +131,7 @@ public class ByteField extends Storable {
 		
 		if ( null == inputBytes ) return null;
 		int inputBytesT = inputBytes.length;
-		if ( 1 < inputBytesT ) return null;
+		if ( inputBytesT < 1) return null;
 		
 		byte typeIdentifier = inputBytes[inputBytesT - 1];
 		return new ByteField( new String(name),

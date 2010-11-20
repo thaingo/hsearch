@@ -105,6 +105,7 @@ public class DocAcl implements IDimension, IStorable {
 	}
 
 	public void toNVs(List<NV> nvs) throws ApplicationFault {
+		if ( null == this.viewPermission && null == this.editPermission) return;
 		nvs.add(new NV(IOConstants.SEARCH_BYTES,IOConstants.ACL_BYTES, this));
 	}
 

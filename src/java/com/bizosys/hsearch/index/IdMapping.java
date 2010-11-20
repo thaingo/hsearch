@@ -3,14 +3,16 @@ package com.bizosys.hsearch.index;
 import java.io.IOException;
 import java.util.List;
 
-import com.bizosys.oneline.SystemFault;
-
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
+import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
+import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.hsearch.util.RecordScalar;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 public class IdMapping {
 	
@@ -36,11 +38,16 @@ public class IdMapping {
 	
 	public static final void persist(List<RecordScalar> records) throws SystemFault{
 		try {
-			HWriter.insertScalar(IOConstants.TABLE_IDMAP, records, true);
+			HWriter.insertScalar(IOConstants.TABLE_IDMAP, records);
 		} catch (IOException ex) {
 			throw new SystemFault(ex);
 		}
 	}
+	
+	public static final List<NVBytes> getKey(byte[] origKey) throws SystemFault{
+		return HReader.getCompleteRow(IOConstants.TABLE_IDMAP, origKey);
+	}
+	
 
 	public static final String getKey(long bucket, short docPos) {
 		StringBuilder mappedKey = new StringBuilder(20);
@@ -48,4 +55,17 @@ public class IdMapping {
 		mappedKey.append(docPos);
 		return mappedKey.toString();
 	}
+	
+	public static final long getBucket(String key) throws ApplicationFault {
+		int foundAt = key.indexOf('_');
+		if ( foundAt == -1) throw new ApplicationFault("IdMapping: Illegal Key:" + key);
+		return new Long(key.substring(0,foundAt));
+	}
+	
+	public static final short getDocSerial(String key) throws ApplicationFault {
+		int foundAt = key.indexOf('_');
+		if ( foundAt == -1) throw new ApplicationFault("IdMapping: Illegal Key:" + key);
+		return new Short(key.substring(foundAt+1));
+	}
+
 }

@@ -2,10 +2,8 @@ package com.bizosys.hsearch.index;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
@@ -18,11 +16,11 @@ import com.bizosys.hsearch.schema.ILanguageMap;
  */
 public class TermList implements IStorable {
 	
-	private static final int TERM_SIZE_VECTOR = 8;
+	public static final int TERM_SIZE_VECTOR = 8;
 
-	private static final int TERM_SIZE_NOVECTOR = 5;
+	public static final int TERM_SIZE_NOVECTOR = 5;
 
-	public boolean termVectorStorageEnabled = false;
+	public static boolean termVectorStorageEnabled = false;
 	
 	/**
 	 * Total terms present for this keyword
@@ -69,6 +67,7 @@ public class TermList implements IStorable {
 	public TermList() {
 	}
 	
+
 	public void setExistingBytes(byte[] existingB) {
 		this.existingB = existingB;
 	}
@@ -314,8 +313,7 @@ public class TermList implements IStorable {
 		
 		if ( null == lstKeywords) return null;
 		
-		this.mergeBytes();
-		System.out.println("lstKeywords:" + this.toString());
+		InvertedIndex.merge(this.existingB, lstKeywords);
 		
 		int totalBytes = 0;
 		int termsT = 0;
@@ -404,7 +402,6 @@ public class TermList implements IStorable {
 			 */
 			for (Term t : lstTerms) {
 				dp = t.getDocumentPosition();
-				System.out.println("ToBytes getDocumentPosition :" + dp);
 				bytes[pos++] = (byte)(dp >> 8 & 0xff);
 				bytes[pos++] = (byte)(dp & 0xff);
 			}
@@ -412,107 +409,7 @@ public class TermList implements IStorable {
 		return bytes;
 	}
 	
-	/**
-	 * Merge the supplied document list with the documents
-	 * already present in the bucket.
-	 * 
-	 * Ignore all the supplied documents while loading from bytes the existing ones
-	 * Create the Term List 
-	 *
-	 */
-	public void mergeBytes() {
-		if ( null == existingB) return;
 
-		short docPos;
-		Set<Short> freshDocs = getFreshDocs();
-		
-		int bytesT = existingB.length;
-		List<Term> priorDocTerms = new ArrayList<Term>();
-		int keywordHash = -1, termsT = -1, shift = 0, pos = 0, readPos=0;
-		byte docTyep=0,termTyep=0,termWeight=0,termFreq=0;
-		short termPos=0;
-		
-		while ( pos < bytesT) {
-			if ( L.l.isDebugEnabled() ) 
-				L.l.debug("TermList Byte Marshalling: (pos:bytesT) = " + pos + ":" + bytesT);
-			
-			priorDocTerms.clear();
-			keywordHash = Storable.getInt(pos, existingB);
-			pos = pos + 4;
-
-			/**
-			 * Compute number of terms presence.
-			 */
-			termsT = existingB[pos++];
-			if ( -1 == termsT ) {
-				termsT =  Storable.getInt(pos, existingB);
-				pos = pos + 4;
-			} 
-			if ( L.l.isDebugEnabled() ) L.l.debug("termsT:" + termsT + ":" + pos );
-			
-			/**
-			 * Compute Each Term.
-			 */
-			shift = TERM_SIZE_NOVECTOR;
-			if ( termVectorStorageEnabled ) shift = TERM_SIZE_VECTOR;
-			for ( int i=0; i<termsT; i++) {
-				if ( L.l.isDebugEnabled() ) L.l.debug("pos:" + pos );
-				
-				readPos = pos + ((shift - 2) * termsT )+ (i * 2);
-				docPos = (short) ((existingB[readPos] << 8 ) + 
-					( existingB[++readPos] & 0xff ));
-				
-				if ( freshDocs.contains(docPos)) continue;
-				
-				docTyep = existingB[pos+i];
-				termTyep = existingB[pos + termsT + i];
-				termWeight = existingB[pos + (2 * termsT) + i];
-				
-				if ( termVectorStorageEnabled ) {
-					termFreq = existingB[pos + (3 * termsT) + i];
-					readPos = pos + (4 * termsT) + i;
-					termPos = (short) ( (existingB[readPos] << 8 ) + 
-							( existingB[++readPos] & 0xff ) );
-				}
-				Term priorTerm = new Term(docPos,docTyep,termTyep,termWeight,termPos,termFreq);
-				System.out.println(priorTerm.toString());
-				priorDocTerms.add(priorTerm);
-			}
-
-			if ( termVectorStorageEnabled ) pos = pos + (8 * termsT);
-			else pos = pos + (5 * termsT);
-			mergePriorDocTerms(priorDocTerms, keywordHash);
-		}
-	}
-
-	private void mergePriorDocTerms(List<Term> priorDocTerms, int keywordHash) {
-		if ( priorDocTerms.size() > 0 ) {
-			List<Term> terms = null;
-			if ( lstKeywords.containsKey(keywordHash) ) { //This Keyword exists
-				terms = lstKeywords.get(keywordHash);
-				terms.addAll(priorDocTerms);
-			} else {
-				lstKeywords.put(keywordHash, priorDocTerms);
-			}
-		}
-	}
-
-	private Set<Short> getFreshDocs() {
-		Set<Short> freshDocs = new HashSet<Short>();
-		short docPos;
-		for (int hash : lstKeywords.keySet()) {
-			List<Term> terms = lstKeywords.get(hash);
-			for (Term term : terms) {
-				docPos = term.getDocumentPosition();
-				if ( freshDocs.contains(docPos)) continue;
-				freshDocs.add(docPos);
-			}
-		}
-		if ( L.l.isDebugEnabled() ) 
-			L.l.debug("Fresh Documents:" + freshDocs.toString());
-		return freshDocs;
-	}
-		
 	
 	/**
 	 * Does this list contain the keyword.

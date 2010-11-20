@@ -45,7 +45,7 @@ public class SequenceProcessor implements PipeOut{
 				if ( 1 == step.size()) { //Intermediatelt only 1 Term (Inline call)
 					QueryTerm curQuery = step.get(0);
 					
-					SequenceProcessor_FindHBase bucketId = new SequenceProcessor_FindHBase(curQuery,findWithinBuckets);
+					SequenceProcessorFindHBase bucketId = new SequenceProcessorFindHBase(curQuery,findWithinBuckets);
 					if ( null != lastMustQuery ) bucketId.setFilterByIds(lastMustQuery);
 					bucketId.call();
 
@@ -55,9 +55,9 @@ public class SequenceProcessor implements PipeOut{
 					}
 				
 				} else { //Lastly multiple Optional terms Process parallely
-					List<SequenceProcessor_FindHBase> findIdJobs = new ArrayList<SequenceProcessor_FindHBase>(step.size()); 
+					List<SequenceProcessorFindHBase> findIdJobs = new ArrayList<SequenceProcessorFindHBase>(step.size()); 
 					for(QueryTerm term : step) {
-						SequenceProcessor_FindHBase bucketId = new SequenceProcessor_FindHBase(term,findWithinBuckets);
+						SequenceProcessorFindHBase bucketId = new SequenceProcessorFindHBase(term,findWithinBuckets);
 						if ( null != lastMustQuery ) bucketId.setFilterByIds(lastMustQuery);
 						findIdJobs.add(bucketId);
 					}

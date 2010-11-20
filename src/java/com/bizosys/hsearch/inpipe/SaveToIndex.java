@@ -100,7 +100,7 @@ public class SaveToIndex implements PipeIn {
 		}
 		
 		/**
-		 * Assign the created bucketId and coument position to new docs
+		 * Assign the created bucketId and document position to new docs
 		 * Create a Key Map with the original Ids
 		 */
 		IStorable storableBucketId = new Storable(currentBucket);

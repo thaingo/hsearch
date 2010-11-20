@@ -3,19 +3,13 @@ package com.bizosys.hsearch.outpipe;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-
-import org.apache.hadoop.util.StringUtils;
-import com.bizosys.oneline.conf.Configuration;
-import com.bizosys.oneline.services.ServiceFactory;
 
 import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.index.Term;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.lang.Stemmer;
-import com.bizosys.hsearch.outpipe.LuceneQueryParser;
 import com.bizosys.hsearch.query.HQuery;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryPlanner;
@@ -165,31 +159,31 @@ public class LuceneQueryParserTest extends TestCase {
 	}
 	
 	public void testOrgunitFilter() throws Exception  {
-		QueryContext ctx = new QueryContext("ou:icici abinash");
+		QueryContext ctx = new QueryContext("tenant:icici abinash");
 		parseQuery(ctx); 
 		assertEquals("icici", Storable.getString(ctx.tenant.toBytes()) );
 	}
 
 	public void testBornBeforeFilter() throws Exception  {
-		QueryContext ctx = new QueryContext("bornb:1145353454334 abinash");
+		QueryContext ctx = new QueryContext("createdb:1145353454334 abinash");
 		parseQuery(ctx); 
 		assertEquals(1145353454334L, ctx.createdBefore.longValue());
 	}
 
 	public void testBornAfterFilter() throws Exception  {
-		QueryContext ctx = new QueryContext("borna:2165353454334 abinash");
+		QueryContext ctx = new QueryContext("createda:2165353454334 abinash");
 		parseQuery(ctx); 
 		assertEquals(2165353454334L, ctx.createdAfter.longValue());
 	}
 
 	public void testTouchAfterFilter() throws Exception  {
-		QueryContext ctx = new QueryContext("toucha:1145353454334 abinash");
+		QueryContext ctx = new QueryContext("modifieda:1145353454334 abinash");
 		parseQuery(ctx); 
 		assertEquals(1145353454334L, ctx.modifiedAfter.longValue());
 	}
 
 	public void testTouchBeforeFilter() throws Exception  {
-		QueryContext ctx = new QueryContext("touchb:2165353454334 abinash");
+		QueryContext ctx = new QueryContext("modifiedb:2165353454334 abinash");
 		parseQuery(ctx); 
 		assertEquals(2165353454334L, ctx.modifiedBefore.longValue());
 	}

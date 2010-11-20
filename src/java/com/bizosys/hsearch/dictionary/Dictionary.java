@@ -12,6 +12,7 @@ import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
+import com.bizosys.hsearch.hbase.HDML;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.IScanCallBack;
@@ -76,7 +77,7 @@ public class Dictionary implements IScanCallBack {
 				NV kv = new NV( family, colName , entry);
 				records.add(new RecordScalar(wordB, kv));
 			}
-			HWriter.insertScalar(IOConstants.TABLE_DICTIONARY, records, true);
+			HWriter.insertScalar(IOConstants.TABLE_DICTIONARY, records);
 		} catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);
@@ -240,7 +241,7 @@ public class Dictionary implements IScanCallBack {
 	public void purge() throws SystemFault {
 		try {
 			NV kv = new NV(IOConstants.DICTIONARY_BYTES, IOConstants.DICTIONARY_TERM_BYTES);
-			HWriter.truncate(IOConstants.TABLE_DICTIONARY, kv);
+			HDML.truncate(IOConstants.TABLE_DICTIONARY, kv);
 		} catch (Exception ex) {
 			throw new SystemFault(ex);
 		}
@@ -261,7 +262,7 @@ public class Dictionary implements IScanCallBack {
 				deletes.add(wordB);
 				continue;
 			}
-			HWriter.delete(IOConstants.TABLE_DICTIONARY, deletes, true);
+			HWriter.delete(IOConstants.TABLE_DICTIONARY, deletes);
 		} catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);
@@ -293,10 +294,7 @@ public class Dictionary implements IScanCallBack {
 				
 				RecordScalar scalar = new RecordScalar(wordB,emptyKV);
 				HReader.getScalar(IOConstants.TABLE_DICTIONARY, scalar);
-				if ( null == emptyKV.data) {
-					deletes.add(wordB);
-					continue;
-				}
+				if ( null == emptyKV.data) continue;
 				
 				DictEntry existingEntry = new DictEntry(emptyKV.data.toBytes());
 				entry.fldFreq = existingEntry.fldFreq - entry.fldFreq;
@@ -308,8 +306,8 @@ public class Dictionary implements IScanCallBack {
 				NV kv = new NV( family, colName , entry);
 				updates.add(new RecordScalar(wordB, kv));
 			}
-			HWriter.delete(IOConstants.TABLE_DICTIONARY, deletes, true);
-			HWriter.insertScalar(IOConstants.TABLE_DICTIONARY, updates, true);
+			HWriter.delete(IOConstants.TABLE_DICTIONARY, deletes);
+			HWriter.insertScalar(IOConstants.TABLE_DICTIONARY, updates);
 		} catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);

@@ -80,7 +80,7 @@ public class StopwordRefresh implements BatchTask {
 			IOConstants.NAME_VALUE_BYTES, IOConstants.NAME_VALUE_BYTES,wordB);
 		RecordScalar scalar = new RecordScalar(STOP_WORD_LISTS_KEY,nv);
 		try {
-			HWriter.insertScalar(IOConstants.TABLE_CONFIG, scalar, true);
+			HWriter.insertScalar(IOConstants.TABLE_CONFIG, scalar);
 		} catch (IOException ex) {
 			L.l.fatal("StopwordRefresh > ", ex);
 			throw new SystemFault(ex);

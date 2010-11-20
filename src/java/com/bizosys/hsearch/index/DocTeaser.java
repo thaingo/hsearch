@@ -150,9 +150,15 @@ public class DocTeaser {
 	}
 	
 	public void toXml(Writer pw) throws IOException {
-		pw.append('<').append(IOConstants.TEASER).append('>');
+		if ( null == pw) return;
+		System.out.println("AA" + pw.getClass().getName());
+		pw.append('<');
+		pw.append(IOConstants.TEASER);
+		pw.append('>');
 		if ( null != id ) {
+			System.out.println("LL");
 			pw.append('<').append(IOConstants.TEASER_ID).append('>');
+			System.out.println("KK");
 			pw.append( id.toString() );
 			pw.append('<').append(IOConstants.TEASER_ID).append("/>");
 		}
@@ -188,11 +194,12 @@ public class DocTeaser {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder('\n');
-		if ( null != id ) sb.append("Id :").append(id);
-		if ( null != url ) sb.append("Url :").append(url);
-		if ( null != title ) sb.append("\nTitle :").append(title);
-		if ( null != cacheText ) sb.append("\nBody :").append(cacheText);
-		if ( null != preview ) sb.append("\nPreview :").append(preview);
+		if ( null != id ) sb.append("Id : [").append(id);
+		if ( null != url ) sb.append("] , Url : [").append(url);
+		if ( null != title ) sb.append("] , Title : [").append(title);
+		if ( null != cacheText ) sb.append("] , Body :[").append(cacheText);
+		if ( null != preview ) sb.append("] , Preview :[").append(preview);
+		sb.append(']');
 		return sb.toString();
 	}
 }

@@ -39,12 +39,12 @@ public class HBaseFacade {
 	
 	
 	private HBaseFacade() throws IOException{
-		HLog.l.debug("cao.HBaseFacade > Initializing HBaseFacade");
+		HLog.l.debug("HBaseFacade > Initializing HBaseFacade");
 		conf = HBaseConfiguration.create();
 		try {
 			admin = new HBaseAdmin(conf);
 			HBaseFacade.instance = this;
-			HLog.l.debug("cao.HBaseFacade > HBaseFacade initialized.");
+			HLog.l.debug("HBaseFacade > HBaseFacade initialized.");
 		} catch (MasterNotRunningException ex) {
 			throw new IOException ("HBaseFacade > HBase Master instance is not running..");			
 		}
@@ -63,7 +63,7 @@ public class HBaseFacade {
 	}
 	
 	public HBaseAdmin getAdmin() throws IOException {
-		if ( null == admin) throw new IOException ("cao.HBaseFacade > HBase Service is not initialized");
+		if ( null == admin) throw new IOException ("HBaseFacade > HBase Service is not initialized");
 		return admin;
 	}
 	
@@ -72,7 +72,7 @@ public class HBaseFacade {
 	public HTableWrapper getTable(String tableName) throws IOException {
 		
 		if ( null == pool ) pool = new HTablePool(this.conf, Integer.MAX_VALUE);
-		if ( HLog.l.isDebugEnabled() ) HLog.l.debug("cao.HBaseFacade > Live hbase tables : " + liveTables); 
+		if ( HLog.l.isDebugEnabled() ) HLog.l.debug("HBaseFacade > Live hbase tables : " + liveTables); 
 		
 		HTableWrapper table = new HTableWrapper( tableName, pool.getTable(tableName));
 		liveTables++;

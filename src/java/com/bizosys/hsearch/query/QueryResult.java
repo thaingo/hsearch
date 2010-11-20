@@ -1,10 +1,10 @@
 package com.bizosys.hsearch.query;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 
 import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.util.StringPrintWriter;
 
 
 public class QueryResult {
@@ -36,8 +36,21 @@ public class QueryResult {
 	
 	@Override
 	public String toString() {
-		Writer spw = new StringPrintWriter();
+		Writer spw = new StringWriter();
+		
 		try {
+			if ( null == this.sortedStaticWeights) {
+				spw.write("Sorted Static Weights = 0");
+			} else {
+				spw.write("Sorted Static Weights : " + this.sortedStaticWeights.length);
+			}
+			
+			if ( null == this.sortedDynamicWeights) {
+				spw.write("Sorted Dynamic Weights = 0");
+			} else {
+				spw.write("Sorted Dynamic Weights : " + this.sortedDynamicWeights.length);
+			}
+
 			toXml(spw);
 			return spw.toString();
 		} catch (Exception ex) {

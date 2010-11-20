@@ -24,7 +24,7 @@ import com.bizosys.hsearch.query.QueryTerm;
  * @author karan
  *
  */
-class SequenceProcessor_FindHBase implements Callable<Object> {
+class SequenceProcessorFindHBase implements Callable<Object> {
 	
 	public TermFilter tf;
 	public List<byte[]> foundBuckets = new Vector<byte[]>();
@@ -36,7 +36,7 @@ class SequenceProcessor_FindHBase implements Callable<Object> {
 	private long toTime = System.currentTimeMillis();
 	private QueryTerm term = null;
 	
-	public SequenceProcessor_FindHBase(QueryTerm term, List<byte[]> findWithinBuckets) {
+	public SequenceProcessorFindHBase(QueryTerm term, List<byte[]> findWithinBuckets) {
 		
 		this.term = term;
 		
@@ -84,7 +84,7 @@ class SequenceProcessor_FindHBase implements Callable<Object> {
 	 */
 	public Object call() throws Exception {
 		
-		L.l.debug("BucketDocIdFinder > Call START");
+		L.l.debug("SequenceProcessorFindHBase > Call START");
 		if ( null == this.term) return null;
 		
 		/**
@@ -95,10 +95,10 @@ class SequenceProcessor_FindHBase implements Callable<Object> {
 		char colName = this.term.lang.getColumn(this.term.wordStemmed);
 		if ( L.l.isDebugEnabled()) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("BucketDocIdFinder > Term:").append(this.term.wordOrig);
-			sb.append(" , Table").append(tableName);
-			sb.append(" , Family").append(familyName);
-			sb.append(" , Column").append(colName);
+			sb.append("SequenceProcessorFindHBase > Term:").append(this.term.wordOrig);
+			sb.append(" , Table [").append(tableName);
+			sb.append("] , Family [").append(familyName);
+			sb.append("] , Column [").append(colName).append(']');
 			L.l.debug(sb.toString());
 		}
 		
@@ -166,7 +166,7 @@ class SequenceProcessor_FindHBase implements Callable<Object> {
 			}
 			
 		} catch ( IOException ex) {
-			L.l.fatal("BucketIdFinder:", ex);
+			L.l.fatal("SequenceProcessorFindHBase:", ex);
 			return null;
 		} finally {
 			if ( null != scanner) scanner.close();

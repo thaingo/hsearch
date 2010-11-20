@@ -27,7 +27,7 @@ public class CheckMetaInfo implements PipeOut{
 		Object[] staticL = result.sortedStaticWeights;
 		if ( null == staticL) return true;
 		
-		CheckMetaInfo_HBase hbase = new CheckMetaInfo_HBase(ctx);
+		CheckMetaInfoHBase hbase = new CheckMetaInfoHBase(ctx);
 		List<DocMetaWeight> dmwL = hbase.filter(staticL, ctx.scroll, this.pageSize);
 		if ( null == dmwL) return true;
 		result.sortedDynamicWeights = dmwL.toArray();

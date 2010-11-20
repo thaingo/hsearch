@@ -26,8 +26,6 @@ import com.bizosys.hsearch.util.FileReaderUtil;
 
 public class IndexWriterTest extends TestCase {
 
-	IndexWriter s = null;
-	
 	public static void main(String[] args) throws Exception {
 		//NV nv = new NV(IOConstants.NAME_VALUE_BYTES, IOConstants.NAME_VALUE_BYTES);
 		//HWriter.truncate(IOConstants.TABLE_CONFIG, nv);
@@ -35,7 +33,6 @@ public class IndexWriterTest extends TestCase {
 		IndexWriterTest t = new IndexWriterTest();
 		Configuration conf = new Configuration();
 		ServiceFactory.getInstance().init(conf, null);
-		t.s = new IndexWriter();
         TestFerrari.testRandom(t);
 	}
 	
@@ -46,7 +43,7 @@ public class IndexWriterTest extends TestCase {
 		hdoc.title = new Storable(title);
 		hdoc.fields = new ArrayList<HField>();
 		List<PipeIn> pipes = getStandardPipes();
-		s.insert(hdoc, pipes, 20);
+		IndexWriter.getInstance().insert(hdoc, pipes);
 	}
 	
 	public void testIndexDetail(String id, String title, String teaser) throws Exception {
@@ -59,7 +56,7 @@ public class IndexWriterTest extends TestCase {
 		hdoc.fields.add(fld);
 		
 		List<PipeIn> pipes = getStandardPipes();
-		s.insert(hdoc, pipes, 20);
+		IndexWriter.getInstance().insert(hdoc, pipes);
 	}
 	
 	public void testIndexMerge(String keyword1, String keyword2, String keyword3, 
@@ -87,7 +84,7 @@ public class IndexWriterTest extends TestCase {
 			hdocs.add(hdoc);
 		}
 		List<PipeIn> pipes = getStandardPipes();
-		s.insert(hdocs, pipes, 10000);
+		IndexWriter.getInstance().insert(hdocs, pipes);
 	}
 
 	private List<PipeIn> getStandardPipes() {

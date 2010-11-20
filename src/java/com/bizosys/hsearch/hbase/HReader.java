@@ -8,10 +8,12 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.util.RecordScalar;
@@ -56,12 +58,19 @@ public class HReader {
 		}
 	}
 
-	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk) throws ApplicationFault{
-		return getCompleteRow (tableName, pk, null);
+	public static List<NVBytes> getCompleteRow (String tableName, 
+		byte[] pk) throws SystemFault{
+		
+		return getCompleteRow (tableName, pk, null, null);
 	}
 	
 	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk, 
-		Filter filter) throws ApplicationFault{
+		Filter filter) throws SystemFault {
+		
+		return getCompleteRow (tableName, pk, filter, null);
+	}		
+	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk, 
+		Filter filter, RowLock lock) throws SystemFault {
 		
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
@@ -69,19 +78,20 @@ public class HReader {
 		try {
 			facade = HBaseFacade.getInstance();
 			table = facade.getTable(tableName);
-			Get getter = new Get(pk);
+			Get getter = ( null == lock) ? new Get(pk) : new Get(pk,lock);  
 			if  (null != filter) getter.setFilter(filter);
 			if ( table.exists(getter) ) {
 				r = table.get(getter);
 				List<NVBytes> nvs = new ArrayList<NVBytes>(r.list().size());
 				for (KeyValue kv : r.list()) {
-					nvs.add( new NVBytes(kv.getFamily(),kv.getQualifier(), kv.getValue()));
+					NVBytes nv = new NVBytes(kv.getFamily(),kv.getQualifier(), kv.getValue());
+					nvs.add(nv);
 				}
 				return nvs;
 			}
 			return null;
 		} catch (Exception ex) {
-			throw new ApplicationFault("Error in existance checking :" + pk.toString(), ex);
+			throw new SystemFault("Error in existance checking :" + pk.toString(), ex);
 		} finally {
 			if ( null != facade && null != table) facade.putTable(table);
 		}

@@ -5,15 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Result;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.filter.Access;
+import com.bizosys.hsearch.filter.AccessStorable;
 import com.bizosys.hsearch.filter.FilterMetaAndAcl;
 import com.bizosys.hsearch.filter.PreviewFilter;
-import com.bizosys.hsearch.filter.AccessStorable;
 import com.bizosys.hsearch.hbase.HBaseFacade;
-import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.query.DocMetaWeight;
 import com.bizosys.hsearch.query.DocWeight;
@@ -29,11 +28,11 @@ import com.bizosys.oneline.ApplicationFault;
  * @author karan
  *
  */
-class CheckMetaInfo_HBase {
+class CheckMetaInfoHBase {
 	
 	private PreviewFilter pf;
 	
-	protected CheckMetaInfo_HBase(QueryContext ctx) {
+	protected CheckMetaInfoHBase(QueryContext ctx) {
 		
 		AccessStorable aclB = null;
 		if ( null == ctx.user ) {
@@ -60,7 +59,7 @@ class CheckMetaInfo_HBase {
 	protected List<DocMetaWeight> filter(Object[] staticL, 
 		int  scroll, int pageSize ) throws ApplicationFault {
 		
-		L.l.debug("BuildPreviewPage_HBase > Call START");
+		L.l.debug("CheckMetaInfoHBase > Call START");
 		if ( null == this.pf) return null;
 		
 		/**
@@ -75,14 +74,13 @@ class CheckMetaInfo_HBase {
 		 */
 		String tableName = IOConstants.TABLE_PREVIEW;
 		byte[] familyName = IOConstants.SEARCH_BYTES;
-		byte[] colName = IOConstants.META_BYTES;
+		byte[] metaColumn = IOConstants.META_BYTES;
 		
 		/**
 		 * Step 2 Configure Filtering mechanism 
 		 */
 		HTableWrapper table = null;
 		HBaseFacade facade = null;
-		ResultScanner scanner = null;
 
 		List<DocMetaWeight> foundDocs = new ArrayList<DocMetaWeight>();
 		try {
@@ -90,6 +88,7 @@ class CheckMetaInfo_HBase {
 			facade = HBaseFacade.getInstance();
 			table = facade.getTable(tableName);
 			int totalMatched = 0;
+			
 			for (int i=scroll; i< staticT; i++ ) {
 				if ( totalMatched > pageSize) break; //Just read enough for the page size
 
@@ -97,19 +96,18 @@ class CheckMetaInfo_HBase {
 				Get getter = new Get(id.getBytes());;
 				getter.setFilter(this.pf);
 				
-				byte [] meta = HReader.getScalar( 
-					tableName,familyName, colName, id.getBytes());
-				if ( null == meta) continue;
-				foundDocs.add(new DocMetaWeight(id,meta));
+				Result result = table.get(getter);
+				byte[] metaValue = result.getValue(familyName,metaColumn);
+				if ( null == metaValue) continue;
+				foundDocs.add(new DocMetaWeight(id,metaValue));
 				totalMatched++;
 			}
 			return foundDocs;
 			
 		} catch ( IOException ex) {
-			L.l.fatal("CheckMetaInfo_HBase:", ex);
+			L.l.fatal("CheckMetaInfoHBase:", ex);
 			throw new ApplicationFault(ex);
 		} finally {
-			if ( null != scanner) scanner.close();
 			if ( null != table ) facade.putTable(table);
 		}	
 	}

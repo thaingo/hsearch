@@ -5,19 +5,15 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
 
-import com.bizosys.hsearch.query.HQuery;
-import com.bizosys.hsearch.query.QueryContext;
-import com.bizosys.hsearch.query.QueryPlanner;
-
 public class _BuildMetaCluster implements PipeOut{
 	
 	public _BuildMetaCluster() {
 	}	
 
 	public boolean visit(Object objQuery) throws ApplicationFault, SystemFault {
-		HQuery query = (HQuery) objQuery;
-		QueryContext ctx = query.ctx;
-		QueryPlanner planner = query.planner;
+		//HQuery query = (HQuery) objQuery;
+		//QueryContext ctx = query.ctx;
+		//QueryPlanner planner = query.planner;
 
 		return true;
 	}

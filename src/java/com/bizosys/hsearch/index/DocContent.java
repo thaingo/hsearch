@@ -78,9 +78,18 @@ public class DocContent implements IDimension {
 						case IOConstants.CONTENT_CITATION_FROM:
 							this.citationFrom = new StorableList(nv.data);
 							break;
+						default:
+							throw new ApplicationFault("DocContent: Unknown Citation Field");
 					}
+					break;
+					
 				case IOConstants.CONTENT_FIELDS:
+					if ( null == this.stored) this.stored = new ArrayList<ByteField>();
 					this.stored.add(ByteField.wrap(nv.name, nv.data));
+					break;
+					
+				default:
+					throw new ApplicationFault("DocContent : Unklnow Field " + nv.toString());
 			}
 		}
 	}	
@@ -117,7 +126,11 @@ public class DocContent implements IDimension {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder('\n');
-		if ( null != this.stored ) sb.append("Fields:").append(this.stored.size());
+		if ( null != this.stored ) {
+			for (ByteField bf: this.stored) {
+				sb.append("Fields:").append(bf);
+			}
+		}
 		if ( null != this.citationTo ) sb.append("Citation To :").append(new String(this.citationTo.toString()));
 		if ( null != this.citationFrom ) sb.append("Citation From :").append(new String(this.citationFrom.toString()));
 		return sb.toString();

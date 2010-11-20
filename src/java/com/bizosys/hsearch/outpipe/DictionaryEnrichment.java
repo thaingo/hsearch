@@ -20,7 +20,6 @@ public class DictionaryEnrichment implements PipeOut{
 
 	public boolean visit(Object objQuery) throws ApplicationFault, SystemFault {
 		HQuery query = (HQuery) objQuery;
-		//QueryContext ctx = query.ctx;
 		QueryPlanner planner = query.planner;
 		
 		loadFromDictionary(planner.mustTerms);

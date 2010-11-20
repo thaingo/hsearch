@@ -68,7 +68,7 @@ public class DocumentType implements BatchTask {
 			NV nv = new NV(IOConstants.NAME_VALUE_BYTES, 
 				IOConstants.NAME_VALUE_BYTES, new Storable(bytes));
 			Record record = new Record(new Storable(TYPE_KEY_BYTES), nv);
-			HWriter.update(IOConstants.TABLE_CONFIG, record, true);
+			HWriter.update(IOConstants.TABLE_CONFIG, record);
 		} catch (IOException e) {
 			e.printStackTrace(System.out);
 			throw e;

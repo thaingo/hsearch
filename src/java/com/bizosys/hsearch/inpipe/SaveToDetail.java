@@ -54,7 +54,7 @@ public class SaveToDetail implements PipeIn {
 				doc.content.toNVs(nvs);
 				contentRecords.add(new Record(new Storable(id),nvs));
 			}
-			HWriter.insert(IOConstants.TABLE_CONTENT, contentRecords, true);
+			HWriter.insert(IOConstants.TABLE_CONTENT, contentRecords);
 		} catch (Exception ex) {
 			throw new ApplicationFault("SaveToDetail : Failed", ex);
 		}

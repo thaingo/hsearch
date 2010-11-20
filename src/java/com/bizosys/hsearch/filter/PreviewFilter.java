@@ -37,9 +37,15 @@ public class PreviewFilter implements Filter {
 	 */
 	public ReturnCode filterKeyValue(KeyValue kv) {
 		if ( ACL_BYTE == kv.getQualifier()[0]) { // Match ACL
-			if ( ! this.fma.allowAccess(kv.getValue())) return ReturnCode.SKIP;
+			if ( ! this.fma.allowAccess(kv.getValue())) {
+				System.out.println("PreviewFilter Allowaccess : False");
+				return ReturnCode.SKIP;
+			}
 		} else if (META_BYTE == kv.getQualifier()[0]) {
-			if ( ! this.fma.allowMeta(kv.getValue())) return ReturnCode.SKIP;
+			if ( ! this.fma.allowMeta(kv.getValue())) {
+				System.out.println("PreviewFilter AllowaMeta : False");
+				return ReturnCode.SKIP;
+			}
 		}
 		return ReturnCode.INCLUDE;
 	}

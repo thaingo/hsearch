@@ -28,7 +28,7 @@ public class HReaderTest extends TestCase {
 		RecordScalar scalar = new RecordScalar(pk, nv);
 		scalar.pk = new Storable(pk);
 		if ( ! HReader.exists(IOConstants.TABLE_CONFIG, pk)) {
-			HWriter.insertScalar(IOConstants.TABLE_CONFIG, scalar, true);
+			HWriter.insertScalar(IOConstants.TABLE_CONFIG, scalar);
 		}
 		long bucketId = HReader.generateKeys(IOConstants.TABLE_CONFIG,scalar,1);
 		System.out.println(bucketId);

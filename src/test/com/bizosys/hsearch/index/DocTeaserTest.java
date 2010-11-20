@@ -5,7 +5,6 @@ import java.util.Date;
 import junit.framework.TestCase;
 
 import com.bizosys.ferrari.TestFerrari;
-import com.bizosys.hsearch.filter.BuildTeaserHighlighter;
 
 public class DocTeaserTest extends TestCase {
 

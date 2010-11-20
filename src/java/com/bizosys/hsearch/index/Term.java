@@ -92,13 +92,14 @@ public class Term {
 	 * @throws ApplicationFault
 	 */
 	public Term(short docPos, byte docTypeCode, byte termTypeCode, 
-		byte weight, short termPos, byte termFreq ) {
+		byte weight, int termPos, byte termFreq ) {
 			
 		this.docPos = docPos;
 		this.docTypeCode = docTypeCode;
 		this.termTypeCode = termTypeCode;
 		this.weight = weight;
-		this.termPos = termPos;
+		this.termPos = setTermPos(termPos);
+;
 		this.termFreq = termFreq;
 	}	
 	
@@ -121,7 +122,7 @@ public class Term {
 			this.termTypeCode = TermType.getInstance().getTypeCode(termType);
 		
 		this.sightting = sightting;
-		this.termPos = 	new Integer(termPos ).shortValue();
+		this.termPos = 	setTermPos(termPos);
 	}
 	
 	public Term(String term, Character sightting, 
@@ -132,7 +133,7 @@ public class Term {
 		this.term = term;
 		this.termTypeCode = termTypeCode;
 		this.sightting = sightting;
-		this.termPos = 	new Integer(termPos ).shortValue();
+		this.termPos = 	setTermPos(termPos);
 	}
 	
 	public Term(String term, Character sightting, 
@@ -141,7 +142,6 @@ public class Term {
 		this(term,sightting,termTypeCode,termPos);
 		this.setDocumentPosition(docPos);
 		this.setTermWeight(termWeight);
-			
 	}	
 	
 	
@@ -213,7 +213,6 @@ public class Term {
 	}
 	
 	public void setDocumentPosition(short pos) {
-		System.out.println("Set Position :" + pos);
 		this.docPos = pos;		
 	}
 	

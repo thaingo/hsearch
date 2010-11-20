@@ -45,7 +45,7 @@ public class IOConstants {
 	 * Read this Section During Original Data
 	 */
 	
-	public static final char CONTENT_FIELDS = 'f';
+	public static final char CONTENT_FIELDS = 'd';
 	public static final byte[] CONTENT_FIELDS_BYTES = "d".getBytes();
 
 	public static final char CONTENT_CITATION = 'C';

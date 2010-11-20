@@ -60,6 +60,14 @@ public interface ILanguageMap {
 			COL_9,FAM_10
 	};
 	
+	final char[] ALL_TABLES = new char[] {
+			COL_A,COL_B,COL_C,COL_D,COL_E,COL_F,
+			COL_G,COL_H,COL_I,COL_J,COL_K,COL_L,
+			COL_M,COL_N,COL_O,COL_P,COL_Q,COL_R,
+			COL_S,COL_T,COL_Z,COL_0,COL_1,COL_2,
+			COL_3,COL_4,COL_5,COL_6,COL_7,COL_8,
+			COL_9,COL_OTHERS
+	};
 	
 	char getTableName (String word);
 	char getColumnFamily (String word);

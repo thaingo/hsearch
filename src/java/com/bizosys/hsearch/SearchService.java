@@ -108,7 +108,7 @@ public class SearchService implements Service {
 		
 		List<PipeIn> pipes = 
 			RunPlanManager.getInstance().compilePlan(StringUtils.getStrings(runPlan));
-		new IndexWriter().insert(hdoc, pipes, mergeFactor);
+		IndexWriter.getInstance().insert(hdoc, pipes);
 		res.writeXmlString("OK");
 		
 		

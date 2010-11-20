@@ -217,19 +217,19 @@ public class QueryContext {
 		case ReserveQueryWord.RESERVE_state:
 			this.state = new Storable(value);
 			break;
-		case ReserveQueryWord.RESERVE_orgunit:
+		case ReserveQueryWord.RESERVE_tenant:
 			this.tenant = new Storable(value);
 			break;
-		case ReserveQueryWord.RESERVE_bornBefore:
+		case ReserveQueryWord.RESERVE_createdBefore:
 			this.createdBefore = Long.parseLong(value);
 			break;
-		case ReserveQueryWord.RESERVE_bornAfter:
+		case ReserveQueryWord.RESERVE_createdAfter:
 			this.createdAfter = Long.parseLong(value);
 			break;
-		case ReserveQueryWord.RESERVE_touchAfter:
+		case ReserveQueryWord.RESERVE_modifiedAfter:
 			this.modifiedAfter = Long.parseLong(value);
 			break;
-		case ReserveQueryWord.RESERVE_touchBefore:
+		case ReserveQueryWord.RESERVE_modifiedBefore:
 			this.modifiedBefore = Long.parseLong(value);
 			break;
 		case ReserveQueryWord.RESERVE_areaInKmRadius:

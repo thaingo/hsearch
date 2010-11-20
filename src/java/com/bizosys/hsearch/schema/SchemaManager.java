@@ -8,6 +8,8 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.io.hfile.Compression;
 import org.apache.hadoop.hbase.regionserver.StoreFile;
+
+import com.bizosys.hsearch.hbase.HDML;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
@@ -15,8 +17,6 @@ import com.bizosys.oneline.services.Request;
 import com.bizosys.oneline.services.Response;
 import com.bizosys.oneline.services.Service;
 import com.bizosys.oneline.services.ServiceMetaData;
-
-import com.bizosys.hsearch.hbase.HWriter;
 
 /**
  * This schema creates in pristine mode 154 directories and 378 files.
@@ -117,7 +117,7 @@ public class SchemaManager  implements Service {
 
 		colFamilies.add(search);
 		colFamilies.add(teaser);
-		HWriter.create(IOConstants.TABLE_PREVIEW, colFamilies);
+		HDML.create(IOConstants.TABLE_PREVIEW, colFamilies);
 		
 	}
 		
@@ -133,7 +133,7 @@ public class SchemaManager  implements Service {
 		
 		HColumnDescriptor fields = 
 			new HColumnDescriptor( IOConstants.CONTENT_FIELDS_BYTES,
-				1, contentCompression, 
+				rev, contentCompression, 
 				false, contentBlockCache,
 				contentBlockSize,					
 				HConstants.FOREVER, 
@@ -142,7 +142,7 @@ public class SchemaManager  implements Service {
 		
 		HColumnDescriptor citation = 
 			new HColumnDescriptor( IOConstants.CONTENT_CITATION_BYTES,
-				1, contentCompression, 
+				rev, contentCompression, 
 				false, contentBlockCache,
 				contentBlockSize,					
 				HConstants.FOREVER, 
@@ -151,7 +151,7 @@ public class SchemaManager  implements Service {
 
 		colFamilies.add(fields);
 		colFamilies.add(citation);
-		HWriter.create(IOConstants.TABLE_CONTENT, colFamilies);
+		HDML.create(IOConstants.TABLE_CONTENT, colFamilies);
 		
 	}
 	
@@ -174,7 +174,7 @@ public class SchemaManager  implements Service {
 		
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 		colFamilies.add(mapping);
-		HWriter.create(IOConstants.TABLE_IDMAP, colFamilies);
+		HDML.create(IOConstants.TABLE_IDMAP, colFamilies);
 		
 	}
 	
@@ -212,7 +212,7 @@ public class SchemaManager  implements Service {
 				colFamilies.add(indexCol);
 			}
 			
-			HWriter.create(new String( new char[]{t}), colFamilies);
+			HDML.create(new String( new char[]{t}), colFamilies);
 		}
 		
 	}
@@ -229,7 +229,7 @@ public class SchemaManager  implements Service {
 		
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 		colFamilies.add(config);
-		HWriter.create(IOConstants.TABLE_CONFIG, colFamilies);
+		HDML.create(IOConstants.TABLE_CONFIG, colFamilies);
 	}
 	
 	public void createDictionary(Configuration conf)throws SystemFault, ApplicationFault{
@@ -244,7 +244,7 @@ public class SchemaManager  implements Service {
 		
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 		colFamilies.add(dict);
-		HWriter.create(IOConstants.TABLE_DICTIONARY, colFamilies);
+		HDML.create(IOConstants.TABLE_DICTIONARY, colFamilies);
 	}
 	
 	

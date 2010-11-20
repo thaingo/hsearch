@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.SystemFault;
-
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HLog;
@@ -20,6 +17,8 @@ import com.bizosys.hsearch.schema.ILanguageMap;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.hsearch.util.Record;
 import com.bizosys.hsearch.util.RecordScalar;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 public class TermTables {
 	
@@ -92,7 +91,7 @@ public class TermTables {
 				Record record = new Record(bucketId,nvs);
 				if  (HLog.l.isDebugEnabled()) 
 					HLog.l.debug("TermTables.persist Table " + tableName + record.toString());
-				HWriter.insert(tableName.toString(), record, true);
+				HWriter.insert(tableName.toString(), record);
 			}
 		} catch (Exception ex) {
 			throw new SystemFault(ex);
@@ -106,7 +105,7 @@ public class TermTables {
 	 * @throws ApplicationFault
 	 */
 	public void setExistingValue(String tableName, 
-		TermFamilies termFamilies) throws ApplicationFault {
+		TermFamilies termFamilies) throws SystemFault {
 		
 		List<NVBytes> existingB = 
 			HReader.getCompleteRow(tableName, bucketId.toBytes());
@@ -170,7 +169,7 @@ public class TermTables {
 		RecordScalar docSerial = new RecordScalar(
 			Storable.putLong(bucketId), nv); 
 		try {
-			HWriter.insert(IOConstants.TABLE_CONFIG, docSerial, true);
+			HWriter.insert(IOConstants.TABLE_CONFIG, docSerial);
 			HLog.l.info("TermBucket > Bucket setup completed :" + bucketId);
 			return bucketId;
 		} catch (IOException ex) {
@@ -212,6 +211,23 @@ public class TermTables {
 	}
 	
 	/**
+	 * This gives all the rows from all tables.
+	 * @param bucketId
+	 * @return
+	 * @throws SystemFault
+	 * @throws ApplicationFault
+	 */
+	public static List<NVBytes> get(long bucketId) throws SystemFault, ApplicationFault{
+		List<NVBytes> allFields = null; 
+		for (Character c : ILanguageMap.ALL_TABLES) {
+			List<NVBytes> nvs = HReader.getCompleteRow(c.toString(),Storable.putLong(bucketId));
+			if ( null == allFields) allFields = nvs;
+			if ( null != nvs) allFields.addAll(nvs);
+		}
+		return allFields;
+	}
+	
+	/**
 	 * Initializes the term buckets
 	 * Initial System: There will be no bucket. Start from Long.MIN_VALUE
 	 * Second time onwards : Continue 
@@ -223,7 +239,7 @@ public class TermTables {
 				HLog.l.info("Bucket Counter setup is not there. Setting up bucket id counter.");
 				RecordScalar bucketCounter = new RecordScalar(new Storable(BUCKET_COUNTER_BYTES), nv);
 				nv.data = new Storable(Long.MIN_VALUE);
-				HWriter.insert(IOConstants.TABLE_CONFIG, bucketCounter, true);
+				HWriter.insert(IOConstants.TABLE_CONFIG, bucketCounter);
 				HLog.l.info("Bucket Counter setup is complete.");
 			}
 		} catch (IOException ex) {
