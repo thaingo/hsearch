@@ -7,6 +7,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.services.scheduler.SchedulerService;
 import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.ferrari.TestFerrari;
@@ -17,8 +18,12 @@ public class DictionaryManagerTest extends TestCase {
 
 	public static void main(String[] args) throws Exception {
 		DictionaryManagerTest t = new DictionaryManagerTest();
+		Configuration conf = new Configuration();
+		SchedulerService.getInstance().init(conf, null);
+
 		DictionaryManager d = new DictionaryManager();
 		d.init(new Configuration(), null);
+		t.cleanup();
         TestFerrari.testAll(t);
 		//t.testWordListing();
 	}

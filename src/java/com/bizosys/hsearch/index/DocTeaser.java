@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.index;
 
 import java.io.IOException;
@@ -57,9 +76,13 @@ public class DocTeaser {
 	public DocTeaser (byte[] id, List<NVBytes> inputBytes) throws ApplicationFault {
 		
 		this.id = new Storable(id, Storable.BYTE_STRING);
+		if ( null == inputBytes) return;
 		
 		for (NVBytes fld : inputBytes) {
 			switch(fld.name[0]) {
+				case IOConstants.TEASER_ID:
+					this.id = new Storable(fld.data);
+					break;
 				case IOConstants.TEASER_URL:
 					String codedUrl = Storable.getString(fld.data);
 					setUrl(UrlMapper.getInstance().decoding(codedUrl));
@@ -151,15 +174,12 @@ public class DocTeaser {
 	
 	public void toXml(Writer pw) throws IOException {
 		if ( null == pw) return;
-		System.out.println("AA" + pw.getClass().getName());
 		pw.append('<');
 		pw.append(IOConstants.TEASER);
 		pw.append('>');
 		if ( null != id ) {
-			System.out.println("LL");
 			pw.append('<').append(IOConstants.TEASER_ID).append('>');
-			System.out.println("KK");
-			pw.append( id.toString() );
+			pw.append( new String(id.toBytes()) );
 			pw.append('<').append(IOConstants.TEASER_ID).append("/>");
 		}
 		
@@ -194,11 +214,11 @@ public class DocTeaser {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder('\n');
-		if ( null != id ) sb.append("Id : [").append(id);
-		if ( null != url ) sb.append("] , Url : [").append(url);
-		if ( null != title ) sb.append("] , Title : [").append(title);
-		if ( null != cacheText ) sb.append("] , Body :[").append(cacheText);
-		if ( null != preview ) sb.append("] , Preview :[").append(preview);
+		if ( null != id ) sb.append("Id : [").append(new String(id.toBytes()));
+		if ( null != url ) sb.append("] , Url : [").append(url.toString());
+		if ( null != title ) sb.append("] , Title : [").append(title.toString());
+		if ( null != cacheText ) sb.append("] , Body :[").append(cacheText.toString());
+		if ( null != preview ) sb.append("] , Preview :[").append(preview.toString());
 		sb.append(']');
 		return sb.toString();
 	}

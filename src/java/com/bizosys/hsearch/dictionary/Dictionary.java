@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.dictionary;
 
 import java.util.ArrayList;
@@ -6,11 +25,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.SystemFault;
-import com.bizosys.oneline.util.StringUtils;
-
-import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HDML;
 import com.bizosys.hsearch.hbase.HReader;
@@ -19,6 +33,9 @@ import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.hsearch.util.RecordScalar;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.util.StringUtils;
 
 /**
  * Dictionary has around 1 Second. This should be taken care by 
@@ -49,11 +66,6 @@ public class Dictionary implements IScanCallBack {
 	 */
 	public void add(Hashtable<String, DictEntry> keywords) throws ApplicationFault {
 		if ( null == keywords) return;
-		IStorable family = new Storable(IOConstants.DICTIONARY_BYTES);
-		IStorable colName = new Storable(IOConstants.DICTIONARY_TERM_BYTES);
-		
-		NV emptyKV = new NV(IOConstants.DICTIONARY_BYTES, IOConstants.DICTIONARY_TERM_BYTES);
-
 		try {
 
 			List<RecordScalar> records = new ArrayList<RecordScalar>(keywords.size());
@@ -61,23 +73,12 @@ public class Dictionary implements IScanCallBack {
 				if ( null == entry) continue;
 				if ( null == entry.fldWord) continue;
 
-				byte[] wordB = Storable.putString(entry.fldWord);
-				emptyKV.data = null;
-				
-				RecordScalar scalar = new RecordScalar(wordB,emptyKV);
-				HReader.getScalar(IOConstants.TABLE_DICTIONARY, scalar);
-				DictEntry existingEntry = null;
-				if ( null != emptyKV.data) {
-					existingEntry = new DictEntry(emptyKV.data.toBytes()); 
-
-					entry.fldFreq = entry.fldFreq + existingEntry.fldFreq;
-					entry.addType(existingEntry.fldType);
-				}
-				
-				NV kv = new NV( family, colName , entry);
-				records.add(new RecordScalar(wordB, kv));
+				DictEntryMerge scalar = new DictEntryMerge(
+					new Storable(entry.fldWord), IOConstants.DICTIONARY_BYTES,
+					IOConstants.DICTIONARY_TERM_BYTES, entry);
+				records.add(scalar);
 			}
-			HWriter.insertScalar(IOConstants.TABLE_DICTIONARY, records);
+			HWriter.merge(IOConstants.TABLE_DICTIONARY, records);
 		} catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);
@@ -131,7 +132,7 @@ public class Dictionary implements IScanCallBack {
 	 * Builds the dictionary terms for regex and fuzzy searches  
 	 * @throws Exception
 	 */
-	public void buildTerms() throws ApplicationFault, SystemFault {
+	public synchronized void buildTerms() throws ApplicationFault, SystemFault {
 		HLog.l.info("Dictionary term building START");
 		runningBuf.delete(0, runningBuf.capacity());
 		this.keywordBufferCount = 0;
@@ -210,7 +211,7 @@ public class Dictionary implements IScanCallBack {
 	 * @param searchWord
 	 * @return
 	 */
-	public List<String> regex(String pattern) {
+	public synchronized List<String> regex(String pattern) {
 		Pattern p = Pattern.compile(pattern);
 		List<String> matchedWords = new ArrayList<String>();
 		
@@ -274,43 +275,27 @@ public class Dictionary implements IScanCallBack {
 	 * @param keywords
 	 * @throws ApplicationFault
 	 */
-	public void substract(Hashtable<String, DictEntry> keywords) throws ApplicationFault {
-		if ( null == keywords) return;
-		IStorable family = new Storable(IOConstants.DICTIONARY_BYTES);
-		IStorable colName = new Storable(IOConstants.DICTIONARY_TERM_BYTES);
+	public void substract(Hashtable<String, DictEntry> keywords)
+	throws ApplicationFault {
 		
-		NV emptyKV = new NV(IOConstants.DICTIONARY_BYTES, IOConstants.DICTIONARY_TERM_BYTES);
+		if ( null == keywords) return;
+		
+		List<RecordScalar> records = new ArrayList<RecordScalar>(keywords.size());
+		for (DictEntry entry : keywords.values()) {
+			if ( null == entry) continue;
+			if ( null == entry.fldWord) continue;
 
+			DictEntrySubstract scalar = new DictEntrySubstract(
+				new Storable(entry.fldWord), IOConstants.DICTIONARY_BYTES,
+				IOConstants.DICTIONARY_TERM_BYTES, entry);
+			records.add(scalar);
+		}
 		try {
-
-			List<byte[]> deletes = new ArrayList<byte[]>();
-			List<RecordScalar> updates = new ArrayList<RecordScalar>();
-			for (DictEntry entry : keywords.values()) {
-				if ( null == entry) continue;
-				if ( null == entry.fldWord) continue;
-
-				byte[] wordB = Storable.putString(entry.fldWord);
-				emptyKV.data = null;
-				
-				RecordScalar scalar = new RecordScalar(wordB,emptyKV);
-				HReader.getScalar(IOConstants.TABLE_DICTIONARY, scalar);
-				if ( null == emptyKV.data) continue;
-				
-				DictEntry existingEntry = new DictEntry(emptyKV.data.toBytes());
-				entry.fldFreq = existingEntry.fldFreq - entry.fldFreq;
-				if ( 0 == entry.fldFreq ) {
-					deletes.add(wordB);
-					continue;
-				}
-				
-				NV kv = new NV( family, colName , entry);
-				updates.add(new RecordScalar(wordB, kv));
-			}
-			HWriter.delete(IOConstants.TABLE_DICTIONARY, deletes);
-			HWriter.insertScalar(IOConstants.TABLE_DICTIONARY, updates);
-		} catch (Exception ex) {
+			HWriter.merge(IOConstants.TABLE_DICTIONARY, records);
+		} 	catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);
 		}
+
 	}		
 }

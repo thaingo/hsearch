@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.hbase;
 
 import java.io.IOException;
@@ -13,18 +32,26 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.RowLock;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.util.Record;
 import com.bizosys.hsearch.util.RecordScalar;
 
 
 public class HWriter {
 
+	/**
+	 * If the record is not found, it will do nothing
+	 * @param tableName
+	 * @param pk
+	 * @param pipe
+	 * @throws IOException
+	 */
 	public static void update(String tableName, 
 		byte[] pk, IUpdatePipe pipe) throws IOException {
 		
 		if ( null == tableName  || null == pk) return;
 		if  (HLog.l.isInfoEnabled()) 
-			HLog.l.info("HWriter: update (" + tableName + ") , PK=" + pk.toString());
+			HLog.l.info("HWriter: update (" + tableName + ") , PK=" + Storable.getLong(0,pk));
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -40,7 +67,8 @@ public class HWriter {
 			Result r = table.get(lockedGet);
 			for (KeyValue kv : r.list()) {
 				byte[] modifiedB = pipe.process(kv.getFamily(), kv.getQualifier(), kv.getValue());
-				KeyValue updatedKV = new KeyValue(kv.getFamily(), kv.getQualifier(),modifiedB);  
+				KeyValue updatedKV = new KeyValue(r.getRow(), 
+					kv.getFamily(), kv.getQualifier(),modifiedB);  
 				lockedUpdate.add(updatedKV);
 			}
 			lockedUpdate.setWriteToWAL(true);
@@ -54,12 +82,68 @@ public class HWriter {
 		}
 	}
 		
+	/**
+	 * Before putting the record, it merges the record
+	 * It happens without the locking mechanism
+	 * @param tableName
+	 * @param records
+	 * @throws IOException
+	 */
+	public static void merge(String tableName, List<RecordScalar> records) 
+	throws IOException {
+			
+		if ( null == tableName  || null == records) return;
+		if  (HLog.l.isInfoEnabled()) 
+			HLog.l.info("HWriter: insertScalar (" + tableName + ") , Count =" + records.size());
+
+   		HTableWrapper table = null;
+		HBaseFacade facade = null;
+		List<RowLock> locks = new ArrayList<RowLock>();
+		
+		try {
+			facade = HBaseFacade.getInstance();
+			table = facade.getTable(tableName);
+
+			int recordsT = records.size();
+			List<Put> updates = ( recordsT > 300 ) ? 
+				new Vector<Put>(recordsT) : new ArrayList<Put>(recordsT);
+			
+			for (RecordScalar scalar : records) {
+				byte[] pk = scalar.pk.toBytes();
+				Get getter = new Get(pk);
+				byte[] famB = scalar.kv.family.toBytes();
+				byte[] nameB = scalar.kv.name.toBytes();
+				RowLock lock = null;
+				if ( table.exists(getter) ) {
+					lock = table.lockRow(pk);
+					locks.add(lock);
+					Get existingGet = new Get(pk, lock);
+					existingGet.addColumn(famB, nameB);
+					Result r = table.get(existingGet); 
+					if ( ! scalar.merge(r.getValue(famB, nameB)) ) continue;
+				}
+
+				Put update = ( null == lock ) ? new Put(pk) :  new Put(pk, lock);
+				NV kv = scalar.kv;
+				update.add(famB,nameB, kv.data.toBytes());
+				updates.add(update);
+			}
+			
+			table.put(updates);
+			table.flushCommits();
+
+		} finally {
+			for (RowLock lock: locks) {
+				try { table.unlockRow(lock); } catch (Exception ex) {HLog.l.warn("Ignore Unlock exp :" , ex);}
+			}
+			if ( null != facade && null != table) {
+				facade.putTable(table);
+			}
+		}
+	}
 	
 	/**
-	 * Check the update time of the record. 
-	 * If checkoutTime is before update time = stale record
-	 * If not, Allow update.
-	 * 
+	 * Just updates the record. It overrides all previous changes.
 	 * @param table
 	 * @throws IOException
 	 */
@@ -80,38 +164,6 @@ public class HWriter {
 			table = facade.getTable(tableName);
 			update.setWriteToWAL(true);
 			table.put(update);
-			table.flushCommits();
-		} finally {
-			if ( null != facade && null != table) {
-				facade.putTable(table);
-			}
-		}
-	}
-	
-	public static void update(String tableName, List<Record> records) throws IOException {
-		
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("Updating the table " + tableName);
-		
-		List<Put> updates = null;
-		int recordsT = records.size();
-		if ( recordsT > 300 ) updates = new Vector<Put>(recordsT); 
-		else updates = new ArrayList<Put>(recordsT);
-		
-		for (Record record : records) {
-	   		Put update = new Put(record.pk.toBytes());
-	   		for (NV packet : record.nvs) {
-				update.add(packet.family.toBytes(), packet.name.toBytes(), packet.data.toBytes());
-			}	    
-			update.setWriteToWAL(true);
-	   		updates.add(update);
-		}
-		HTableWrapper table = null;
-		HBaseFacade facade = null;
-		try {
-			facade = HBaseFacade.getInstance();
-			table = facade.getTable(tableName);
-			table.put(updates);
 			table.flushCommits();
 		} finally {
 			if ( null != facade && null != table) {
@@ -153,6 +205,12 @@ public class HWriter {
 		}
 	}
 	
+	/**
+	 * This creates an record in the table
+	 * @param tableName
+	 * @param record
+	 * @throws IOException
+	 */
 	public static void insert(String tableName, RecordScalar record ) throws IOException {
 		if  (HLog.l.isDebugEnabled()) 
 			HLog.l.debug("Inserting the table " + tableName);

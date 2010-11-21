@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.filter;
 
 import java.io.DataInput;
@@ -94,7 +113,6 @@ public class FilterMetaAndAcl {
 	 
 	public void readHeader(DataInput in) throws IOException {
 		int totalB = in.readInt();
-		System.out.println("FilterMetaAndAcl readHeader :" + totalB);
 		this.bytesA = new byte[totalB];
 		in.readFully(this.bytesA, 0, totalB);
 		deserialize();
@@ -165,7 +183,6 @@ public class FilterMetaAndAcl {
 	 */
 	public boolean allowAccess( byte[] value)  {
 		if ( null == value ) return true;
-		System.out.println("ACL Size :" + value.length);
 		if ( null == this.userAcl) return false;
 		short len = getShort(0, value);
 		AccessStorable docAcls = new AccessStorable(value,2,len);

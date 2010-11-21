@@ -282,4 +282,13 @@ public class AccessControlTest extends TestCase {
 			new WhoAmI(unknownUnit,unknownTeam), access.toStorable()));
 		
 	}
+
+	public void testAnonymous() throws Exception {
+		WhoAmI student = new WhoAmI("n-4501");
+		Access access = new Access();
+		access.addAnonymous();
+		Assert.assertTrue(AccessControl.hasAccess(
+				student, access.toStorable()));
+		
+	}
 }

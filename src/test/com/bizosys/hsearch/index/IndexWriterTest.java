@@ -5,24 +5,17 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.bizosys.oneline.conf.Configuration;
-import com.bizosys.oneline.pipes.PipeIn;
-import com.bizosys.oneline.services.ServiceFactory;
-
-import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
-import com.bizosys.hsearch.index.IndexWriter;
-import com.bizosys.hsearch.inpipe.ComputeTokens;
-import com.bizosys.hsearch.inpipe.FilterLowercase;
-import com.bizosys.hsearch.inpipe.FilterStem;
-import com.bizosys.hsearch.inpipe.FilterStopwords;
-import com.bizosys.hsearch.inpipe.FilterTermLength;
-import com.bizosys.hsearch.inpipe.SaveToDictionary;
-import com.bizosys.hsearch.inpipe.SaveToIndex;
-import com.bizosys.hsearch.inpipe.TokenizeStandard;
+import com.bizosys.hsearch.dictionary.DictionaryManager;
+import com.bizosys.hsearch.query.DocTeaserWeight;
+import com.bizosys.hsearch.query.QueryContext;
+import com.bizosys.hsearch.query.QueryResult;
+import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.hsearch.util.FileReaderUtil;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.services.ServiceFactory;
 
 public class IndexWriterTest extends TestCase {
 
@@ -33,20 +26,32 @@ public class IndexWriterTest extends TestCase {
 		IndexWriterTest t = new IndexWriterTest();
 		Configuration conf = new Configuration();
 		ServiceFactory.getInstance().init(conf, null);
-        TestFerrari.testRandom(t);
+		List<String> kwL = DictionaryManager.getInstance().getDictionary().getAll();
+		for (String kw : kwL) {
+			System.out.println(kw.toString());
+		}
+		
+		//DictionaryManager.getInstance().deleteAll();
+        //TestFerrari.testRandom(t);
+		t.testIndexVanilaInsert("bizosys-234", "Abinash", "The coder of this search engine.");
 	}
 	
-	public void testIndexTeaser(String id, String title, String teaser) throws Exception {
-		
+	public void testIndexVanilaInsert(String id, String title, String teaser) throws Exception {
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = new Storable(id);
 		hdoc.title = new Storable(title);
 		hdoc.fields = new ArrayList<HField>();
-		List<PipeIn> pipes = getStandardPipes();
-		IndexWriter.getInstance().insert(hdoc, pipes);
+		IndexWriter.getInstance().insert(hdoc);
+
+		QueryResult res = IndexReader.getInstance().search(new QueryContext(id));
+		assertEquals(1, res.teasers.length);
+		DocTeaserWeight dtw = (DocTeaserWeight)res.teasers[0];
+		assertEquals(id.toLowerCase(), new String(dtw.id.toBytes()));
+		assertEquals(title, dtw.title.toString());
+		System.out.println(res.toString());
 	}
 	
-	public void testIndexDetail(String id, String title, String teaser) throws Exception {
+	public void testIndexFieldInsert(String id, String title, String teaser) throws Exception {
 		
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = new Storable(id);
@@ -55,11 +60,11 @@ public class IndexWriterTest extends TestCase {
 		HField fld = new HField("BODY",FileReaderUtil.toString("sample.txt"));
 		hdoc.fields.add(fld);
 		
-		List<PipeIn> pipes = getStandardPipes();
-		IndexWriter.getInstance().insert(hdoc, pipes);
+		QueryResult res = IndexReader.getInstance().search(new QueryContext(id));
+		IndexWriter.getInstance().insert(hdoc);
 	}
 	
-	public void testIndexMerge(String keyword1, String keyword2, String keyword3, 
+	public void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
 			String keyword4, String keyword5, String keyword6, String keyword7,  
 			String keyword8, String keyword9, String keyword10) throws Exception {
 		
@@ -83,21 +88,21 @@ public class IndexWriterTest extends TestCase {
 			hdoc.fields.add(fld);
 			hdocs.add(hdoc);
 		}
-		List<PipeIn> pipes = getStandardPipes();
-		IndexWriter.getInstance().insert(hdocs, pipes);
+		IndexWriter.getInstance().insert(hdocs);
 	}
-
-	private List<PipeIn> getStandardPipes() {
-		List<PipeIn> pipes = new ArrayList<PipeIn>();
-		pipes.add(new TokenizeStandard());
-		pipes.add(new FilterStopwords());
-		pipes.add(new FilterTermLength());
-		pipes.add(new FilterLowercase());
-		pipes.add(new FilterStem());
-		pipes.add(new ComputeTokens());
-		pipes.add(new SaveToIndex());
-		pipes.add(new SaveToDictionary());
-		//pipes.add(new PrintStdout());
-		return pipes;
+	
+	public void testIndexDelete() throws Exception{
+		HDocument hdoc = new HDocument();
+		hdoc.originalId = new Storable("BIZOSYS-103");
+		hdoc.title = new Storable("Ram tere Ganga maili");
+		hdoc.fields = new ArrayList<HField>();
+		
+		IndexWriter.getInstance().insert(hdoc);
+		
+		QueryContext ctx = new QueryContext("Ganga");
+		ctx.user = new WhoAmI("n4501");
+		QueryResult res = IndexReader.getInstance().search(ctx);
+		System.out.println("Result:" + res.toString());
+		IndexWriter.getInstance().delete("BIZOSYS-103");
 	}
 }

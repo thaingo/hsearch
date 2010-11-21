@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.index;
 
 import java.util.ArrayList;
@@ -8,6 +27,7 @@ import com.bizosys.hsearch.inpipe.ComputeTokens;
 import com.bizosys.hsearch.inpipe.DeleteFromDictionary;
 import com.bizosys.hsearch.inpipe.DeleteFromIndex;
 import com.bizosys.hsearch.inpipe.DeleteFromPreviewAndDetail;
+import com.bizosys.hsearch.inpipe.FilterDuplicateId;
 import com.bizosys.hsearch.inpipe.FilterLowercase;
 import com.bizosys.hsearch.inpipe.FilterStem;
 import com.bizosys.hsearch.inpipe.FilterStopwords;
@@ -40,9 +60,14 @@ public class IndexWriter {
 	
 	private List<PipeIn> standardPipes = null;
 
+	/**
+	 * Initializes the standard pipes
+	 * Default private constructor
+	 */
 	private IndexWriter() {
 		this.standardPipes = new ArrayList<PipeIn>();
 		
+		this.standardPipes.add(new FilterDuplicateId());
 		this.standardPipes.add(new TokenizeStandard());
 		this.standardPipes.add(new FilterStopwords());
 		this.standardPipes.add(new FilterTermLength());
@@ -67,37 +92,69 @@ public class IndexWriter {
 		return pipes;
 	}
 	
+	/**
+	 * Change the standard pipes across the application
+	 * @param pipes
+	 */
 	public void setStandardPipes(List<PipeIn> pipes) {
 		this.standardPipes = pipes;
 	}
 	
+	/**
+	 * Insert one document applying the standard pipes 
+	 * @param hdoc
+	 * @throws ApplicationFault
+	 * @throws SystemFault
+	 */
 	public void insert(HDocument hdoc) throws ApplicationFault, SystemFault{
 		List<PipeIn> localPipes = getStandardPipes();
 		insert(hdoc,localPipes);
 	}
 	
+	/**
+	 * Insert a document with custom pipeline
+	 * @param hdoc
+	 * @param localPipes
+	 * @throws ApplicationFault
+	 * @throws SystemFault
+	 */
 	public void insert(HDocument hdoc, List<PipeIn> localPipes) throws ApplicationFault, SystemFault{
 		
 		Doc doc = new Doc(hdoc);
 		L.l.info("Insert Step 1 > Value parsing is over.");
 		
 		for (PipeIn in : localPipes) {
+			L.l.debug("IndexWriter.insert.visitting : " + in.getName());
 			in.visit(doc);
 		}
 		L.l.info("Insert Step 2 >  Pipe processing is over.");
 		
-		for (PipeIn in : standardPipes) {
+		for (PipeIn in : localPipes) {
+			L.l.debug("IndexWriter.insert.comitting :" + in.getName());
 			in.commit();
 		}
 		L.l.info("Insert Step 3 >  Commit is over.");
 
 	}
 
+	/**
+	 * Insert bunch of documents with standard pipelines
+	 * @param hdocs
+	 * @throws ApplicationFault
+	 * @throws SystemFault
+	 */
 	public void insert(List<HDocument> hdocs) throws ApplicationFault, SystemFault{
 		List<PipeIn> localPipes = getStandardPipes();
 		insert(hdocs,localPipes);
 	}
 	
+	/**
+	 * Insert bunch of documents with custom pipeline
+	 * @param hdocs
+	 * @param pipes
+	 * @throws ApplicationFault
+	 * @throws SystemFault
+	 */
 	public void insert(List<HDocument> hdocs, List<PipeIn> pipes) throws ApplicationFault, SystemFault{
 		if ( null == hdocs) return;
 		
@@ -110,12 +167,14 @@ public class IndexWriter {
 		
 		for (Doc doc : docs) {
 			for (PipeIn in : pipes) {
+				L.l.debug("IndexWriter.insert.visitting : " + in.getName());
 				in.visit(doc);
 			}
 		}
 		L.l.info("Insert Step 2 >  Pipe processing is over.");
 		
 		for (PipeIn in : pipes) {
+			L.l.debug("IndexWriter.insert.comitting :" + in.getName());
 			in.commit();
 		}
 		L.l.info("Insert Step 3 >  Commit is over.");
@@ -127,7 +186,12 @@ public class IndexWriter {
 	 * 2 : Remove From Dictionry, Index, Preview and Detail  
 	 */
 	public void delete(String documentId) throws ApplicationFault, SystemFault {
+		
+		L.l.info("IndexWriter.delete : " + documentId );
+		
 		Doc origDoc = IndexReader.getInstance().get(documentId);
+		if ( null == origDoc.teaser) 
+			throw new ApplicationFault("Check permission before deletion.");
 
 		List<PipeIn> deletePipe = new ArrayList<PipeIn>();
 		
@@ -145,13 +209,15 @@ public class IndexWriter {
 		L.l.info("Delete Step 1 > Value parsing is over.");
 		
 		for (PipeIn in : deletePipe) {
+			L.l.debug("IndexWriter.delete.visit : " + in.getName());
 			in.visit(origDoc);
 		}
 		
 		L.l.info("Delete Step 2 >  Pipe processing is over.");
 		for (PipeIn in : deletePipe) {
+			L.l.debug("IndexWriter.delete.commit : " + in.getName());
 			in.commit();
 		}
-		L.l.info("Insert Step 3 >  Commit is over.");
+		L.l.info("Delete Step 3 >  Commit is over.");
 	}
 }

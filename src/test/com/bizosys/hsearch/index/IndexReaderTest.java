@@ -23,7 +23,7 @@ public class IndexReaderTest extends TestCase {
 		
 		IndexReaderTest t = new IndexReaderTest();
         //TestFerrari.testAll(t);
-		t.testGetAll();
+		t.testVanilla();
 	}
 
 	public void testGet() throws Exception {

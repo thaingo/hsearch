@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.index;
 
 import com.bizosys.oneline.ApplicationFault;
@@ -268,31 +287,4 @@ public class Term {
 		sb.append(" , Term Weight :" ).append(weight);
 		return sb.toString();
 	}	
-	
-	public static void main(String[] args) {
-		Term t = new Term();
-		System.out.println( "0 = " + t.getTermPos(t.setTermPos(0)) );
-		System.out.println( "23 = " + t.getTermPos(t.setTermPos(23)) );
-		System.out.println( "64998 = " + t.getTermPos(t.setTermPos(64998)) );
-		System.out.println( "64999 = " + t.getTermPos(t.setTermPos(64999)) );
-		System.out.println( "65000 = " + t.getTermPos(t.setTermPos(65000)) );
-		System.out.println( "65001 = " + t.getTermPos(t.setTermPos(65001)) );
-		System.out.println( "65002 = " + t.getTermPos(t.setTermPos(65002)) );
-		
-		System.out.println( "42234 = " + t.getTermPos(t.setTermPos(42234)) );
-		System.out.println( "-1 = " + t.getTermPos(t.setTermPos(-1)) );
-		System.out.println( "36435345 = " + t.getTermPos(t.setTermPos(36435345)) );
-		System.out.println( "482324 = " + t.getTermPos(t.setTermPos(482324)) );
-		System.out.println( "7823435 = " + t.getTermPos(t.setTermPos(7823435)) );
-		System.out.println( "-2134324 = " + t.getTermPos(t.setTermPos(-2134324)) );
-		
-		Term term = new Term();
-		term.termFreq = 122;
-		
-		Term term2 = new Term();
-		term2.termFreq = 2;
-		
-		term.merge(term2);
-		System.out.println("Term Frequency :" + term.termFreq);
-	}
 }

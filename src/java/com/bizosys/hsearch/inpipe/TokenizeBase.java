@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 The Apache Software Foundation
+*
+* Licensed to the Apache Software Foundation (ASF) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The ASF licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.inpipe;
 
 import java.io.ByteArrayInputStream;
@@ -6,9 +25,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.ByteField;
 import com.bizosys.hsearch.common.Storable;
@@ -20,6 +36,8 @@ import com.bizosys.hsearch.index.DocTerms;
 import com.bizosys.hsearch.index.Term;
 import com.bizosys.hsearch.index.TermType;
 import com.bizosys.hsearch.inpipe.util.ReaderType;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.util.StringUtils;
 
 public abstract class TokenizeBase {
 	
@@ -35,15 +53,15 @@ public abstract class TokenizeBase {
 		DocTeaser teaser = aDocument.teaser;
 		DocContent content = aDocument.content;
 		DocMeta meta = aDocument.meta;
+		if ( null == aDocument.terms) aDocument.terms = new DocTerms(); 
 		DocTerms terms = aDocument.terms;
 		
-		/**
-		 * The content fields
-		 */
-		if ( null != content.analyzedIndexed) 
-			addReader(content.analyzedIndexed, terms,  readers, Term.TERMLOC_XML,true);
-		if ( null != content.nonAnalyzedIndexed) 
-			addReader(content.nonAnalyzedIndexed, terms,  readers, Term.TERMLOC_XML,false);
+		if ( null != content) { //The content fields
+			if ( null != content.analyzedIndexed) 
+				addReader(content.analyzedIndexed, terms,  readers, Term.TERMLOC_XML,true);
+			if ( null != content.nonAnalyzedIndexed) 
+				addReader(content.nonAnalyzedIndexed, terms,  readers, Term.TERMLOC_XML,false);
+		}
 
 		/**
 		 * Add the non analyzed ID field
@@ -119,23 +137,27 @@ public abstract class TokenizeBase {
 	private void addReader(ByteField fld, DocTerms terms,
 		List<ReaderType> readers, Character termLoc, boolean analyze) throws ApplicationFault {
 		
+		String text = null;
 		if (fld.type == Storable.BYTE_STRING) {
 			Object objStr = fld.getValue();
 			if ( null == objStr) return;
-			String text = (String) objStr;
-			text = text.toLowerCase();
-			
-			boolean oneWord = text.indexOf(' ') < 0 ;
-			if (oneWord || !analyze) {
-				Term term = new Term(text.toLowerCase(),termLoc,fld.name,0);
-				terms.getTermList().add(term);
-			} else { 
-				InputStream ba = new ByteArrayInputStream( fld.toBytes());
-				InputStreamReader is = new InputStreamReader(ba);   
-				readers.add(new ReaderType(termLoc,fld.name,is));
-			} 							
-		} else {
-			//TODO :: Enable Fields of Type other than String 
+			text = (String) objStr;
+		} else if (fld.type == Storable.BYTE_STORABLE) {
+			text = fld.getValue().toString();
 		}
+
+		if ( null == text) throw 
+			new ApplicationFault("TokenizerBase: Unknow data type :" + fld.toString());
+		
+		text = text.toLowerCase();
+		boolean oneWord = text.indexOf(' ') < 0 ;
+		if (oneWord || !analyze) {
+			Term term = new Term(text.toLowerCase(),termLoc,fld.name,0);
+			terms.getTermList().add(term);
+		} else { 
+			InputStream ba = new ByteArrayInputStream( fld.toBytes());
+			InputStreamReader is = new InputStreamReader(ba);   
+			readers.add(new ReaderType(termLoc,fld.name,is));
+		} 							
 	}
 }
