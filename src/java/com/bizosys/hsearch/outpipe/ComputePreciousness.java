@@ -21,25 +21,24 @@ package com.bizosys.hsearch.outpipe;
 
 import java.util.List;
 
+import com.bizosys.hsearch.query.HQuery;
+import com.bizosys.hsearch.query.QueryContext;
+import com.bizosys.hsearch.query.QueryPlanner;
+import com.bizosys.hsearch.query.QueryTerm;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
-
-import com.bizosys.hsearch.query.HQuery;
-import com.bizosys.hsearch.query.QueryPlanner;
-import com.bizosys.hsearch.query.QueryTerm;
 
 public class ComputePreciousness implements PipeOut{
 	
 	public ComputePreciousness() {
 	}	
 
-	public boolean visit(Object objQuery) 
-		throws ApplicationFault, SystemFault {
+	public boolean visit(Object objQuery) throws ApplicationFault, SystemFault {
 		
 		HQuery query = (HQuery) objQuery;
-		//QueryContext ctx = query.ctx;
+		QueryContext ctx = query.ctx;
 		QueryPlanner planner = query.planner;
 		
 		/**
@@ -49,7 +48,7 @@ public class ComputePreciousness implements PipeOut{
 		int maxOccurance1 = computeMaximimOccurance(planner.mustTerms);
 		int maxOccurance2 = computeMaximimOccurance(planner.optionalTerms);
 		int maxOccurance = ( maxOccurance1 > maxOccurance2) ? maxOccurance1 : maxOccurance2;
-		if ( 0 == maxOccurance) throw new ApplicationFault("Keywords not found.");
+		if ( 0 == maxOccurance) throw new ApplicationFault(ctx.queryString);
 		computePreciousness(planner.mustTerms, maxOccurance);
 		computePreciousness(planner.optionalTerms, maxOccurance);
 		return true;
