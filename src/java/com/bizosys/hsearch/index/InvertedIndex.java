@@ -132,8 +132,9 @@ public class InvertedIndex {
 		short dp;
 		while (pos < bytesT) {
 			row++;
-			pos = pos + 4;
+			pos = pos + 4; //Hash
 			termsT = (byte) bytes[pos++];
+			
 			if ( -1 == termsT) {
 				termsT = Storable.getInt(pos,bytes );
 				pos = pos + 4;
@@ -141,19 +142,17 @@ public class InvertedIndex {
 			
 			pos = pos + (termsT * 3); //dtc + ttc + tw
 			if ( TermList.termVectorStorageEnabled ) pos = pos + (termsT * 3); //tf + tp
-			col = -2;
+			col = Integer.MIN_VALUE;
 			for (int i=0; i< termsT; i++) {
 				dp = Storable.getShort(pos, bytes);
 				pos = pos + 2;
 				if ( dp == docPos) {
+					pos = pos + (termsT - i - 1) * 2; //Remaining bytes
 					col = ( termsT == 1 ) ? -1 : i; 
 					break;
 				}
 			}
-			if ( -2 != col ){
-				rowcol.put(row,col);
-				pos = pos + (termsT - col - 1) * 2;
-			}
+			if ( Integer.MIN_VALUE != col ) rowcol.put(row,col);
 		}
 		
 		/**
@@ -166,10 +165,12 @@ public class InvertedIndex {
 			row++;
 			boolean cutRow = rowcol.containsKey(row);
 			if ( cutRow && rowcol.get(row) == -1 ) {
-				pos = pos + 4;
+				pos = pos + 4; //Hashcode
 				termsT = (byte) bytes[pos++];
-				if ( -1 == termsT) termsT = Storable.getInt(pos,bytes );
-				pos = pos + 4;
+				if ( -1 == termsT) {
+					termsT = Storable.getInt(pos,bytes );
+					pos = pos + 4;
+				}
 				if ( TermList.termVectorStorageEnabled ) pos = pos + termsT * 8; 
 				else pos = pos + termsT * 5;
 				continue;

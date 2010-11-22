@@ -32,7 +32,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.RowLock;
 
 import com.bizosys.hsearch.common.IStorable;
-import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.util.Record;
 import com.bizosys.hsearch.util.RecordScalar;
 

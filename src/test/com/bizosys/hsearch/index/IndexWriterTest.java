@@ -5,7 +5,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
@@ -31,16 +30,7 @@ public class IndexWriterTest extends TestCase {
 		
 		DictionaryManager.getInstance().deleteAll();
         //TestFerrari.testRandom(t);
-		/**
-		t.testIndexSingleDoc("bizosys-123", "abinash", "bangalore");
-		IndexWriter.getInstance().delete("bizosys-123");		
-		t.testIndexSingleDoc("bizosys-123", "abinash", "bangalore");
-		t.testIndexSingleDoc("bizosys-123", "abinash", "bangalore");
-		IndexWriter.getInstance().delete("bizosys-123");
-		*/
-		t.testIndexMultiDoc("ABC-001", "ABC-002", "sunil", "bangalore");
-		t.testIndexMultiDoc("ABC-001", "ABC-002", "sunil", "bangalore");
-		t.testIndexMultiDoc("ABC-001", "ABC-002", "sunil", "bangalore");
+		t.testIndexFieldInsert("bizosys-344","Mr right");
 		
 	}
 	
@@ -59,6 +49,12 @@ public class IndexWriterTest extends TestCase {
 		assertEquals(name, dtw.title.toString());
 		System.out.println(res.toString());
 	}
+	
+	public void testIndexSingleDocTwice(String id, String name, String location) throws Exception {
+		this.testIndexSingleDoc(id, name, location);
+		this.testIndexSingleDoc(id, name, location);
+	}
+	
 	
 	public void testIndexMultiDoc(String id1,String id2,String name, String location) throws Exception {
 		HDocument hdoc = new HDocument();
@@ -80,24 +76,14 @@ public class IndexWriterTest extends TestCase {
 		System.out.println(res.toString());
 	}	
 	
-	
-	public void testIndexVanilaInsert(String id, String title, String teaser) throws Exception {
-		HDocument hdoc = new HDocument();
-		hdoc.originalId = new Storable(id);
-		hdoc.title = new Storable(title);
-		hdoc.fields = new ArrayList<HField>();
-		IndexWriter.getInstance().insert(hdoc);
-
-		//QueryResult res = IndexReader.getInstance().search(new QueryContext(id));
-		QueryResult res = IndexReader.getInstance().search(new QueryContext(title));
-		assertEquals(1, res.teasers.length);
-		DocTeaserWeight dtw = (DocTeaserWeight)res.teasers[0];
-		assertEquals(id.toLowerCase(), new String(dtw.id.toBytes()));
-		assertEquals(title, dtw.title.toString());
-		System.out.println(res.toString());
+	public void testIndexMultidocMultiTimes(String id1,String id2,
+			String name, String location) throws Exception {
+		testIndexMultiDoc(id1, id2,name, location);
+		testIndexMultiDoc(id1, id2,name, location);
+		testIndexMultiDoc(id1, id2,name, location);
 	}
 	
-	public void testIndexFieldInsert(String id, String title, String teaser) throws Exception {
+	public void testIndexFieldInsert(String id, String title) throws Exception {
 		
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = new Storable(id);
@@ -105,10 +91,27 @@ public class IndexWriterTest extends TestCase {
 		hdoc.fields = new ArrayList<HField>();
 		HField fld = new HField("BODY",FileReaderUtil.toString("sample.txt"));
 		hdoc.fields.add(fld);
-		
-		QueryResult res = IndexReader.getInstance().search(new QueryContext(id));
 		IndexWriter.getInstance().insert(hdoc);
+		
+		QueryResult res = IndexReader.getInstance().search(
+			new QueryContext("Comparable")); //A word from sample.txt
+		System.out.println(res.toString());
 	}
+	
+	public void testIndexDelete() throws Exception{
+		HDocument hdoc = new HDocument();
+		hdoc.originalId = new Storable("BIZOSYS-103");
+		hdoc.title = new Storable("Ram tere Ganga maili");
+		hdoc.fields = new ArrayList<HField>();
+		
+		IndexWriter.getInstance().insert(hdoc);
+		
+		QueryContext ctx = new QueryContext("Ganga");
+		ctx.user = new WhoAmI("n4501");
+		QueryResult res = IndexReader.getInstance().search(ctx);
+		System.out.println("Result:" + res.toString());
+		IndexWriter.getInstance().delete("BIZOSYS-103");
+	}	
 	
 	public void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
 			String keyword4, String keyword5, String keyword6, String keyword7,  
@@ -137,18 +140,5 @@ public class IndexWriterTest extends TestCase {
 		IndexWriter.getInstance().insert(hdocs);
 	}
 	
-	public void testIndexDelete() throws Exception{
-		HDocument hdoc = new HDocument();
-		hdoc.originalId = new Storable("BIZOSYS-103");
-		hdoc.title = new Storable("Ram tere Ganga maili");
-		hdoc.fields = new ArrayList<HField>();
-		
-		IndexWriter.getInstance().insert(hdoc);
-		
-		QueryContext ctx = new QueryContext("Ganga");
-		ctx.user = new WhoAmI("n4501");
-		QueryResult res = IndexReader.getInstance().search(ctx);
-		System.out.println("Result:" + res.toString());
-		IndexWriter.getInstance().delete("BIZOSYS-103");
-	}
+
 }
