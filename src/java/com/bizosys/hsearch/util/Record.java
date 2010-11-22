@@ -19,6 +19,7 @@
 */
 package com.bizosys.hsearch.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +33,12 @@ import com.bizosys.hsearch.hbase.NV;
  */
 public class Record {
 	public IStorable pk = null;
-	public List<NV> nvs = null;
-	public long checkoutTime = -1L; 
+	private List<NV> nvs = null;
 
+	public Record(IStorable pk) {
+		this.pk = pk;
+	}
+	
 	public Record(IStorable pk, List<NV> kvs ) {
 		this.pk = pk;
 		this.nvs = kvs;
@@ -44,7 +48,15 @@ public class Record {
 		this.pk = pk;
 		this.nvs = new ArrayList<NV>(1);
 		nvs.add(kv);
-	}	
+	}
+	
+	public boolean merge(byte[] fam, byte[] name, byte[] data) {
+		return true;
+	}
+	
+	public List<NV> getNVs() throws IOException {
+		return this.nvs;
+	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

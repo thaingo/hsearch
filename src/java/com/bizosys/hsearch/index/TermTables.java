@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
@@ -32,9 +31,9 @@ import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.NVBytes;
+import com.bizosys.hsearch.inpipe.SaveToIndexRecord;
 import com.bizosys.hsearch.schema.ILanguageMap;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.Record;
 import com.bizosys.hsearch.util.RecordScalar;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
@@ -101,16 +100,11 @@ public class TermTables {
 		try {
 			for ( Character tableName : tables.keySet()) {
 				TermFamilies termFamilies = tables.get(tableName);
-				
-				if ( merge ) setExistingValue(
-					tableName.toString(),termFamilies);
-				
-				List<NV> nvs = new Vector<NV>(200);
-				termFamilies.toNVs(nvs);
-				Record record = new Record(bucketId,nvs);
+				SaveToIndexRecord record = new SaveToIndexRecord(bucketId);
+				record.setTermFamilies(termFamilies); 
 				if  (HLog.l.isDebugEnabled()) 
 					HLog.l.debug("TermTables.persist Table " + tableName + record.toString());
-				HWriter.insert(tableName.toString(), record);
+				HWriter.merge(tableName.toString(), record);
 			}
 		} catch (Exception ex) {
 			throw new SystemFault(ex);

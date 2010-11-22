@@ -78,7 +78,7 @@ public class Dictionary implements IScanCallBack {
 					IOConstants.DICTIONARY_TERM_BYTES, entry);
 				records.add(scalar);
 			}
-			HWriter.merge(IOConstants.TABLE_DICTIONARY, records);
+			HWriter.mergeScalar(IOConstants.TABLE_DICTIONARY, records);
 		} catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);
@@ -291,7 +291,7 @@ public class Dictionary implements IScanCallBack {
 			records.add(scalar);
 		}
 		try {
-			HWriter.merge(IOConstants.TABLE_DICTIONARY, records);
+			HWriter.mergeScalar(IOConstants.TABLE_DICTIONARY, records);
 		} 	catch (Exception ex) {
 			HLog.l.error(ex);
 			throw new ApplicationFault(ex);

@@ -185,13 +185,12 @@ public class IndexWriter {
 	 * 2 : Parse the document 
 	 * 2 : Remove From Dictionry, Index, Preview and Detail  
 	 */
-	public void delete(String documentId) throws ApplicationFault, SystemFault {
+	public boolean delete(String documentId) throws ApplicationFault, SystemFault {
 		
 		L.l.info("IndexWriter.delete : " + documentId );
 		
 		Doc origDoc = IndexReader.getInstance().get(documentId);
-		if ( null == origDoc.teaser) 
-			throw new ApplicationFault("Check permission before deletion.");
+		if ( null == origDoc.teaser) return false;
 
 		List<PipeIn> deletePipe = new ArrayList<PipeIn>();
 		
@@ -219,5 +218,6 @@ public class IndexWriter {
 			in.commit();
 		}
 		L.l.info("Delete Step 3 >  Commit is over.");
+		return true;
 	}
 }
