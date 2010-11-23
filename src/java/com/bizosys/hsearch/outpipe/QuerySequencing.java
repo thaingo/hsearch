@@ -116,4 +116,8 @@ public class QuerySequencing implements PipeOut{
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
 		return true;
 	}
+	
+	public String getName() {
+		return "QuerySequencing";
+	}		
 }

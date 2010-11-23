@@ -33,6 +33,13 @@ public class DocTerms {
 		return all;
 	}
 	
+	public void setDocumentTypeCode(byte code) {
+		if ( null == all) return;
+		for (Term term : all) {
+			term.setDocumentTypeCode(code);
+		}
+	}
+	
 	public List<TermStream> getTokenStreams() {
 		return this.tokenStreams;
 	}

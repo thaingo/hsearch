@@ -174,7 +174,8 @@ public class QueryContext {
 	public boolean isDocType = false;
 	
 	public QueryContext(String queryString) throws ApplicationFault {
-		this.queryString = queryString;
+		if ( null == queryString) throw new ApplicationFault("Null query");
+		this.queryString = queryString.toLowerCase();
 	}
 	
 	public void setGeoId(GeoId geoId){

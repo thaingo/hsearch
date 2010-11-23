@@ -20,7 +20,9 @@
 package com.bizosys.hsearch.index;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.inpipe.ComputeTokens;
@@ -39,7 +41,9 @@ import com.bizosys.hsearch.inpipe.SaveToPreview;
 import com.bizosys.hsearch.inpipe.TokenizeStandard;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
+import com.bizosys.oneline.util.StringUtils;
 
 /**
  * 
@@ -58,46 +62,104 @@ public class IndexWriter {
 		return singleton;
 	}
 	
-	private List<PipeIn> standardPipes = null;
+	private Map<String, PipeIn> writePipes = null; 
 
 	/**
 	 * Initializes the standard pipes
 	 * Default private constructor
 	 */
 	private IndexWriter() {
-		this.standardPipes = new ArrayList<PipeIn>();
-		
-		this.standardPipes.add(new FilterDuplicateId());
-		this.standardPipes.add(new TokenizeStandard());
-		this.standardPipes.add(new FilterStopwords());
-		this.standardPipes.add(new FilterTermLength());
-		this.standardPipes.add(new FilterLowercase());
-		this.standardPipes.add(new FilterStem());
-		this.standardPipes.add(new ComputeTokens());
-		this.standardPipes.add(new SaveToIndex());
-		this.standardPipes.add(new SaveToDictionary());
-		this.standardPipes.add(new SaveToPreview());
-		this.standardPipes.add(new SaveToDetail());
+	}
+	
+	public void init(Configuration conf) throws SystemFault, ApplicationFault{
+		if ( null == writePipes) createPipes();
+		for (PipeIn pipe: writePipes.values()) {
+			pipe.init(conf);
+		}
 	}
 	
 	/**
-	 * If necessary create copies and keep
+	 * Creates standard sets of pipes
+	 */
+	private void createPipes() {
+		if ( null != this.writePipes) return;
+		
+		this.writePipes = new HashMap<String, PipeIn>();
+		
+		FilterDuplicateId fdi = new FilterDuplicateId();
+		this.writePipes.put(fdi.getName(), fdi);
+		
+		TokenizeStandard ts = new TokenizeStandard();
+		this.writePipes.put(ts.getName(), ts);
+
+		FilterStopwords fs = new FilterStopwords();
+		this.writePipes.put(fs.getName(), fs);
+
+		FilterTermLength ftl = new FilterTermLength();
+		this.writePipes.put(ftl.getName(), ftl);
+
+		FilterLowercase flc = new FilterLowercase();
+		this.writePipes.put(flc.getName(), flc);
+
+		FilterStem fstem = new FilterStem();
+		this.writePipes.put(fstem.getName(), fstem);
+
+		ComputeTokens ct = new ComputeTokens();
+		this.writePipes.put(ct.getName(), ct);
+
+		SaveToIndex si = new SaveToIndex();
+		this.writePipes.put(si.getName(), si);
+
+		SaveToDictionary sd = new SaveToDictionary();
+		this.writePipes.put(sd.getName(), sd);
+
+		SaveToPreview stp = new SaveToPreview();
+		this.writePipes.put(stp.getName(), stp);
+
+		SaveToDetail std = new SaveToDetail();
+		this.writePipes.put(std.getName(), std);
+
+		DeleteFromIndex dfi = new DeleteFromIndex();
+		this.writePipes.put(dfi.getName(), dfi);
+
+		DeleteFromPreviewAndDetail dfpd = new DeleteFromPreviewAndDetail();
+		this.writePipes.put(dfpd.getName(), dfpd);
+
+		DeleteFromDictionary dfd = new DeleteFromDictionary();
+		this.writePipes.put(dfd.getName(), dfd);
+		
+	}
+	
+	public List<PipeIn> getPipes(String stepNames) throws ApplicationFault {
+		L.l.debug("IndexWriter: getPipes  = " + stepNames);
+		if ( null == this.writePipes) createPipes();
+		String[] steps = StringUtils.getStrings(stepNames, ",");
+		List<PipeIn> anvils = new ArrayList<PipeIn>(steps.length);
+		for (String step : steps) {
+			PipeIn aPipe = writePipes.get(step).getInstance();
+			if ( null == aPipe) {
+				L.l.error("IndexWriter: getPipes Pipe not found =  " + step);
+				throw new ApplicationFault("Pipe Not Found: " + step);
+			}
+			anvils.add(aPipe);
+		}
+		return anvils;
+	}
+	
+	/**
+	 * Following pipes are included in the standard write channel
+	 * 
+	 * FilterDuplicateId,TokenizeStandard,FilterStopwords,
+	 * FilterTermLength,FilterLowercase,FilterStem,ComputeTokens,
+	 * SaveToIndex,SaveToDictionary,SaveToPreview,SaveToDetail
 	 * @return
 	 */
-	public List<PipeIn> getStandardPipes() {
-		List<PipeIn> pipes = new ArrayList<PipeIn>(this.standardPipes.size());
-		for (PipeIn spipe : this.standardPipes) {
-			pipes.add(spipe.getInstance());
-		}
-		return pipes;
-	}
-	
-	/**
-	 * Change the standard pipes across the application
-	 * @param pipes
-	 */
-	public void setStandardPipes(List<PipeIn> pipes) {
-		this.standardPipes = pipes;
+	public List<PipeIn> getStandardPipes() throws ApplicationFault{
+		if ( null == this.writePipes) createPipes();
+		return getPipes(
+			"FilterDuplicateId,TokenizeStandard,FilterStopwords,"+
+			"FilterTermLength,FilterLowercase,FilterStem,ComputeTokens," +
+			"SaveToIndex,SaveToDictionary,SaveToPreview,SaveToDetail");
 	}
 	
 	/**
@@ -192,18 +254,10 @@ public class IndexWriter {
 		Doc origDoc = IndexReader.getInstance().get(documentId);
 		if ( null == origDoc.teaser) return false;
 
-		List<PipeIn> deletePipe = new ArrayList<PipeIn>();
-		
-		deletePipe.add(new TokenizeStandard());
-		deletePipe.add(new FilterStopwords());
-		deletePipe.add(new FilterTermLength());
-		deletePipe.add(new FilterLowercase());
-		deletePipe.add(new FilterStem());
-		deletePipe.add(new ComputeTokens());
-
-		deletePipe.add(new DeleteFromIndex());
-		deletePipe.add(new DeleteFromPreviewAndDetail());
-		deletePipe.add(new DeleteFromDictionary());
+		List<PipeIn> deletePipe = getPipes(
+			"TokenizeStandard,FilterStopwords,FilterTermLength," +
+			"FilterLowercase,FilterStem,ComputeTokens," +
+			"DeleteFromIndex,DeleteFromPreviewAndDetail,DeleteFromDictionary");
 		
 		L.l.info("Delete Step 1 > Value parsing is over.");
 		

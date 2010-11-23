@@ -253,4 +253,8 @@ public class LuceneQueryParser implements PipeOut{
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
 		return false;
 	}
+	
+	public String getName() {
+		return "LuceneQueryParser";
+	}
 }

@@ -46,7 +46,7 @@ public class FilterLowercase implements PipeIn {
 	}
 
 	public String getName() {
-		return "FilterLowerCase";
+		return "FilterLowercase";
 	}
 
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {

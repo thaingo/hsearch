@@ -1,4 +1,7 @@
+0.  Complete all test cases and prepare a report.
 1.  Build the REST service
 2.  Create a Java client library
 3.  Enable batch mode for insert, so that locking is not there.
 4.  Create a Book/Article repository and index them.
+5.  All ApplicationFault keyword should be ResourceBundled Map.
+6.  SystemFault Admin takes action, ApplicationFault User does.

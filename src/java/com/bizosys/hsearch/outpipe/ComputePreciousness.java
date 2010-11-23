@@ -48,7 +48,10 @@ public class ComputePreciousness implements PipeOut{
 		int maxOccurance1 = computeMaximimOccurance(planner.mustTerms);
 		int maxOccurance2 = computeMaximimOccurance(planner.optionalTerms);
 		int maxOccurance = ( maxOccurance1 > maxOccurance2) ? maxOccurance1 : maxOccurance2;
-		if ( 0 == maxOccurance) throw new ApplicationFault(ctx.queryString);
+		if ( 0 == maxOccurance) {
+			L.l.info("Word not recognized " + ctx.queryString);
+			throw new ApplicationFault("Word not Recognized : " +  ctx.queryString);
+		}
 		computePreciousness(planner.mustTerms, maxOccurance);
 		computePreciousness(planner.optionalTerms, maxOccurance);
 		return true;
@@ -102,4 +105,9 @@ public class ComputePreciousness implements PipeOut{
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
 		return false;
 	}
+	
+	public String getName() {
+		return "ComputePreciousness";
+	}
+	
 }

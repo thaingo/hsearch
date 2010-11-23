@@ -20,8 +20,11 @@
 package com.bizosys.hsearch.index;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.outpipe.BuildTeaser;
 import com.bizosys.hsearch.outpipe.CheckMetaInfo;
@@ -39,7 +42,10 @@ import com.bizosys.hsearch.query.QueryPlanner;
 import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.oneline.pipes.PipeOut;
+import com.bizosys.oneline.util.StringUtils;
 
 /**
  * 
@@ -58,29 +64,97 @@ public class IndexReader {
 		return singleton;
 	}
 	
-	private List<PipeOut> standardPipes = null;
+	private Map<String, PipeOut> readPipes = null; 
+
 	private IndexReader() {
-		this.standardPipes = new ArrayList<PipeOut>();
-		
-		this.standardPipes.add(new LuceneQueryParser());
-		this.standardPipes.add(new DictionaryEnrichment());
-		this.standardPipes.add(new ComputePreciousness());
-		this.standardPipes.add(new ComputeTypeCodes());
-		this.standardPipes.add(new QuerySequencing());
-		this.standardPipes.add( new SequenceProcessor());
-		
-		this.standardPipes.add( new ComputeStaticRanking()); 
-		this.standardPipes.add( new CheckMetaInfo());
-		this.standardPipes.add( new ComputeDynamicRanking());
-		this.standardPipes.add( new BuildTeaser());
 	}
 	
-	public List<PipeOut> getStandardPipes() {
-		return this.standardPipes;
+	/**
+	 * Creates standard sets of pipes
+	 */
+	private void createPipes() {
+		if ( null != this.readPipes) return;
+		
+		this.readPipes = new HashMap<String, PipeOut>();
+		
+		LuceneQueryParser lqp = new LuceneQueryParser();
+		this.readPipes.put(lqp.getName(), lqp);
+		
+		DictionaryEnrichment de = new DictionaryEnrichment();
+		this.readPipes.put(de.getName(), de);
+
+		ComputePreciousness cp = new ComputePreciousness();
+		this.readPipes.put(cp.getName(), cp);
+
+		ComputeTypeCodes ctc = new ComputeTypeCodes();
+		this.readPipes.put(ctc.getName(), ctc);
+		
+		QuerySequencing qs = new QuerySequencing();
+		this.readPipes.put(qs.getName(), qs);
+
+		SequenceProcessor sp = new SequenceProcessor();
+		this.readPipes.put(sp.getName(), sp);
+
+		ComputeStaticRanking csr = new ComputeStaticRanking();
+		this.readPipes.put(csr.getName(), csr);
+
+		CheckMetaInfo cmi = new CheckMetaInfo();
+		this.readPipes.put(cmi.getName(), cmi);
+	
+		ComputeDynamicRanking cdr = new ComputeDynamicRanking();
+		this.readPipes.put(cdr.getName(), cdr);
+
+		BuildTeaser bt = new BuildTeaser();
+		this.readPipes.put(bt.getName(), bt);
+
+	}	
+	
+	public void init(Configuration conf) throws SystemFault, ApplicationFault{
+		if ( null == readPipes) createPipes();
+		for (PipeOut pipe: readPipes.values()) {
+			pipe.init(conf);
+		}
 	}
 	
-	public void setStandardPipes(List<PipeOut> pipes) {
-		this.standardPipes = pipes;
+	/**
+	 * Comma separates Steps
+	 * @param stepNames
+	 * @return
+	 * @throws ApplicationFault
+	 */
+	public List<PipeOut> getPipes(String stepNames) throws ApplicationFault {
+		L.l.debug("IndexReader: getPipes =  " + stepNames);
+		if ( null == this.readPipes) createPipes();
+		String[] steps = StringUtils.getStrings(stepNames, ",");
+		List<PipeOut> anvils = new ArrayList<PipeOut>(steps.length);
+		for (String step : steps) {
+			PipeOut aPipe = readPipes.get(step).getInstance();
+			if ( null == aPipe) {
+				L.l.error("IndexReader: getPipes Pipe not found =  " + step);
+				throw new ApplicationFault("Pipe Not Found: " + step);
+			}
+			anvils.add(aPipe);
+		}
+		return anvils;
+	}	
+	
+	public List<PipeOut> getStandardPipes() throws ApplicationFault {
+		if ( null == this.readPipes) createPipes();
+		return getPipes(
+			"LuceneQueryParser,DictionaryEnrichment,ComputePreciousness,"+
+			"ComputeTypeCodes,QuerySequencing,SequenceProcessor," +
+			"ComputeStaticRanking,CheckMetaInfo,ComputeDynamicRanking,BuildTeaser");
+	}
+
+	/**
+	 * Get the document detail based on supplied document ID.
+	 * @param origId
+	 * @return
+	 * @throws ApplicationFault
+	 * @throws SystemFault
+	 */
+	public Doc get(String origId) throws ApplicationFault, SystemFault{
+		return new Doc(origId);
 	}
 	
 	/**
@@ -91,10 +165,14 @@ public class IndexReader {
 	 * @throws SystemFault
 	 */
 	public QueryResult search(QueryContext ctx) throws ApplicationFault, SystemFault{
+		return search(ctx, getStandardPipes());		
+	}
+	
+	public QueryResult search(QueryContext ctx, List<PipeOut> pipes) throws ApplicationFault, SystemFault{
 		QueryPlanner planner = new QueryPlanner();
 		HQuery query = new HQuery(ctx, planner);
 		
-		for (PipeOut outPipe : this.standardPipes) {
+		for (PipeOut outPipe : pipes) {
 			if ( ! outPipe.visit(query) ) { 
 				throw new ApplicationFault("Pipe processing failed :" + outPipe.getClass().getName());
 			}
@@ -102,8 +180,8 @@ public class IndexReader {
 		return query.result;
 	}
 	
-	public Doc get(String origId) throws ApplicationFault, SystemFault{
-		return new Doc(origId);
+	
+	public void insert(HDocument hdoc, List<PipeIn> localPipes) throws ApplicationFault, SystemFault{
 	}
 	
 	public List<InvertedIndex> getInvertedIndex(long bucketId) throws ApplicationFault, SystemFault{
@@ -113,7 +191,10 @@ public class IndexReader {
 		List<InvertedIndex> iiL = new ArrayList<InvertedIndex>(nvs.size()); 
 		
 		for (NVBytes nv : nvs) {
-			iiL.addAll(InvertedIndex.read(nv.data));
+			if ( null == nv.data) continue;
+			List<InvertedIndex> indexes = InvertedIndex.read(nv.data);
+			if ( null == indexes) continue;
+			iiL.addAll(indexes);
 		}
 		return iiL;
 	}	

@@ -32,6 +32,7 @@ import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.DocTerms;
+import com.bizosys.hsearch.index.DocumentType;
 import com.bizosys.hsearch.index.Term;
 import com.bizosys.hsearch.index.TermStream;
 
@@ -58,10 +59,21 @@ public class ComputeTokens implements PipeIn {
 		Doc doc = (Doc) docObj;
 		
 		List<TermStream> streams = doc.terms.getTokenStreams();
-		if ( null == streams) return true;
-		for (TermStream ts : streams) {
-			tokenize(doc, ts);
+		if ( null != streams) {
+			for (TermStream ts : streams) {
+				tokenize(doc, ts);
+			}
 		}
+		
+		/**
+		 * Assign the document type to all the terms
+		 */
+		Byte docTypeCode = null;
+		if ( null != doc.meta.docType) 
+			docTypeCode = DocumentType.getInstance().getTypeCode(doc.meta.docType);
+		if (null == docTypeCode) return true;
+		doc.terms.setDocumentTypeCode(docTypeCode);
+		
 		return true;
 	}
 	
@@ -87,7 +99,8 @@ public class ComputeTokens implements PipeIn {
 				token = termA.term();
 				//type = typeA.type();
 				offset = offsetA.startOffset();
-				terms.getTermList().add(new Term(token,ts.sighting,ts.type,offset));
+				Term term = new Term(token,ts.sighting,ts.type,offset);
+				terms.getTermList().add(term);
 			}
 		} catch (IOException ex) {
 			throw new ApplicationFault("ComputeTokens : Tokenize Failed for " + token + " at " + offset , ex);

@@ -79,7 +79,6 @@ class SequenceProcessorFindHBase implements Callable<Object> {
 				pos = pos + 8;
 			}
 		}
-		
 		this.tf = new TermFilter(filterBytes);
 	}
 	

@@ -66,11 +66,16 @@ public class DocTeaser {
 	public DocTeaser() {
 	}
 	
+	/**
+	 * Formulates the document teaser from the supplied Fields of a document. 
+	 * @param aDoc
+	 */
 	public DocTeaser(HDocument aDoc) {
-		this.id = aDoc.originalId;
-		this.url = aDoc.url;
-		this.title =  aDoc.title;
-		this.preview =  aDoc.preview;
+		if ( null != aDoc.originalId) this.id = new Storable(aDoc.originalId);
+		if ( null != aDoc.url) this.url = new Storable(aDoc.url);
+		if ( null != aDoc.title) this.title =   new Storable(aDoc.title);
+		if ( null != aDoc.cacheText ) this.preview =  new Storable(aDoc.preview);
+		if ( null != aDoc.cacheText ) this.cacheText = new Storable(aDoc.cacheText);
 	}
 	
 	public DocTeaser (byte[] id, List<NVBytes> inputBytes) throws ApplicationFault {

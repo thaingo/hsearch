@@ -37,7 +37,7 @@ import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.index.IndexWriter;
-import com.bizosys.hsearch.index.RunPlanManager;
+import com.bizosys.hsearch.index.IndexService;
 import com.bizosys.hsearch.schema.SchemaManager;
 
 public class SearchService implements Service {
@@ -122,13 +122,13 @@ public class SearchService implements Service {
 		String runPlan = req.getString("runplan", true,true,true);
 		
 		if ( StringUtils.isEmpty(runPlan) ) {
-			res.error("Runplan is missing");
+			IndexWriter.getInstance().insert(hdoc);
 			return;
+		} else {
+			IndexWriter.getInstance().insert(hdoc, 
+				IndexWriter.getInstance().getPipes(runPlan));
 		}
 		
-		List<PipeIn> pipes = 
-			RunPlanManager.getInstance().compilePlan(StringUtils.getStrings(runPlan));
-		IndexWriter.getInstance().insert(hdoc, pipes);
 		res.writeXmlString("OK");
 		
 		

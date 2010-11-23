@@ -5,6 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
@@ -12,8 +13,8 @@ import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.query.DocTeaserWeight;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryResult;
-import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.hsearch.util.FileReaderUtil;
+import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.ServiceFactory;
 
@@ -29,15 +30,13 @@ public class IndexWriterTest extends TestCase {
 		}
 		
 		DictionaryManager.getInstance().deleteAll();
-        //TestFerrari.testRandom(t);
-		t.testIndexFieldInsert("bizosys-344","Mr right");
-		
+        TestFerrari.testRandom(t);
 	}
 	
 	public void testIndexSingleDoc(String id, String name, String location) throws Exception {
 		HDocument hdoc = new HDocument();
-		hdoc.originalId = new Storable(id);
-		hdoc.title = new Storable(name);
+		hdoc.originalId = id;
+		hdoc.title = name;
 		hdoc.fields = new ArrayList<HField>();
 		hdoc.fields.add(new HField("LOCATION", location));
 		IndexWriter.getInstance().insert(hdoc);
@@ -58,15 +57,15 @@ public class IndexWriterTest extends TestCase {
 	
 	public void testIndexMultiDoc(String id1,String id2,String name, String location) throws Exception {
 		HDocument hdoc = new HDocument();
-		hdoc.originalId = new Storable(id1);
-		hdoc.title = new Storable(name);
+		hdoc.originalId = id1;
+		hdoc.title = name;
 		hdoc.fields = new ArrayList<HField>();
 		hdoc.fields.add(new HField("LOCATION", location));
 		IndexWriter.getInstance().insert(hdoc);
 		
 		HDocument hdoc2 = new HDocument();
-		hdoc2.originalId = new Storable(id2);
-		hdoc2.title = new Storable(name);
+		hdoc2.originalId = id2;
+		hdoc2.title = name;
 		hdoc2.fields = new ArrayList<HField>();
 		hdoc2.fields.add(new HField("LOCATION", location));
 		IndexWriter.getInstance().insert(hdoc2);
@@ -86,8 +85,8 @@ public class IndexWriterTest extends TestCase {
 	public void testIndexFieldInsert(String id, String title) throws Exception {
 		
 		HDocument hdoc = new HDocument();
-		hdoc.originalId = new Storable(id);
-		hdoc.title = new Storable(title);
+		hdoc.originalId = id;
+		hdoc.title = title;
 		hdoc.fields = new ArrayList<HField>();
 		HField fld = new HField("BODY",FileReaderUtil.toString("sample.txt"));
 		hdoc.fields.add(fld);
@@ -100,20 +99,28 @@ public class IndexWriterTest extends TestCase {
 	
 	public void testIndexDelete() throws Exception{
 		HDocument hdoc = new HDocument();
-		hdoc.originalId = new Storable("BIZOSYS-103");
-		hdoc.title = new Storable("Ram tere Ganga maili");
+		hdoc.originalId = "BIZOSYS-103";
+		hdoc.title = "Ram tere Ganga maili";
 		hdoc.fields = new ArrayList<HField>();
 		
+		QueryContext ctx1 = new QueryContext("Ganga");
 		IndexWriter.getInstance().insert(hdoc);
-		
-		QueryContext ctx = new QueryContext("Ganga");
-		ctx.user = new WhoAmI("n4501");
-		QueryResult res = IndexReader.getInstance().search(ctx);
+		QueryResult res = IndexReader.getInstance().search(ctx1);
 		System.out.println("Result:" + res.toString());
+		
+		QueryContext ctx2 = new QueryContext("Ganga");
 		IndexWriter.getInstance().delete("BIZOSYS-103");
+
+		try {
+			res = IndexReader.getInstance().search(ctx2);
+			System.out.println("Result:" + res.toString());
+		} catch (ApplicationFault ex) {
+			System.out.println("Result:" + ex.toString());
+		}
+		
 	}	
 	
-	public void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
+	private void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
 			String keyword4, String keyword5, String keyword6, String keyword7,  
 			String keyword8, String keyword9, String keyword10) throws Exception {
 		
@@ -126,8 +133,8 @@ public class IndexWriterTest extends TestCase {
 		List<HDocument> hdocs = new ArrayList<HDocument>(5000); 
 		for ( int i=0; i<5000; i++) {
 			HDocument hdoc = new HDocument();
-			hdoc.originalId = new Storable("ORIG_ID:" + i);
-			hdoc.title = new Storable("TITLE:" + i);
+			hdoc.originalId = "ORIG_ID:" + i;
+			hdoc.title = "TITLE:" + i;
 			sb.delete(0,sb.capacity());
 			for (String k : keywords) {
 				sb.append(k).append(i).append(' ');		
@@ -138,6 +145,11 @@ public class IndexWriterTest extends TestCase {
 			hdocs.add(hdoc);
 		}
 		IndexWriter.getInstance().insert(hdocs);
+		
+		for ( int i=0; i<5000; i++) {
+			IndexWriter.getInstance().delete("ORIG_ID:" + i);
+		}
+		
 	}
 	
 

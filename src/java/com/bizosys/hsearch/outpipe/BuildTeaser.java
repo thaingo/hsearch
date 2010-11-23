@@ -93,4 +93,9 @@ public class BuildTeaser implements PipeOut{
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
 		return false;
 	}
+	
+	
+	public String getName() {
+		return "BuildTeaser";
+	}		
 }

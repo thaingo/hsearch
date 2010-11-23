@@ -29,35 +29,41 @@ import com.bizosys.hsearch.filter.Access;
 public class HDocument {
 
 	/**
+	 * Mapped Bucket and Document Serial Numbers
+	 */
+	public Long bucketId = null;
+	public Short docSerialId = null;
+	
+
+	/**
 	 * The Document ID, This is s a unique ID.
 	 * This ID could be later used 
 	 * 
 	 * get/update/delete the document
 	 * Mapping to original document
 	 */
-	public Storable originalId =  null;
-	
-	/**
-	 * Mapped Bucket and Document Serial Numbers
-	 */
-	public Long bucketId = null;
-	public Short docSerialId = null;
+	public String originalId =  null;
 	
 	/**
 	 * Where is this document located
 	 */
-	public Storable url =  null;
+	public String url =  null;
 
 	/**
 	 * The title of the document
 	 */
-	public Storable title =  null; 
+	public String title =  null; 
 	
 	/**
 	 * The Preview text on the document
 	 */
-	public Storable preview =  null;
+	public String preview =  null;
 	
+	/**
+	 * The Preview text on the document
+	 */
+	public String cacheText =  null;
+
 	/**
 	 * List all fields of this document
 	 */

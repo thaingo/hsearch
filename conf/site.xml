@@ -15,7 +15,7 @@
 
 	<property>
 	  <name>services</name>
-	  <value>com.bizosys.hsearch.schema.SchemaManager,com.bizosys.hsearch.index.RunPlanManager,com.bizosys.hsearch.dictionary.DictionaryManager,com.bizosys.hsearch.inpipe.util.StopwordManager</value>
+	  <value>com.bizosys.hsearch.schema.SchemaManager,com.bizosys.hsearch.index.IndexService,com.bizosys.hsearch.dictionary.DictionaryManager,com.bizosys.hsearch.inpipe.util.StopwordManager</value>
 	  <description>These are customized services bundled inside the package; 
 	  Not in plugin folders.</description>
 	</property>

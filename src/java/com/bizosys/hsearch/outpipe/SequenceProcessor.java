@@ -32,6 +32,7 @@ import com.bizosys.oneline.services.async.AsyncProcessor;
 
 import com.bizosys.hsearch.index.TermList;
 import com.bizosys.hsearch.query.HQuery;
+import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryPlanner;
 import com.bizosys.hsearch.query.QueryTerm;
 
@@ -51,7 +52,7 @@ public class SequenceProcessor implements PipeOut{
 
 	public boolean visit(Object objQuery) throws ApplicationFault, SystemFault {
 		HQuery query = (HQuery) objQuery;
-		//QueryContext ctx = query.ctx;
+		QueryContext ctx = query.ctx;
 		QueryPlanner planner = query.planner;
 		if ( null == planner.sequences) return false;
 		
@@ -63,7 +64,7 @@ public class SequenceProcessor implements PipeOut{
 				if ( 0 == step.size()) continue;
 				if ( 1 == step.size()) { //Intermediatelt only 1 Term (Inline call)
 					QueryTerm curQuery = step.get(0);
-					
+					if ( null != ctx.docTypeCode ) curQuery.docTypeCode = ctx.docTypeCode;
 					SequenceProcessorFindHBase bucketId = new SequenceProcessorFindHBase(curQuery,findWithinBuckets);
 					if ( null != lastMustQuery ) bucketId.setFilterByIds(lastMustQuery);
 					bucketId.call();
@@ -210,4 +211,8 @@ public class SequenceProcessor implements PipeOut{
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
 		return true;
 	}
+	
+	public String getName() {
+		return "SequenceProcessor";
+	}		
 }

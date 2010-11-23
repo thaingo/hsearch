@@ -68,9 +68,10 @@ public class FilterIds {
 		int storeL = storeB.length;
 		int pos = 0, startPos=0;
 		int termsT = 0;
-		while ( storeL > pos) {
-			//Match Keyword hash
-			boolean isMatched = 
+		
+		while ( storeL > pos) { //Loop on keyword hashes
+			
+			boolean isMatched =   ////Match a Keyword hash 
 				storeB[pos] == inB[0] && 
 				storeB[pos+1] == inB[1] &&
 				storeB[pos+2] == inB[2] &&
@@ -91,7 +92,7 @@ public class FilterIds {
 			if ( inT > 4 && Byte.MIN_VALUE != inB[4]) { /** Doc Type code match needed*/
 				isMatched = false;
 				for (int i=0; i<termsT; i++ ) {
-					if ( storeB[pos+i] == inB[4] ) {
+					if ( storeB[pos+i] == inB[4] ) { //Any one is matched
 						isMatched = true; break;
 					}
 				}

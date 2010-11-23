@@ -45,7 +45,7 @@ import com.bizosys.hsearch.util.RecordScalar;
 
 public class SaveToIndex implements PipeIn {
 
-	int docMergeFactor = 10000;
+	int docMergeFactor = 1000;
 	/** Arranged by document */
 	Map<Doc, TermTables> docTermTables = new HashMap<Doc, TermTables>();
 	

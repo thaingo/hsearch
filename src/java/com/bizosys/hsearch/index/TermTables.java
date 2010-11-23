@@ -143,7 +143,7 @@ public class TermTables {
 	 * Get the Running bucket Id
 	 */
 	public static long getCurrentBucketId() throws ApplicationFault{
-		HLog.l.info("TermBucket > aquiring the running bucket.");
+		HLog.l.info("TermTables > aquiring the running bucket.");
 		
 		NV nv = new NV(IOConstants.NAME_VALUE_BYTES,IOConstants.NAME_VALUE_BYTES);
 		RecordScalar scalar = new RecordScalar(BUCKET_COUNTER_BYTES, nv); 
@@ -151,7 +151,7 @@ public class TermTables {
 		long currentBucket = Storable.getLong(0, nv.data.toBytes());
 
 		if ( HLog.l.isInfoEnabled()) 
-			HLog.l.info("AddToIndex > Running bucket = " + currentBucket);
+			HLog.l.info("TermTables > Running bucket = " + currentBucket);
 		return currentBucket;
 	}
 	

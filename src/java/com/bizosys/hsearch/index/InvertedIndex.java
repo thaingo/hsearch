@@ -262,10 +262,8 @@ public class InvertedIndex {
 		byte docTyep=0,termTyep=0,termWeight=0,termFreq=0;
 		short termPos=0;
 		
+		if ( L.l.isDebugEnabled() ) L.l.debug("TermList Byte Marshalling: bytesT = " + bytesT);
 		while ( pos < bytesT) {
-			if ( L.l.isDebugEnabled() ) 
-				L.l.debug("TermList Byte Marshalling: (pos:bytesT) = " + pos + ":" + bytesT);
-			
 			priorDocTerms.clear();
 			keywordHash = Storable.getInt(pos, existingB);
 			pos = pos + 4;
@@ -278,7 +276,7 @@ public class InvertedIndex {
 				termsT =  Storable.getInt(pos, existingB);
 				pos = pos + 4;
 			} 
-			if ( L.l.isDebugEnabled() ) L.l.debug("termsT:" + termsT + ":" + pos );
+			//if ( L.l.isDebugEnabled() ) L.l.debug("termsT:" + termsT + ":" + pos );
 			
 			/**
 			 * Compute Each Term.
