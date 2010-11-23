@@ -1,0 +1,4 @@
+1.  Build the REST service
+2.  Create a Java client library
+3.  Enable batch mode for insert, so that locking is not there.
+4.  Create a Book/Article repository and index them.
