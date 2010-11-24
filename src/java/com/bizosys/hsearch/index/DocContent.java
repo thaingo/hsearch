@@ -73,12 +73,10 @@ public class DocContent implements IDimension {
 			
 			if ( fld.isIndexable) {
 				if (fld.isAnalyzed) {
-					if ( null == this.analyzedIndexed) 
-						this.analyzedIndexed = new ArrayList<ByteField>();
+					if ( null == this.analyzedIndexed) this.analyzedIndexed = new ArrayList<ByteField>();
 					this.analyzedIndexed.add(fld.bfl);
 				} else {
-					if ( null == this.nonAnalyzedIndexed) 
-						this.nonAnalyzedIndexed = new ArrayList<ByteField>(); 
+					if ( null == this.nonAnalyzedIndexed) this.nonAnalyzedIndexed = new ArrayList<ByteField>(); 
 					this.nonAnalyzedIndexed.add(fld.bfl);
 				}
 			}

@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
+import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.query.DocTeaserWeight;
 import com.bizosys.hsearch.query.DocWeight;
 import com.bizosys.hsearch.query.QueryContext;
@@ -26,7 +27,9 @@ public class IndexReaderTest extends TestCase {
 		
 		IndexReaderTest t = new IndexReaderTest();
         //TestFerrari.testAll(t);
-		t.testAbsentDocType("ID0213213");
+		t.testTermType("ID0213213");
+		//System.out.println(DictionaryManager.getInstance().getKeywords().toString());
+		//System.out.println(DictionaryManager.getInstance().get("hydrogen") );		
 	}
 
 	public void testGet(String id, String title) throws Exception {
@@ -204,12 +207,39 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testTermType() throws Exception  {
-		String content1 = "<molecules><gas>Hydrogen</gas></molecules>";
-		String content2 = "Water is made of hydrogen and oxygen.";
-		String query1 = "Hydrogen";
-		String query2 = "gas:Hydrogen";
+	public void testTermType(String id) throws Exception  {
+		DocumentType dtype = new DocumentType();
+		dtype.types.put("molecules", (byte) -108);
+		dtype.persist();
 		
+		TermType ttype = new TermType();
+		ttype.types.put("gas", (byte) -97);
+		ttype.persist();
+
+		HDocument doc1 = new HDocument();
+		doc1.originalId = "Id 1 : " + id ;
+		HField fld1 = new HField("gas", "Hydrogen");
+		doc1.fields = new ArrayList<HField>();
+		doc1.fields.add(fld1);
+		doc1.docType = "molecules";
+		IndexWriter.getInstance().insert(doc1);
+
+		QueryResult res1 = IndexReader.getInstance().search(new QueryContext("Hydrogen"));
+		System.out.println(res1.toString());
+		assertNotNull(res1.teasers);
+		//assertEquals(1, res1.teasers.length);
+		
+		HDocument doc2 = new HDocument();
+		doc2.originalId = "Id 2 : " + id ;
+		doc2.title = "Water is made of hydrogen and oxygen.";
+		IndexWriter.getInstance().insert(doc2);
+		
+		QueryResult res2 = IndexReader.getInstance().search(new QueryContext("gas:Hydrogen"));
+		System.out.println(res2.teasers.toString());
+		assertEquals(1, res2.teasers.length);
+
+		IndexWriter.getInstance().delete(doc2.originalId);
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
 	public void testAbsentTermType() throws Exception  {

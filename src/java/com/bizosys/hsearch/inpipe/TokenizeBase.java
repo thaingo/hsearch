@@ -36,6 +36,7 @@ import com.bizosys.hsearch.index.DocTerms;
 import com.bizosys.hsearch.index.Term;
 import com.bizosys.hsearch.index.TermType;
 import com.bizosys.hsearch.inpipe.util.ReaderType;
+import com.bizosys.hsearch.lang.Stemmer;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.util.StringUtils;
 
@@ -152,7 +153,8 @@ public abstract class TokenizeBase {
 		text = text.toLowerCase();
 		boolean oneWord = text.indexOf(' ') < 0 ;
 		if (oneWord || !analyze) {
-			Term term = new Term(text.toLowerCase(),termLoc,fld.name,0);
+			text = Stemmer.getInstance().stem(text);
+			Term term = new Term(text,termLoc,fld.name,0);
 			terms.getTermList().add(term);
 		} else { 
 			InputStream ba = new ByteArrayInputStream( fld.toBytes());

@@ -20,8 +20,10 @@
 package com.bizosys.hsearch.outpipe;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -33,7 +35,9 @@ import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.filter.TermFilter;
 import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HTableWrapper;
+import com.bizosys.hsearch.index.DocumentType;
 import com.bizosys.hsearch.index.TermList;
+import com.bizosys.hsearch.index.TermType;
 import com.bizosys.hsearch.query.L;
 import com.bizosys.hsearch.query.QueryTerm;
 
@@ -155,6 +159,9 @@ class SequenceProcessorFindHBase implements Callable<Object> {
 			long rowId = -1L;
 			TermList lastTermL = null;
 			boolean hasElementsLeft = false;
+			boolean hasTypeFilter = ( DocumentType.NONE_TYPECODE != term.docTypeCode 
+				|| TermType.NONE_TYPECODE != term.termTypeCode);
+			Set<Integer> ignorePos = (hasTypeFilter) ? new HashSet<Integer>() :null;
 			
 			for (Result r: scanner) {
 				if ( null == r) continue;
@@ -166,7 +173,12 @@ class SequenceProcessorFindHBase implements Callable<Object> {
 				rowId = Storable.getLong(0, row);
 				
 				TermList foundTermL = new TermList();
-				foundTermL.loadTerms(storedB);
+				if ( hasTypeFilter ) {
+					ignorePos.clear();
+					foundTermL.loadTerms(storedB,ignorePos,term.docTypeCode, term.termTypeCode);
+				} else {
+					foundTermL.loadTerms(storedB);
+				}
 				
 				if ( !(null == this.lastTermLists || this.term.isOptional) ) { 
 					lastTermL = this.lastTermLists.get(rowId);

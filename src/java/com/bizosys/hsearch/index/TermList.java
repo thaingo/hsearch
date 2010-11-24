@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
@@ -91,6 +92,73 @@ public class TermList implements IStorable {
 		this.existingB = existingB;
 	}
 	
+	public void loadTerms(byte[] bytes, Set<Integer> ignoreLocation,
+			Byte docType, Byte termType) {
+		
+		if ( null == bytes) return;
+		
+		if ( termVectorStorageEnabled ) {
+			this.totalTerms = bytes.length / TERM_SIZE_VECTOR;
+		} else {
+			this.totalTerms = bytes.length / TERM_SIZE_NOVECTOR;
+		}
+		
+		if ( DocumentType.NONE_TYPECODE != docType) {
+			byte docTypeCode =docType.byteValue();
+			for (int i=0; i<this.totalTerms; i++ ) {
+				if ( docTypeCode != bytes[i] ) ignoreLocation.add(i);
+			}
+		}
+		
+		int pos = ( termVectorStorageEnabled ) ? TERM_SIZE_VECTOR : TERM_SIZE_NOVECTOR;
+		if ( TermType.NONE_TYPECODE != termType) {
+			byte termTypeCode =termType.byteValue();
+			for (int i=0; i<this.totalTerms; i++ ) {
+				if ( termTypeCode != bytes[pos+i] ) 
+					ignoreLocation.add(i);
+			}
+		}
+		int ignoreLocationT = ignoreLocation.size();
+		boolean hasIgnore = ignoreLocationT > 0;
+		
+		
+		/**
+		 * Document types codes
+		 */
+		int newTotals = this.totalTerms - ignoreLocationT;
+		docTypesCodes = new byte[newTotals];
+		termTypeCodes = new byte[newTotals];
+		this.termWeight = new byte[newTotals];
+		if ( termVectorStorageEnabled ) {
+			this.termFreq = new byte[newTotals];
+			this.termPosition = new short[newTotals];
+		}
+		this.docPos = new short[newTotals];
+		
+		pos = 0;
+		int shift = 0;
+		for (int i=0; i<this.totalTerms; i++ ) {
+			if ( hasIgnore && ignoreLocation.contains(i)) continue;
+			
+			shift = ( termVectorStorageEnabled ) ? TERM_SIZE_VECTOR * i: TERM_SIZE_NOVECTOR * i;
+			docTypesCodes[pos] = bytes[i];
+			termTypeCodes[pos] = bytes[shift * this.totalTerms + i];
+			this.termWeight[pos] = bytes[shift * 2 * this.totalTerms + i];
+			if ( termVectorStorageEnabled ) {
+				this.termFreq[pos] = bytes[this.totalTerms * 3 * this.totalTerms+ i];
+				shift = shift * this.totalTerms * 4 + i;
+				this.termPosition[pos] = (short) ((bytes[shift] << 8 ) + ( bytes[++shift] & 0xff ) );
+				shift = shift * this.totalTerms * 6 + i;
+				this.docPos[pos] = (short) ((bytes[shift] << 8 ) + ( bytes[++shift] & 0xff ) );
+			} else {
+				shift = shift * this.totalTerms * 3 + i;
+				this.docPos[pos] = (short) ((bytes[shift] << 8 ) + ( bytes[++shift] & 0xff ) );
+			}
+			pos++;
+		}
+		
+		this.totalTerms = newTotals;
+	}
 	
 	/**
 	 * Load by deserializing bytes

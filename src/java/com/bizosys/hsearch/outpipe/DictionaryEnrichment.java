@@ -50,6 +50,7 @@ public class DictionaryEnrichment implements PipeOut{
 	private void loadFromDictionary(List<QueryTerm> queryWordL) throws ApplicationFault {
 		if ( null == queryWordL) return;
 		for (QueryTerm term : queryWordL) {
+			L.l.debug("DictionaryEnrichment > " + term.wordStemmed);
 			DictEntry entry = 
 				DictionaryManager.getInstance().get(term.wordStemmed);
 			term.foundTerm = entry;

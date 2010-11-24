@@ -22,23 +22,20 @@ package com.bizosys.hsearch;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import com.bizosys.hsearch.common.HDocument;
+import com.bizosys.hsearch.index.IndexWriter;
+import com.bizosys.hsearch.schema.SchemaManager;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
-import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.oneline.services.Request;
 import com.bizosys.oneline.services.Response;
 import com.bizosys.oneline.services.Service;
 import com.bizosys.oneline.services.ServiceMetaData;
 import com.bizosys.oneline.util.StringUtils;
-
-import com.bizosys.hsearch.common.HDocument;
-import com.bizosys.hsearch.index.IndexWriter;
-import com.bizosys.hsearch.index.IndexService;
-import com.bizosys.hsearch.schema.SchemaManager;
 
 public class SearchService implements Service {
 
