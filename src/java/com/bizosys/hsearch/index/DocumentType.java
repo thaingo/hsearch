@@ -57,10 +57,10 @@ public class DocumentType implements BatchTask {
 		this.process();
 	}
 	
-	public byte getTypeCode(String type) {
+	public byte getTypeCode(String type) throws ApplicationFault{
 		if (this.types.containsKey(type))
 			return this.types.get(type);
-		else return ' ';
+		throw new ApplicationFault("Document Type " + type + " is unknown");
 	}
 	
 	public void persist() throws IOException {

@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
@@ -17,6 +18,7 @@ import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.ServiceFactory;
+import com.sun.jersey.api.core.ApplicationAdapter;
 
 
 public class IndexReaderTest extends TestCase {
@@ -26,8 +28,8 @@ public class IndexReaderTest extends TestCase {
 		ServiceFactory.getInstance().init(conf, null);
 		
 		IndexReaderTest t = new IndexReaderTest();
-        //TestFerrari.testAll(t);
-		t.testTermType("ID0213213");
+        //TestFerrari.testRandom(t);
+		t.testAbsentDocType("ID0213213");
 		//System.out.println(DictionaryManager.getInstance().getKeywords().toString());
 		//System.out.println(DictionaryManager.getInstance().get("hydrogen") );		
 	}
@@ -136,6 +138,7 @@ public class IndexReaderTest extends TestCase {
 		doc1.fields = new ArrayList<HField>();
 		doc1.fields.add(fld1);
 		doc1.fields.add(fld2);
+		doc1.docType = "employee";
 		IndexWriter.getInstance().insert(doc1);
 		
 		HDocument doc2 = new HDocument();
@@ -158,21 +161,11 @@ public class IndexReaderTest extends TestCase {
 
 		QueryResult res = IndexReader.getInstance().search(new QueryContext("typ:employee abinash"));
 		assertNotNull(res.teasers);
-		assertEquals(3, res.teasers.length);
+		assertEquals(1, res.teasers.length);
 		DocTeaserWeight t1 = (DocTeaserWeight) res.teasers[0];
 		String id1 = new String( t1.id.toBytes());
 
-		DocTeaserWeight t2 = (DocTeaserWeight) res.teasers[1];
-		String id2 = new String( t2.id.toBytes());
-		
-		DocTeaserWeight t3 = (DocTeaserWeight) res.teasers[2];
-		String id3 = new String( t3.id.toBytes());
-		
-		String allIds = id1 + " " + id2 + " " + id3;
-
-		assertTrue( -1 != allIds.indexOf(doc1.originalId) );
-		assertTrue( -1 != allIds.indexOf(doc2.originalId) );
-		assertTrue( -1 != allIds.indexOf(doc3.originalId) );
+		assertTrue( -1 != id1.indexOf(doc1.originalId) );
 		
 		IndexWriter.getInstance().delete(doc1.originalId);
 		IndexWriter.getInstance().delete(doc2.originalId);
@@ -202,9 +195,11 @@ public class IndexReaderTest extends TestCase {
 		assertNotNull(res1.teasers);
 		assertEquals(1, res1.teasers.length);
 		
-		QueryResult res2 = IndexReader.getInstance().search(new QueryContext("typ:gal dow"));
-		assertEquals(0, res2.teasers.length);
-		IndexWriter.getInstance().delete(doc1.originalId);
+		try { 
+			IndexReader.getInstance().search(new QueryContext("typ:gal dow"));
+		} catch (ApplicationFault ex) {
+			assertTrue(ex.getMessage().indexOf("unknown") > 0);
+		}
 	}
 	
 	public void testTermType(String id) throws Exception  {

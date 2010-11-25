@@ -55,7 +55,6 @@ public class ComputeTypeCodes implements PipeOut{
 		
 		if ( null == ctx) return ;
 		if ( null == ctx.docType) return ;
-		
 		ctx.docTypeCode = DocumentType.getInstance().getTypeCode(ctx.docType);
 	}
 	
