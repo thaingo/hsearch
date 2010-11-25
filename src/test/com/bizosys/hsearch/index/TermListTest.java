@@ -1,5 +1,8 @@
 package com.bizosys.hsearch.index;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 
@@ -13,7 +16,8 @@ public class TermListTest extends TestCase {
 
 	public static void main(String[] args) throws Exception {
 		TermListTest t = new TermListTest();
-        TestFerrari.testRandom(t);
+        //TestFerrari.testRandom(t);
+		t.testFilterByWord("Abinash", "Sridhar", "Dhuli", (short) 1, (short)2, (byte)75,(byte)76, (byte)77);
 	}
 	
 	public void testSingleTermDoc(String keyword, Byte termwt, Short docpos, Byte wt) throws Exception {
@@ -255,4 +259,39 @@ public class TermListTest extends TestCase {
 		assertEquals(w3.byteValue(), tu.termWeight[0]);
 		
 	}	
+	
+	public void testFilterByWord(
+			String keyword1, String keyword2, String keyword3,
+			Short pos1, Short pos2, Byte w1, Byte w2, Byte w3) throws Exception {
+			
+			Character s = 'T';
+			byte termType = 12;
+			
+			Term aTerm = new Term(keyword1,s,TermType.NONE_TYPECODE, 123, pos1, w1);
+			Term bTerm = new Term(keyword2,s,TermType.NONE_TYPECODE, 123, pos1, w2);
+			Term cTerm = new Term(keyword3,s,termType, 123, pos2, w3);
+			Term dTerm = new Term(keyword2,s,TermType.NONE_TYPECODE, 123, pos2, w3);
+			
+			TermList tl = new TermList();
+			tl.add(aTerm);
+			tl.add(bTerm);
+			
+			TermList t2 = new TermList();
+			t2.setExistingBytes(tl.toBytes());
+			tl.add(cTerm);
+			tl.add(dTerm);
+
+			byte[] bytes = tl.toBytes();
+			
+			TermList tl2 = new TermList();
+			byte[] hashcode = Storable.putInt(keyword3.hashCode());
+			byte[] onlyTerms = FilterIds.isMatchingColBytes(bytes, hashcode);
+			Set<Integer> ignorePos = new HashSet<Integer>();
+			
+			tl2.loadTerms(onlyTerms,ignorePos, DocumentType.NONE_TYPECODE,termType);
+
+			assertEquals(1, tl2.totalTerms);
+			assertEquals(pos2.shortValue(), tl2.docPos[0]);
+			assertEquals(w3.byteValue(), tl2.termWeight[0]);
+		}	
 }

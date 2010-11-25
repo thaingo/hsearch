@@ -235,7 +235,7 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().insert(doc2);
 		
 		QueryResult res2 = IndexReader.getInstance().search(new QueryContext("gas:Hydrogen"));
-		System.out.println(res2.teasers.toString());
+		System.out.println("RES2>>>>" + res2.toString());
 		assertEquals(1, res2.teasers.length);
 
 		IndexWriter.getInstance().delete(doc2.originalId);

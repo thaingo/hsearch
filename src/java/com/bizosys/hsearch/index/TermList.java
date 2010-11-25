@@ -110,17 +110,17 @@ public class TermList implements IStorable {
 			}
 		}
 		
-		int pos = ( termVectorStorageEnabled ) ? TERM_SIZE_VECTOR : TERM_SIZE_NOVECTOR;
 		if ( TermType.NONE_TYPECODE != termType) {
 			byte termTypeCode =termType.byteValue();
 			for (int i=0; i<this.totalTerms; i++ ) {
-				if ( termTypeCode != bytes[pos+i] ) 
-					ignoreLocation.add(i);
+				if ( termTypeCode != bytes[this.totalTerms + i] ) ignoreLocation.add(i);
 			}
 		}
 		int ignoreLocationT = ignoreLocation.size();
-		boolean hasIgnore = ignoreLocationT > 0;
-		
+		if ( ignoreLocationT == 0) {
+			loadTerms(bytes);
+			return;
+		}
 		
 		/**
 		 * Document types codes
@@ -135,26 +135,25 @@ public class TermList implements IStorable {
 		}
 		this.docPos = new short[newTotals];
 		
-		pos = 0;
+		int row = 0;
 		int shift = 0;
 		for (int i=0; i<this.totalTerms; i++ ) {
-			if ( hasIgnore && ignoreLocation.contains(i)) continue;
-			
-			shift = ( termVectorStorageEnabled ) ? TERM_SIZE_VECTOR * i: TERM_SIZE_NOVECTOR * i;
-			docTypesCodes[pos] = bytes[i];
-			termTypeCodes[pos] = bytes[shift * this.totalTerms + i];
-			this.termWeight[pos] = bytes[shift * 2 * this.totalTerms + i];
+			if ( ignoreLocation.contains(i)) continue;
+
+			docTypesCodes[row] = bytes[i];
+			termTypeCodes[row] = bytes[this.totalTerms + i];
+			this.termWeight[row] = bytes[(2 * this.totalTerms) + i];
 			if ( termVectorStorageEnabled ) {
-				this.termFreq[pos] = bytes[this.totalTerms * 3 * this.totalTerms+ i];
-				shift = shift * this.totalTerms * 4 + i;
-				this.termPosition[pos] = (short) ((bytes[shift] << 8 ) + ( bytes[++shift] & 0xff ) );
-				shift = shift * this.totalTerms * 6 + i;
-				this.docPos[pos] = (short) ((bytes[shift] << 8 ) + ( bytes[++shift] & 0xff ) );
+				this.termFreq[row] = bytes[(3 * this.totalTerms) + i];
+				shift = (this.totalTerms * 4 ) + (i * 2);
+				this.termPosition[row] = (short) ((bytes[shift] << 8 ) + ( bytes[shift+1] & 0xff ) );
+				shift = (this.totalTerms * 6) + (i * 2);
+				this.docPos[row] = (short) ((bytes[shift] << 8 ) + ( bytes[shift+1] & 0xff ) );
 			} else {
-				shift = shift * this.totalTerms * 3 + i;
-				this.docPos[pos] = (short) ((bytes[shift] << 8 ) + ( bytes[++shift] & 0xff ) );
+				shift = (this.totalTerms * 3) + (i * 2);
+				this.docPos[row] = (short) ((bytes[shift] << 8 ) + ( bytes[shift+1] & 0xff ) );
 			}
-			pos++;
+			row++;
 		}
 		
 		this.totalTerms = newTotals;

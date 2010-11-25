@@ -39,8 +39,8 @@ public class QueryResult {
 			writer.append("<list>");
 			int docIndex = 0;
 			for (Object teaserO : this.teasers) {
-				writer.append("<doc>");
-				writer.append("<index>" + docIndex + "</index>");
+				writer.append("\n<doc>");
+				writer.append("<index>" + docIndex++ + "</index>");
 				DocTeaserWeight dtw = (DocTeaserWeight) teaserO;
 				dtw.toXml(writer);
 				writer.append("</doc>");
@@ -61,6 +61,13 @@ public class QueryResult {
 			if ( null == this.sortedStaticWeights) {
 				spw.write("\nSorted Static Weights = 0 ");
 			} else {
+				for (Object sw : this.sortedStaticWeights) {
+					DocWeight dw = (DocWeight) sw;
+					spw.write(dw.id);
+					spw.write('=');
+					spw.write(new Float(dw.wt).toString());
+					spw.write('\n');
+				}
 				spw.write("\nSorted Static Weights : " + this.sortedStaticWeights.length);
 			}
 			

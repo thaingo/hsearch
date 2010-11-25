@@ -212,7 +212,7 @@ public class DocTeaser {
 			pw.append('<').append(IOConstants.TEASER_PREVIEW).append("/>");
 		}
 		
-		pw.append('<').append(IOConstants.TEASER).append("/>\n");
+		pw.append("</").append(IOConstants.TEASER).append(">");
 	}
 	
 	

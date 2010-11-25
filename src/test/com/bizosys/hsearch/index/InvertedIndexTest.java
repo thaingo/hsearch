@@ -210,5 +210,57 @@ public class InvertedIndexTest  extends TestCase {
 		assertEquals((short)1001, iiL.get(1).docPos[0]);
 	}		
 
+	public void testTypeFiltering() {
+
+		TermList tl = new TermList();
+		Term t1 = new Term("abinash",Term.TERMLOC_BODY,(byte)1,12);
+		t1.setDocumentPosition((short)1001);
+		t1.setDocumentTypeCode((byte) 44);
+		t1.setTermWeight((byte)91);
+		t1.setTermTypeCode((byte)12); 
+		
+		Term t2 = new Term("avinash",Term.TERMLOC_BODY,(byte)1,22);
+		t2.setDocumentTypeCode((byte) 45);
+		t2.setTermWeight((byte)92);
+		t2.setDocumentPosition((short)1001);
+		
+		Term t3 = new Term("abinash",Term.TERMLOC_BODY,(byte)1,22);
+		t3.setDocumentTypeCode((byte) 46);
+		t3.setTermWeight((byte)93);
+		t3.setDocumentPosition((short)1002);
+
+		Term t4 = new Term("alinash",Term.TERMLOC_BODY,(byte)1,22);
+		t4.setDocumentTypeCode((byte) 46);
+		t4.setTermWeight((byte)93);
+		t4.setDocumentPosition((short)1003);
+
+		Term t5 = new Term("akinash",Term.TERMLOC_BODY,(byte)1,22);
+		t5.setDocumentTypeCode((byte) 46);
+		t5.setTermWeight((byte)93);
+		t5.setDocumentPosition((short)1004);
+		
+		tl.add(t1);
+		tl.add(t2);
+		tl.add(t3);
+		tl.add(t4);
+		tl.add(t5);
+		byte[] deletedB = InvertedIndex.delete(tl.toBytes(), (short) 1002);
+		assertNotNull(deletedB);
+		
+		List<InvertedIndex> iiL = InvertedIndex.read(deletedB);
+		assertEquals(4, iiL.size());
+		
+		assertEquals("akinash".hashCode(), iiL.get(3).hash);
+		assertEquals((short)1004, iiL.get(3).docPos[0]);
+		
+		assertEquals("alinash".hashCode(), iiL.get(0).hash);
+		assertEquals((short)1003, iiL.get(0).docPos[0]);
+
+		assertEquals("abinash".hashCode(), iiL.get(1).hash);
+		assertEquals((short)1001, iiL.get(1).docPos[0]);
+
+		assertEquals("avinash".hashCode(), iiL.get(2).hash);
+		assertEquals((short)1001, iiL.get(1).docPos[0]);
+	}		
 
 }
