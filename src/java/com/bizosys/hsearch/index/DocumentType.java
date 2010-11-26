@@ -25,6 +25,7 @@ import java.util.Map;
 
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.services.batch.BatchTask;
+import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
@@ -57,7 +58,8 @@ public class DocumentType implements BatchTask {
 		this.process();
 	}
 	
-	public byte getTypeCode(String type) throws ApplicationFault{
+	public Byte getTypeCode(String type) throws ApplicationFault{
+		if ( StringUtils.isEmpty(type)) return null;
 		if (this.types.containsKey(type))
 			return this.types.get(type);
 		throw new ApplicationFault("Document Type " + type + " is unknown");

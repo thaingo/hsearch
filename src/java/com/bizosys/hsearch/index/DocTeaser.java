@@ -70,8 +70,9 @@ public class DocTeaser {
 	 * Formulates the document teaser from the supplied Fields of a document. 
 	 * @param aDoc
 	 */
-	public DocTeaser(HDocument aDoc) {
-		if ( null != aDoc.originalId) this.id = new Storable(aDoc.originalId);
+	public DocTeaser(HDocument aDoc) throws ApplicationFault {
+		if ( null == aDoc.originalId) throw new ApplicationFault("Document Id is not present."); 
+			this.id = new Storable(aDoc.originalId);
 		if ( null != aDoc.url) this.url = new Storable(aDoc.url);
 		if ( null != aDoc.title) this.title =   new Storable(aDoc.title);
 		if ( null != aDoc.cacheText ) this.preview =  new Storable(aDoc.preview);

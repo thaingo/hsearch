@@ -44,7 +44,7 @@ public class Doc {
 	public Doc() {
 	}
 	
-	public Doc(HDocument hDoc) {
+	public Doc(HDocument hDoc) throws ApplicationFault {
 		this.bucketId = hDoc.bucketId;
 		this.docSerialId = hDoc.docSerialId;
 		this.ipAddress = hDoc.ipAddress;

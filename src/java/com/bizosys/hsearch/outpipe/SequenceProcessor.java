@@ -110,7 +110,6 @@ public class SequenceProcessor implements PipeOut{
 	private void intersectMustQs(QueryPlanner planner, QueryTerm lastMustQuery) {
 		if ( null == lastMustQuery) return;
 		int stepsT = planner.sequences.size();
-		boolean ignoreNext = false;
 		
 		for ( int step = stepsT - 1; step > -1; step--) {
 
@@ -129,17 +128,8 @@ public class SequenceProcessor implements PipeOut{
 			/**
 			 * Last must query - Already processed
 			 */
-			if ( lastMustQuery == curQuery) {
-				ignoreNext = true; continue;
-			}
+			if ( lastMustQuery == curQuery) continue;
 
-			/**
-			 * Second Must Query. This too already processed
-			 */
-			if ( ignoreNext ) {
-				ignoreNext = false; continue;
-			}
-			
 			/**
 			 * Remove the buckets which are absent and then IDs
 			 */

@@ -54,8 +54,7 @@ public class HWriter {
 	 * @throws IOException
 	 */
 	public static void insertScalar(String tableName, RecordScalar record) throws IOException {
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("insertScalar 1 : " + tableName);
+		if  (HLog.l.isDebugEnabled())  HLog.l.debug("insertScalar 1 : " + tableName);
 		
 		byte[] pk = record.pk.toBytes();
 		Put update = new Put(pk);
@@ -66,6 +65,8 @@ public class HWriter {
 		HTableWrapper table = null;
 		HBaseFacade facade = null;
 		try {
+			facade = HBaseFacade.getInstance();
+			table = facade.getTable(tableName);
 			table.put(update);
 			table.flushCommits();
 		} finally {

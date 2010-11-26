@@ -102,11 +102,7 @@ public class StopwordManager implements Service{
 		StopwordRefresh.add(words);
 		Set<String> newStopWords = new HashSet<String>();
 		newStopWords.addAll(words);
-		Set<String> stopWordsTemp = this.stopWords;
 		this.stopWords = newStopWords;
-		
-		stopWordsTemp.clear();
-		stopWordsTemp = null;
 	}
 	
 	/**

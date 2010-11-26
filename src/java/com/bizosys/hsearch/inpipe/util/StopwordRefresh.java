@@ -56,7 +56,7 @@ public class StopwordRefresh implements BatchTask {
 			List<String> wordLst = StringUtils.fastSplit(words, STOPWORD_SEPARATOR);
 			Set<String> stopWordsTemp = StopwordManager.getInstance().stopWords;
 			StopwordManager.getInstance().stopWords = buildStopwords(wordLst);
-			stopWordsTemp.clear();
+			if ( null != stopWordsTemp ) stopWordsTemp.clear();
 			stopWordsTemp = null;
 		}
 		return null;
