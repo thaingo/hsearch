@@ -136,7 +136,7 @@ public class HDocument {
 	/**
 	 * Which date the document is created. 
 	 */
-	public Date bornOn = null;
+	public Date createdOn = null;
 
 	/**
 	 * Which date the document is last updated. 
@@ -146,7 +146,7 @@ public class HDocument {
 	/**
 	 * When the document is scheduled to die or died
 	 */
-	public Date deathOn = null;
+	public Date validTill = null;
 	
 	/**
 	 * From which IP address is this document created. 

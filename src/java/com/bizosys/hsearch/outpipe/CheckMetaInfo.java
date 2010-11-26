@@ -32,7 +32,7 @@ import com.bizosys.oneline.pipes.PipeOut;
 
 public class CheckMetaInfo implements PipeOut{
 	
-	int pageSize = 100; //10 Pages each 10 records
+	int DEFAULT_RETRIEVAL_SIZE = 100;
 	
 	public CheckMetaInfo() {
 	}	
@@ -47,7 +47,9 @@ public class CheckMetaInfo implements PipeOut{
 		if ( null == staticL) return true;
 		
 		CheckMetaInfoHBase hbase = new CheckMetaInfoHBase(ctx);
-		List<DocMetaWeight> dmwL = hbase.filter(staticL, ctx.scroll, this.pageSize);
+		int pageSize = (-1 == ctx.metaFetchLimit) ? 
+			DEFAULT_RETRIEVAL_SIZE : ctx.metaFetchLimit;
+		List<DocMetaWeight> dmwL = hbase.filter(staticL, ctx.scroll, pageSize);
 		if ( null == dmwL) return true;
 		result.sortedDynamicWeights = dmwL.toArray();
 		return true;
@@ -62,7 +64,8 @@ public class CheckMetaInfo implements PipeOut{
 	}
 
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
-		return false;
+		this.DEFAULT_RETRIEVAL_SIZE = conf.getInt("meta.fetch.limit", 100);
+		return true;
 	}
 	
 	public String getName() {

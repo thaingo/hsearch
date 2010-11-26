@@ -39,6 +39,8 @@ import com.bizosys.oneline.pipes.PipeOut;
 
 public class BuildTeaser implements PipeOut{
 	
+	int DEFAULT_PAGE_SIZE = 10;
+	int DEFAULT_TEASER_LENGTH = 20;
 	public BuildTeaser() {
 	}	
 
@@ -49,9 +51,15 @@ public class BuildTeaser implements PipeOut{
 		if ( null == res) return true;
 		if ( null == res.sortedDynamicWeights) return true;
 		
+		int documentFetchLimit = (-1 == ctx.documentFetchLimit) ? 
+			DEFAULT_PAGE_SIZE : ctx.documentFetchLimit;
+		
+		int teaserCutSection = (-1 == ctx.teaserSectionLen) ?
+			DEFAULT_TEASER_LENGTH : ctx.teaserSectionLen;
+		
 		int foundT = res.sortedDynamicWeights.length;
-		int maxFetching = ( ctx.documentFetchLimit <  foundT) ? 
-				ctx.documentFetchLimit : foundT;
+		int maxFetching = ( documentFetchLimit <  foundT) ? 
+				documentFetchLimit : foundT;
 		
 		List<DocTeaserWeight> weightedTeasers = new ArrayList<DocTeaserWeight>(maxFetching);
 		
@@ -69,7 +77,7 @@ public class BuildTeaser implements PipeOut{
 			wordsB[i+termsMT] = new Storable(query.planner.optionalTerms.get(i).wordOrig).toBytes();
 		}
 		
-		TeaserFilter tf = new TeaserFilter(wordsB);
+		TeaserFilter tf = new TeaserFilter(wordsB, (short) teaserCutSection);
 		for ( int i=0; i< maxFetching; i++) {
 			DocMetaWeight metaWt =  (DocMetaWeight) res.sortedDynamicWeights[i];
 			byte[] idB = metaWt.id.getBytes();
@@ -91,7 +99,9 @@ public class BuildTeaser implements PipeOut{
 	}
 
 	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
-		return false;
+		this.DEFAULT_PAGE_SIZE = conf.getInt("page.fetch.limit", 10);
+		this.DEFAULT_TEASER_LENGTH = conf.getInt("teaser.words.count", 100);
+		return true;
 	}
 	
 	

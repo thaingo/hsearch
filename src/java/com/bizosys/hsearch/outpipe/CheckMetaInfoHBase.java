@@ -109,7 +109,7 @@ class CheckMetaInfoHBase {
 			int totalMatched = 0;
 			
 			for (int i=scroll; i< staticT; i++ ) {
-				if ( totalMatched > pageSize) break; //Just read enough for the page size
+				if ( totalMatched >= pageSize) break; //Just read enough for the page size
 
 				String id = ((DocWeight) staticL[i]).id;
 				Get getter = new Get(id.getBytes());;

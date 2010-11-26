@@ -1,5 +1,6 @@
 package com.bizosys.hsearch.index;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +12,7 @@ import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.dictionary.DictionaryManager;
+import com.bizosys.hsearch.filter.TeaserFilter;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.inpipe.util.StopwordRefresh;
 import com.bizosys.hsearch.query.DocTeaserWeight;
@@ -31,7 +33,7 @@ public class IndexReaderTest extends TestCase {
 		
 		IndexReaderTest t = new IndexReaderTest();
         //TestFerrari.testRandom(t);
-		t.testCreatedBefore("CURIE");
+		t.testTeaserLength("Java");
 		//System.out.println(DictionaryManager.getInstance().getKeywords().toString());
 		//System.out.println(DictionaryManager.getInstance().get("hydrogen") );		
 	}
@@ -622,7 +624,7 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		doc1.title = "Born at poland around 1800 century past.";
-		doc1.bornOn = new Date(System.currentTimeMillis()-240000000);
+		doc1.createdOn = new Date(System.currentTimeMillis()-240000000);
 		IndexWriter.getInstance().insert(doc1);
 
 		Date date = new Date();
@@ -633,7 +635,7 @@ public class IndexReaderTest extends TestCase {
 				new QueryContext(query));
 		assertEquals(1, res.teasers.length);
 		
-		String pastDate = new Long(doc1.bornOn.getTime() - 300000000).toString();
+		String pastDate = new Long(doc1.createdOn.getTime() - 300000000).toString();
 		String pastQ = "createdb:" + pastDate + " century";
 		QueryResult pastRes = IndexReader.getInstance().search(
 				new QueryContext(pastQ));
@@ -642,71 +644,166 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 
-	public void testCreatedAfter() throws Exception  {
-		Date date = new Date();
-		String longDate = new Long(date.getTime()).toString();
-		Thread.sleep(2000);
-		
-		String humanoid1 = "Humanoid 1 came to earth in 2050 searchcherry future.";
-		String query = "borna:" + longDate + " searchcherry";
-	}
-	
-	public void testModifiedAfter() throws Exception  {
-		String content1 = "Now the touch me not is opened";
-		
-		Date date = new Date();
-		String longDate = new Long(date.getTime()).toString();
-		Thread.sleep(2000);
-		
-		String content2 = "Now the touch me not is closed";
-		String query1 = "modifieda:" + longDate + " touch";
+	public void testCreatedAfter(String id) throws Exception  {
 
-	}
-	
-	public void testModifiedBefore() throws Exception  {
-		String content1 = "Now the touch me not is opened";
+		DateFormat format = DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM, DateFormat.SHORT);
 		
-		Date date = new Date();
-		String longDate = new Long(date.getTime()).toString();
-		Thread.sleep(2000);
+		HDocument doc1 = new HDocument();
+		doc1.originalId = "Id 1 : " + id ;
+		doc1.title = "My daughter birth was after my birth";
+		doc1.createdOn = format.parse("Nov 18, 2008 6:15 AM");
+		IndexWriter.getInstance().insert(doc1);
+
+		String myBirth = new Long(format.parse("Feb 05, 1977 8:00 PM").getTime()).toString();
+		QueryResult res1 = IndexReader.getInstance().search(
+				new QueryContext("createda:" + myBirth + " birth"));
+		assertEquals(1, res1.teasers.length);
 		
-		String content2 = "Now the touch me not is closed";
-		String query1 = "modifiedb:" + longDate + " touch";
+		String toDate = new Long(new Date().getTime()).toString();
+		QueryResult res2 = IndexReader.getInstance().search(
+				new QueryContext("createda:" + toDate + " birth"));
+		assertEquals(0, res2.teasers.length);
+
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testBodyFetchLimit() throws Exception  {
-		String query1 = "dfl:3 abinash";
-		String query2 = "dfl:1 abinash";
-		String query3 = "dfl:0 abinash";
-		String query4 = "dfl:-1 abinash";
+	public void testModifiedAfter(String id) throws Exception  {
+		DateFormat format = DateFormat.getDateTimeInstance(
+	            DateFormat.MEDIUM, DateFormat.SHORT);
+
+		HDocument doc1 = new HDocument();
+		doc1.originalId = "Id 1 : " + id ;
+		doc1.title = "My Trading balance as 234.00";
+		doc1.modifiedOn = new Date();
+		IndexWriter.getInstance().insert(doc1);
+
+		String myBirth = new Long(format.parse("Feb 05, 1977 8:00 PM").getTime()).toString();
+		QueryResult res1 = IndexReader.getInstance().search(
+				new QueryContext("modifieda:" + myBirth + " balance"));
+		assertEquals(1, res1.teasers.length);
+			
+		String future = new Long(format.parse("Feb 05, 2121 8:00 PM").getTime()).toString();
+		QueryResult res2 = IndexReader.getInstance().search(
+				new QueryContext("modifieda:" + future + " balance"));
+		assertEquals(0, res2.teasers.length);
+
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testMetaFetchLimit() throws Exception  {
-		String query1 = "mfl:3 abinash";
+	public void testModifiedBefore(String id) throws Exception  {
+		DateFormat format = DateFormat.getDateTimeInstance(
+	            DateFormat.MEDIUM, DateFormat.SHORT);
+
+		HDocument doc1 = new HDocument();
+		doc1.originalId = "Id 1 : " + id ;
+		doc1.title = "My Trading balance as 234.00";
+		doc1.modifiedOn = new Date();
+		IndexWriter.getInstance().insert(doc1);
+
+		String myBirth = new Long(format.parse("Feb 05, 1977 8:00 PM").getTime()).toString();
+		QueryResult res1 = IndexReader.getInstance().search(
+				new QueryContext("modifiedb:" + myBirth + " balance"));
+		assertEquals(0, res1.teasers.length);
+			
+		String future = new Long(format.parse("Feb 05, 2121 8:00 PM").getTime()).toString();
+		QueryResult res2 = IndexReader.getInstance().search(
+				new QueryContext("modifiedb:" + future + " balance"));
+		assertEquals(1, res2.teasers.length);
+
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testTeaserLength() throws Exception  {
-		String query1 = "tsl:30 dfl:1000 abinash";
-	}
-	
-	public void testDataBackupIntegrity() throws Exception  {
+	public void testDocumentFetchLimit(String id) throws Exception  {
+		ArrayList<HDocument> docs = new ArrayList<HDocument>();
+		for ( int i=0; i<10; i++) {
+			HDocument doc = new HDocument();
+			doc.originalId = i + " - " + id ;
+			doc.title = "Flower " + i;
+			docs.add(doc);
+		}
+		IndexWriter.getInstance().insert(docs);
+
+		QueryResult res1 = IndexReader.getInstance().search(
+				new QueryContext("dfl:3 flower"));
+		assertEquals(3, res1.teasers.length);
+
+		QueryResult res2 = IndexReader.getInstance().search(
+				new QueryContext("dfl:1 flower"));
+		assertEquals(1, res2.teasers.length);
 		
+		QueryResult res3 = IndexReader.getInstance().search(
+				new QueryContext("dfl:0 flower"));
+		assertEquals(0, res3.teasers.length);
+		
+		for ( int i=0; i<10; i++) {
+			IndexWriter.getInstance().delete(i + " - " + id);
+		}
+	}
+	
+	public void testMetaFetchLimit(String id) throws Exception  {
+		ArrayList<HDocument> docs = new ArrayList<HDocument>();
+		for ( int i=0; i<10; i++) {
+			HDocument doc = new HDocument();
+			doc.originalId = i + " - " + id ;
+			doc.title = "Flower " + i;
+			docs.add(doc);
+		}
+		IndexWriter.getInstance().insert(docs);
+
+		QueryResult res1 = IndexReader.getInstance().search(
+				new QueryContext("mfl:3 flower"));
+		assertEquals(3, res1.teasers.length);
+
+		QueryResult res2 = IndexReader.getInstance().search(
+				new QueryContext("mfl:1 flower"));
+		assertEquals(1, res2.teasers.length);
+		
+		QueryResult res3 = IndexReader.getInstance().search(
+				new QueryContext("mfl:0 flower"));
+		assertEquals(0, res3.teasers.length);
+		
+		for ( int i=0; i<10; i++) {
+			IndexWriter.getInstance().delete(i + " - " + id);
+		}
+	}
+	
+	public void testTeaserLength(String id) throws Exception  {
+		HDocument doc = new HDocument();
+		doc.originalId = id;
+		doc.title = "Using SimpleDateFormat for custom date formatting and parsing";
+		doc.cacheText = "The default DateFormat instances returned by the static methods in the DateFormat class may be sufficient for many purposes, but clearly do not cover all possible valid or useful formats for dates. For example, notice that in Figure 2, none of the DateFormat-generated strings (numbers 2 - 9) match the format of the output of the Date class’s toString() method. This means that you cannot use the default DateFormat instances to parse the output of toString(), something that might be useful for things like parsing log data.The SimpleDateFormat lets you build custom formats. Dates are constructed with a string that specifies a pattern for the dates to be formatted and/or parsed. From the SimpleDateFormat JavaDocs, the characters in Figure 7 can be used in date formats. Where appropriate, 4 or more of the character will be interpreted to mean that the long format of the element should be used, while fewer than 4 mean that a short format should be used.";
+		IndexWriter.getInstance().insert(doc);
+		QueryResult middleCut = IndexReader.getInstance().search(
+				new QueryContext("tsl:30 purposes"));
+		assertEquals(1, middleCut.teasers.length);
+		DocTeaserWeight dtw = (DocTeaserWeight) middleCut.teasers[0]; 
+		assertEquals(30, dtw.cacheText.toBytes().length);
+
+		QueryResult frontCut = IndexReader.getInstance().search(
+				new QueryContext("tsl:100 DateFormat"));
+		assertEquals(1, frontCut.teasers.length);
+		dtw = (DocTeaserWeight) frontCut.teasers[0]; 
+		assertEquals(100, dtw.cacheText.toBytes().length);
+		
+		QueryResult endCut = IndexReader.getInstance().search(
+				new QueryContext("tsl:100 used"));
+		assertEquals(1, endCut.teasers.length);
+		dtw = (DocTeaserWeight) endCut.teasers[0]; 
+		assertEquals(100, dtw.cacheText.toBytes().length);
+
+		IndexWriter.getInstance().delete(doc.originalId);
 	}
 	
 	public void testAccessAllow() throws Exception  {
-		
 	}
 
 	public void testAccessDeny() throws Exception {
-		
 	}
 
-	public void testNonLoggedInIndexCreation() throws Exception {
-		
+	public void testGuest() throws Exception {
 	}
 
 	public void testAccessAnonymous() throws Exception  {
-		
 	}
-
 }

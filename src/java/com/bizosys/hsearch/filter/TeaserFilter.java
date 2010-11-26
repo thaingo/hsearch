@@ -30,14 +30,15 @@ import org.apache.hadoop.hbase.filter.Filter;
 
 public class TeaserFilter implements Filter {
 	private static final byte TEASER_BYTE = "c".getBytes()[0];
-	private static final int SECTION_LENGTH = 360;
 	
+	short cutLength = 360;
 	byte[][] bWords = null;
 
 	public TeaserFilter(){}
 	
-	public TeaserFilter(byte[][] bWords){
+	public TeaserFilter(byte[][] bWords, short cutLength){
 		this.bWords = bWords;
+		this.cutLength = cutLength; 
 	}
 	
 	public boolean filterAllRemaining() {
@@ -63,14 +64,13 @@ public class TeaserFilter implements Filter {
 			kv = kvItr.next();
 			if (TEASER_BYTE == kv.getQualifier()[0]) {
 				BuildTeaserHighlighter bth = new BuildTeaserHighlighter();
-				bth.find(kv.getValue(),bWords,SECTION_LENGTH);
+				data = bth.find(kv.getValue(),bWords,cutLength);
 				break;
 			}
 		}
 		if ( null != data ) {
 			kvItr.remove();
-			kvL.add(new KeyValue(kv.getRow(),
-				kv.getFamily(), kv.getQualifier(), data));
+			kvL.add(new KeyValue(kv.getRow(), kv.getFamily(), kv.getQualifier(), data));
 		}
 	}
 	
@@ -94,6 +94,7 @@ public class TeaserFilter implements Filter {
 
 	@Override
 	public void readFields(DataInput in) throws IOException {
+		this.cutLength = in.readShort();
 		int len = in.readByte();
 		int index = 1;
 		this.bWords = new byte[len][];
@@ -110,6 +111,7 @@ public class TeaserFilter implements Filter {
 	
 	@Override
 	public void write(DataOutput out) throws IOException {
+		out.writeShort(cutLength);
 		out.writeByte(bWords.length);
 		for ( int i=0; i<bWords.length; i++ ) {
 			out.writeByte(bWords[i].length);

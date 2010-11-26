@@ -149,8 +149,8 @@ public class QueryContext {
 	 * ***********************************************/
 	public int teaserSectionLen = -1; //Complete Document
 	public int facetFetchLimit = 1000;
-	public int metaFetchLimit = 1000;
-	public int documentFetchLimit = 25;
+	public int metaFetchLimit = -1;
+	public int documentFetchLimit = -1;
 	
 	public String[] metaFields = null;
 	

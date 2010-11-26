@@ -68,4 +68,22 @@
 	  <description>This refreshes the stop words at 30 Minutes Interval.</description>
 	</property>	
 	
+	<property>
+	  <name>meta.fetch.limit</name>
+	  <value>100</value>
+	  <description>Number of documents fetched during Meta checking.</description>
+	</property>	
+	
+	<property>
+	  <name>page.fetch.limit</name>
+	  <value>10</value>
+	  <description>Documents Retrieved per page.</description>
+	</property>	
+	
+	<property>
+	  <name>teaser.words.count</name>
+	  <value>100</value>
+	  <description>What is the size of the teaser.</description>
+	</property>	
+
 </configuration>

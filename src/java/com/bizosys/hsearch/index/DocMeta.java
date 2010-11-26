@@ -137,8 +137,8 @@ public class DocMeta implements IStorable, IDimension {
 	public DocMeta(HDocument meta) {
 		if ( null != meta.tags) 
 			this.tags  = StringUtils.listToString(meta.tags, '\t') ;
-		this.createdOn = meta.bornOn;
-		this.validTill = meta.deathOn;
+		this.createdOn = meta.createdOn;
+		this.validTill = meta.validTill;
 		this.docType = meta.docType;
 		this.eastering = meta.eastering;
 		this.modifiedOn = meta.modifiedOn;
