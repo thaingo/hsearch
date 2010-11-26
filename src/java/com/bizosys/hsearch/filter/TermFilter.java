@@ -53,7 +53,7 @@ public class TermFilter implements Filter {
 			isMatched = ( null != matchedTLBytes);
 			if (isMatched ) return ReturnCode.INCLUDE;
 		}
-		return ReturnCode.SKIP;
+		return ReturnCode.NEXT_ROW;
 	}
 
 	public boolean filterRow() {

@@ -42,11 +42,9 @@ public class SearchService implements Service {
 	public static Logger l = Logger.getLogger(SearchService.class.getName());
 	
 	Configuration conf = null;
-	int mergeFactor = 10000;
 	
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		this.conf = conf;
-		this.mergeFactor = conf.getInt("merge.factor", 10000);
 		try {
 			l.info("Initializing Search Scheme.");
 			SchemaManager.getInstance().init(conf, meta);

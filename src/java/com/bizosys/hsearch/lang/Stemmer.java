@@ -871,7 +871,7 @@ public class Stemmer {
 		
 	}
 	
-	public String stem(String word, boolean isOnePass) {
+	private String stem(String word, boolean isOnePass) {
 
 		if (word.length() > 3) {
 			return recodeEnding(removeEnding(word.toLowerCase(), isOnePass));

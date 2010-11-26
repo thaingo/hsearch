@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.omg.CORBA.portable.ApplicationException;
+
+import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.util.StringUtils;
 
 import junit.framework.Test;

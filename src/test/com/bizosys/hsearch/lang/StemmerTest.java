@@ -37,7 +37,7 @@ public class StemmerTest extends TestCase {
 				"abattoir","abaxial", "abaxially", "abaya" };
 		
 		for (String word : words) {
-			System.out.println( word + "=" + ls.stem(word, true) + ":" + ls.stem(word));
+			System.out.println( word + "=" + ls.stem(word));
 		}
 	}
 }

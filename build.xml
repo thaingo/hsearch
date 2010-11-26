@@ -145,7 +145,7 @@
 	<!-- All source file jar -->
 	<!-- ================================================================== -->
 	<target name="jar-examples">
-		<jar jarfile="${build.dir}/${final.name}-examples.jar" basedir="${basedir}/src/test">
+		<jar jarfile="${build.dir}/${final.name}-src-examples.jar" basedir="${basedir}/src/test">
 			<manifest>
 				<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="Version" value="${version}"/>

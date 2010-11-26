@@ -26,6 +26,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.filter.Access;
@@ -48,14 +49,13 @@ public class IndexReaderTest extends TestCase {
 		
 		IndexReaderTest t = new IndexReaderTest();
         //TestFerrari.testRandom(t);
-		t.testGuest("SPecial-1");
-		//System.out.println(DictionaryManager.getInstance().getKeywords().toString());
-		//System.out.println(DictionaryManager.getInstance().get("hydrogen") );		
+		t.testTeaserLength();
 	}
 
-	public void testGet(String id, String title) throws Exception {
+	public void testGet(String title) throws Exception {
+		String id = "ID001"; 
 		String content = "Welcome to bizosys technologies";
-		
+		 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = id;
 		doc1.title = "Title : " + title ;
@@ -72,10 +72,11 @@ public class IndexReaderTest extends TestCase {
 		assertEquals(new String(d.teaser.cacheText.toBytes()), doc1.cacheText);
 		assertEquals(d.content.stored.size(), 1);
 
-		IndexWriter.getInstance().delete(id);
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testVanillaSearch(String id, String title) throws Exception  {
+	public void testVanillaSearch(String title) throws Exception  {
+		String id = "ID002";
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id : " + id ;
 		doc1.title = "Title : " + title;
@@ -88,6 +89,7 @@ public class IndexReaderTest extends TestCase {
 		DocTeaserWeight teaser = (DocTeaserWeight) res.teasers[0];
 		assertEquals(new String(teaser.id.toBytes()), doc1.originalId);
 		assertEquals(new String(teaser.title.toBytes()), doc1.title);
+		
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 
@@ -99,7 +101,9 @@ public class IndexReaderTest extends TestCase {
 		}
 	}
 	
-	public void test2CharacterWord(String id) throws Exception  {
+	public void test2CharacterWord() throws Exception  {
+		String id = "ID003";
+
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id : " + id ;
 		doc1.title = "Title : " + "The Sun God RA was worshipped by Egyptians.";
@@ -116,8 +120,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testSpecialCharacter(String id) throws Exception  {
+	public void testSpecialCharacter() throws Exception  {
 
+		String id = "ID004";
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id : " + id ;
 		doc1.title = "For the Sin!1 city I will design wines & wives";
@@ -140,13 +145,15 @@ public class IndexReaderTest extends TestCase {
 			teaser = (DocTeaserWeight) stwO;
 			allIds =  new String(teaser.id.toBytes()) + allIds; 
 		}
-		System.out.println(allIds);
 		assertTrue(allIds.indexOf(doc1.originalId) >= 0);
+		
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
 	
-	public void testDocumentType(String id) throws Exception  {
+	public void testDocumentType() throws Exception  {
+		String id = "ID005";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("employee", (byte) -113);
 		dtype.persist();
@@ -184,7 +191,8 @@ public class IndexReaderTest extends TestCase {
 		doc3.fields.add(fld6);
 		IndexWriter.getInstance().insert(doc3);
 
-		QueryResult res = IndexReader.getInstance().search(new QueryContext("typ:employee abinash"));
+		QueryResult res = IndexReader.getInstance().search(
+			new QueryContext("typ:employee abinash"));
 		assertNotNull(res.teasers);
 		assertEquals(1, res.teasers.length);
 		DocTeaserWeight t1 = (DocTeaserWeight) res.teasers[0];
@@ -199,7 +207,9 @@ public class IndexReaderTest extends TestCase {
 		
 	}
 	
-	public void testAbsentDocType(String id) throws Exception  {
+	public void testAbsentDocType() throws Exception  {
+		String id = "ID006";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("toys", (byte) -109);
 		dtype.persist();
@@ -224,10 +234,14 @@ public class IndexReaderTest extends TestCase {
 			IndexReader.getInstance().search(new QueryContext("typ:gal dow"));
 		} catch (ApplicationFault ex) {
 			assertTrue(ex.getMessage().indexOf("unknown") > 0);
+		} finally {
+			IndexWriter.getInstance().delete(doc1.originalId);
 		}
 	}
 	
-	public void testTermType(String id) throws Exception  {
+	public void testTermType() throws Exception  {
+		String id = "ID007";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("molecules", (byte) -108);
 		dtype.persist();
@@ -258,11 +272,13 @@ public class IndexReaderTest extends TestCase {
 		System.out.println("RES2>>>>" + res2.toString());
 		assertEquals(1, res2.teasers.length);
 
-		IndexWriter.getInstance().delete(doc2.originalId);
 		IndexWriter.getInstance().delete(doc1.originalId);
+		IndexWriter.getInstance().delete(doc2.originalId);
 	}
 	
-	public void testAbsentTermType(String id) throws Exception  {
+	public void testAbsentTermType() throws Exception  {
+		String id = "ID008";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("stories", (byte) -87);
 		dtype.persist();
@@ -283,10 +299,14 @@ public class IndexReaderTest extends TestCase {
 			IndexReader.getInstance().search(new QueryContext("girl:cyndrella"));
 		} catch (ApplicationFault ex) {
 			assertTrue(ex.getMessage().indexOf("unknown") > 0);
+		} finally {
+			IndexWriter.getInstance().delete(doc1.originalId);
 		}
 	}
 	
-	public void testDocumentTypeWithTermType(String id) throws Exception  {
+	public void testDocumentTypeWithTermType() throws Exception  {
+		String id = "ID009";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("molecules", (byte) -108);
 		dtype.types.put("fuel", (byte) -109);
@@ -336,7 +356,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testAnd(String id) throws Exception  {
+	public void testAnd() throws Exception  {
+		String id = "ID010";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("technology", (byte) -108);
 		dtype.persist();
@@ -395,7 +417,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc3.originalId);
 	}
 	
-	public void testOr(String id) throws Exception  {
+	public void testOr() throws Exception  {
+		String id = "ID011";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("fruit", (byte) -108);
 		dtype.persist();
@@ -458,8 +482,10 @@ public class IndexReaderTest extends TestCase {
 	}
 	
 	public void testMultiphrase() throws Exception  {
+		String id = "ID012";
+
 		HDocument doc1 = new HDocument();
-		doc1.originalId = "2312";
+		doc1.originalId = id;
 		doc1.title = "I born at Keonjhar Orissa";
 		IndexWriter.getInstance().insert(doc1);
 		QueryResult res1 = IndexReader.getInstance().search(new QueryContext("Keonjhar Orissa"));
@@ -469,8 +495,9 @@ public class IndexReaderTest extends TestCase {
 	}
 	
 	public void testQuotedMultiphrase() throws Exception  {
+		String id = "ID013";
 		HDocument doc1 = new HDocument();
-		doc1.originalId = "2313";
+		doc1.originalId = id;
 		doc1.title = "Oriya is my mother toungh. I do lot of spelling mistakes in english.";
 		IndexWriter.getInstance().insert(doc1);
 		QueryResult res1 = IndexReader.getInstance().search(new QueryContext("\"mother toungh\""));
@@ -480,8 +507,9 @@ public class IndexReaderTest extends TestCase {
 	}
 	
 	public void testStopword() throws Exception  {
+		String id = "ID014";
 		HDocument doc1 = new HDocument();
-		doc1.originalId = "2314";
+		doc1.originalId = id;
 		List<String> stopwords = new ArrayList<String> ();
 		stopwords.add("a");
 		stopwords.add("and");
@@ -496,12 +524,13 @@ public class IndexReaderTest extends TestCase {
 			assertTrue(ex.getMessage().indexOf("Word not Recognized") >= 0);
 		}
 		
-		IndexWriter.getInstance().delete( "2314");
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
 	public void testMultiphraseWhereOneIsStopWord() throws Exception  {
+		String id = "ID015";
 		HDocument doc1 = new HDocument();
-		doc1.originalId = "2314";
+		doc1.originalId = id;
 		List<String> stopwords = new ArrayList<String> ();
 		stopwords.add("a");
 		stopwords.add("and");
@@ -514,10 +543,12 @@ public class IndexReaderTest extends TestCase {
 		assertNotNull(res);
 		assertEquals(1, res.teasers.length);
 		
-		IndexWriter.getInstance().delete( "2314");
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testTypeAndNonTypeMixed(String id) throws Exception  {
+	public void testTypeAndNonTypeMixed() throws Exception  {
+		String id = "ID016";
+
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("fruit", (byte) -108);
 		dtype.persist();
@@ -544,7 +575,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void test_TypeNonType_WrongType_NonExistance(String id) throws Exception  {
+	public void test_TypeNonType_WrongType_NonExistance() throws Exception  {
+		String id = "ID017";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("baby", (byte) -108);
 		dtype.persist();
@@ -560,6 +593,7 @@ public class IndexReaderTest extends TestCase {
 		doc1.fields.add(new HField("babyname", "Ava"));
 		doc1.fields.add(new HField("house", "466"));
 		doc1.docType = "baby";
+		
 		IndexWriter.getInstance().insert(doc1);
 
 		try {
@@ -567,9 +601,8 @@ public class IndexReaderTest extends TestCase {
 			"+XX:Ava +466"));
 		} catch (Exception ex) {
 			assertTrue(ex.getMessage().indexOf("unknown") >= 0);
-		}
+		} 
 		
-
 		QueryResult res3 = IndexReader.getInstance().search(new QueryContext(
 		"+babyname:Ava 466"));
 		assertEquals(1, res3.teasers.length);
@@ -581,7 +614,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 
-	public void testDocumentStateFilter(String id) throws Exception  {
+	public void testDocumentStateFilter() throws Exception  {
+		String id = "ID018";
+		
 		DocumentType dtype = new DocumentType();
 		dtype.types.put("leave", (byte) -108);
 		dtype.persist();
@@ -610,8 +645,10 @@ public class IndexReaderTest extends TestCase {
 		
 	}
 	
-	public void testTenant(String id) throws Exception  {
+	public void testTenant() throws Exception  {
 
+		String id = "ID019";
+		
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		doc1.title = "contactus In Call center";
@@ -640,7 +677,8 @@ public class IndexReaderTest extends TestCase {
 		
 	}
 	
-	public void testCreatedBefore(String id) throws Exception  {
+	public void testCreatedBefore() throws Exception  {
+		String id = "ID020";
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
@@ -665,7 +703,8 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 
-	public void testCreatedAfter(String id) throws Exception  {
+	public void testCreatedAfter() throws Exception  {
+		String id = "ID021";
 
 		DateFormat format = DateFormat.getDateTimeInstance(
             DateFormat.MEDIUM, DateFormat.SHORT);
@@ -689,7 +728,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testModifiedAfter(String id) throws Exception  {
+	public void testModifiedAfter() throws Exception  {
+		String id = "ID022";
+		
 		DateFormat format = DateFormat.getDateTimeInstance(
 	            DateFormat.MEDIUM, DateFormat.SHORT);
 
@@ -712,7 +753,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testModifiedBefore(String id) throws Exception  {
+	public void testModifiedBefore() throws Exception  {
+		String id = "ID023";
+		
 		DateFormat format = DateFormat.getDateTimeInstance(
 	            DateFormat.MEDIUM, DateFormat.SHORT);
 
@@ -735,7 +778,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
-	public void testDocumentFetchLimit(String id) throws Exception  {
+	public void testDocumentFetchLimit() throws Exception  {
+		String id = "ID024";
+
 		ArrayList<HDocument> docs = new ArrayList<HDocument>();
 		for ( int i=0; i<10; i++) {
 			HDocument doc = new HDocument();
@@ -762,7 +807,9 @@ public class IndexReaderTest extends TestCase {
 		}
 	}
 	
-	public void testMetaFetchLimit(String id) throws Exception  {
+	public void testMetaFetchLimit() throws Exception  {
+		String id = "ID025";
+		
 		ArrayList<HDocument> docs = new ArrayList<HDocument>();
 		for ( int i=0; i<10; i++) {
 			HDocument doc = new HDocument();
@@ -789,16 +836,19 @@ public class IndexReaderTest extends TestCase {
 		}
 	}
 	
-	public void testTeaserLength(String id) throws Exception  {
+	public void testTeaserLength() throws Exception  {
+		String id = "ID026";
+		
 		HDocument doc = new HDocument();
 		doc.originalId = id;
-		doc.title = "Using SimpleDateFormat for custom date formatting and parsing";
-		doc.cacheText = "The default DateFormat instances returned by the static methods in the DateFormat class may be sufficient for many purposes, but clearly do not cover all possible valid or useful formats for dates. For example, notice that in Figure 2, none of the DateFormat-generated strings (numbers 2 - 9) match the format of the output of the Date class’s toString() method. This means that you cannot use the default DateFormat instances to parse the output of toString(), something that might be useful for things like parsing log data.The SimpleDateFormat lets you build custom formats. Dates are constructed with a string that specifies a pattern for the dates to be formatted and/or parsed. From the SimpleDateFormat JavaDocs, the characters in Figure 7 can be used in date formats. Where appropriate, 4 or more of the character will be interpreted to mean that the long format of the element should be used, while fewer than 4 mean that a short format should be used.";
+		doc.cacheText = "The default DateFormat instances returned by the static methods in the DateFormat class may be sufficient for many purposes , but clearly do not cover all possible valid or useful formats for dates. For example, notice that in Figure 2, none of the DateFormat-generated strings (numbers 2 - 9) match the format of the output of the Date class’s toString() method. This means that you cannot use the default DateFormat instances to parse the output of toString(), something that might be useful for things like parsing log data.The SimpleDateFormat lets you build custom formats. Dates are constructed with a string that specifies a pattern for the dates to be formatted and/or parsed. From the SimpleDateFormat JavaDocs, the characters in Figure 7 can be used in date formats. Where appropriate, 4 or more of the character will be interpreted to mean that the long format of the element should be used, while fewer than 4 mean that a short format should be used.";
 		IndexWriter.getInstance().insert(doc);
+		
+		DocTeaserWeight dtw = null;
 		QueryResult middleCut = IndexReader.getInstance().search(
 				new QueryContext("tsl:30 purposes"));
 		assertEquals(1, middleCut.teasers.length);
-		DocTeaserWeight dtw = (DocTeaserWeight) middleCut.teasers[0]; 
+		dtw = (DocTeaserWeight) middleCut.teasers[0]; 
 		assertEquals(30, dtw.cacheText.toBytes().length);
 
 		QueryResult frontCut = IndexReader.getInstance().search(
@@ -816,7 +866,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc.originalId);
 	}
 	
-	public void testAccessAllow(String id) throws Exception  {
+	public void testAccessAllow() throws Exception  {
+		String id = "ID027";
+		
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Welcome to IIT Library";
@@ -837,7 +889,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc.originalId);
 	}
 
-	public void testAccessDeny(String id) throws Exception {
+	public void testAccessDeny() throws Exception {
+		String id = "ID028";
+		
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Welcome to IIT Library";
@@ -858,7 +912,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc.originalId);
 	}
 
-	public void testGuest(String id) throws Exception {
+	public void testGuest() throws Exception {
+		String id = "ID029";
+		
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Register for private blogging at VOX.";
@@ -874,7 +930,9 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc.originalId);		
 	}
 
-	public void testAccessAnonymous(String id) throws Exception  {
+	public void testAccessAnonymous() throws Exception  {
+		String id = "ID030";
+
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Manmohan Singh is prime minister of India";
