@@ -41,6 +41,11 @@ public class DocTeaser {
 	/**
 	 * The Document ID
 	 */
+	public String mappedId =  null;
+	
+	/**
+	 * The Document ID
+	 */
 	public Storable id =  null;
 	
 	/**
@@ -81,7 +86,7 @@ public class DocTeaser {
 	
 	public DocTeaser (byte[] id, List<NVBytes> inputBytes) throws ApplicationFault {
 		
-		this.id = new Storable(id, Storable.BYTE_STRING);
+		this.mappedId = Storable.getString(id);
 		if ( null == inputBytes) return;
 		
 		for (NVBytes fld : inputBytes) {
@@ -220,6 +225,7 @@ public class DocTeaser {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder('\n');
+		if ( null != mappedId ) sb.append("Mapped Id : [").append(mappedId);
 		if ( null != id ) sb.append("Id : [").append(new String(id.toBytes()));
 		if ( null != url ) sb.append("] , Url : [").append(url.toString());
 		if ( null != title ) sb.append("] , Title : [").append(title.toString());
