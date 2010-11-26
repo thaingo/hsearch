@@ -55,7 +55,6 @@ public class PreviewFilter implements Filter {
 	 *  true to drop this key/value
 	 */
 	public ReturnCode filterKeyValue(KeyValue kv) {
-		System.out.println("Preview Filter:" + new String(kv.getQualifier()));
 		if ( ACL_BYTE == kv.getQualifier()[0]) { // Match ACL
 			if ( ! this.fma.allowAccess(kv.getValue())) {
 				System.out.println("Skipped:");
