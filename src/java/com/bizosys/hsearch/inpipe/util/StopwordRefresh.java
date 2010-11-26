@@ -54,10 +54,7 @@ public class StopwordRefresh implements BatchTask {
 		if ( null != scalar.kv.data) {
 			String words = new String(scalar.kv.data.toBytes());
 			List<String> wordLst = StringUtils.fastSplit(words, STOPWORD_SEPARATOR);
-			Set<String> stopWordsTemp = StopwordManager.getInstance().stopWords;
 			StopwordManager.getInstance().stopWords = buildStopwords(wordLst);
-			if ( null != stopWordsTemp ) stopWordsTemp.clear();
-			stopWordsTemp = null;
 		}
 		return null;
 	}

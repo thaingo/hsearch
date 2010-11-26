@@ -37,7 +37,7 @@ import com.bizosys.hsearch.schema.IOConstants;
 
 	public class DictionaryRefresh implements BatchTask {
 
-		public String jobName = "RefreshDictionary";
+		public String jobName = "DictionaryRefresh";
 		public boolean isIncremental = true;
 		public long lastProcessingTime = -1;
 		
@@ -85,7 +85,7 @@ import com.bizosys.hsearch.schema.IOConstants;
 				lastProcessingTime = now;
 				return true;
 			} catch (IOException ex) {
-				HLog.l.error("Dictionary Service Failure", ex);
+				HLog.l.error("DictionaryRefresh : Failure", ex);
 				throw new ApplicationFault(ex);
 			}
 		}

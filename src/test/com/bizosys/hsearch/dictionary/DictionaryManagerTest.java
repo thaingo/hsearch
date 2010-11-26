@@ -155,7 +155,7 @@ public class DictionaryManagerTest extends TestCase {
 		assertEquals(2, entry.fldFreq);
 	}
 	
-	private void testWordListing() throws Exception {
+	public void testWordListing() throws Exception {
 		DictionaryManager s = DictionaryManager.getInstance();
 		List<String> allWords = s.getKeywords();
 		StringBuilder sb = new StringBuilder();

@@ -8,7 +8,6 @@ import junit.framework.TestCase;
 import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
-import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.query.DocTeaserWeight;
 import com.bizosys.hsearch.query.QueryContext;
@@ -120,7 +119,7 @@ public class IndexWriterTest extends TestCase {
 		
 	}	
 	
-	private void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
+	public void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
 			String keyword4, String keyword5, String keyword6, String keyword7,  
 			String keyword8, String keyword9, String keyword10) throws Exception {
 		

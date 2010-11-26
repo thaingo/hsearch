@@ -5,12 +5,8 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-
-import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.filter.FilterIds;
-import com.bizosys.hsearch.index.Term;
-import com.bizosys.hsearch.index.TermList;
 
 public class TermListTest extends TestCase {
 

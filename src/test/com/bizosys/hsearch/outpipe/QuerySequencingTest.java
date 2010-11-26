@@ -5,12 +5,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-
 import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
-import com.bizosys.hsearch.lang.Stemmer;
-import com.bizosys.hsearch.outpipe.LuceneQueryParser;
-import com.bizosys.hsearch.outpipe.QuerySequencing;
 import com.bizosys.hsearch.query.HQuery;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryPlanner;

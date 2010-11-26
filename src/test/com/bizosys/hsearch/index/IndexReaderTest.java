@@ -7,22 +7,18 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.bizosys.ferrari.TestFerrari;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
-import com.bizosys.hsearch.common.Storable;
-import com.bizosys.hsearch.dictionary.DictionaryManager;
-import com.bizosys.hsearch.filter.TeaserFilter;
+import com.bizosys.hsearch.filter.Access;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.inpipe.util.StopwordRefresh;
 import com.bizosys.hsearch.query.DocTeaserWeight;
-import com.bizosys.hsearch.query.DocWeight;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryResult;
+import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.ServiceFactory;
-import com.sun.jersey.api.core.ApplicationAdapter;
 
 
 public class IndexReaderTest extends TestCase {
@@ -33,7 +29,7 @@ public class IndexReaderTest extends TestCase {
 		
 		IndexReaderTest t = new IndexReaderTest();
         //TestFerrari.testRandom(t);
-		t.testTeaserLength("Java");
+		t.testGuest("SPecial-1");
 		//System.out.println(DictionaryManager.getInstance().getKeywords().toString());
 		//System.out.println(DictionaryManager.getInstance().get("hydrogen") );		
 	}
@@ -78,7 +74,7 @@ public class IndexReaderTest extends TestCase {
 
 	public void testNullWord() throws Exception  {
 		try {
-			QueryResult res = IndexReader.getInstance().search(null);
+			IndexReader.getInstance().search(null);
 		} catch (ApplicationFault ex) {
 			assertEquals("Blank Query", ex.getMessage().trim());
 		}
@@ -102,6 +98,7 @@ public class IndexReaderTest extends TestCase {
 	}
 	
 	public void testSpecialCharacter(String id) throws Exception  {
+
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id : " + id ;
 		doc1.title = "For the Sin!1 city I will design wines & wives";
@@ -118,10 +115,15 @@ public class IndexReaderTest extends TestCase {
 		ctx = new QueryContext("Sin!1");
 		res = IndexReader.getInstance().search(ctx);
 		assertNotNull(res.teasers);
-		assertEquals(1, res.teasers.length);
-		teaser = (DocTeaserWeight) res.teasers[0];
-		assertEquals(new String(teaser.id.toBytes()), doc1.originalId);
-		assertEquals(new String(teaser.title.toBytes()), doc1.title);
+		assertTrue(res.teasers.length > 0);
+		String allIds = "";
+		for ( Object stwO : res.teasers) {
+			teaser = (DocTeaserWeight) stwO;
+			allIds =  new String(teaser.id.toBytes()) + allIds; 
+		}
+		System.out.println(allIds);
+		assertTrue(allIds.indexOf(doc1.originalId) >= 0);
+		IndexWriter.getInstance().delete(doc1.originalId);
 	}
 	
 	
@@ -795,15 +797,77 @@ public class IndexReaderTest extends TestCase {
 		IndexWriter.getInstance().delete(doc.originalId);
 	}
 	
-	public void testAccessAllow() throws Exception  {
+	public void testAccessAllow(String id) throws Exception  {
+		HDocument doc = new HDocument();
+		doc.originalId = id;
+		doc.title = "Welcome to IIT Library";
+		Access viewPerm = new Access();
+		viewPerm.addOrgUnit("bizosys");
+		doc.viewPermission = viewPerm; 
+		IndexWriter.getInstance().insert(doc);
+		
+		WhoAmI whoami = new WhoAmI();
+		whoami.ou = "bizosys";
+		whoami.uid = "n-4501";
+		
+		QueryContext ctx = new QueryContext("IIT");
+		ctx.user = whoami;
+		QueryResult res = IndexReader.getInstance().search(ctx); 
+		assertEquals(1, res.teasers.length);
+
+		IndexWriter.getInstance().delete(doc.originalId);
 	}
 
-	public void testAccessDeny() throws Exception {
+	public void testAccessDeny(String id) throws Exception {
+		HDocument doc = new HDocument();
+		doc.originalId = id;
+		doc.title = "Welcome to IIT Library";
+		Access viewPerm = new Access();
+		viewPerm.addOrgUnit("bizosys");
+		doc.viewPermission = viewPerm; 
+		IndexWriter.getInstance().insert(doc);
+		
+		WhoAmI whoami = new WhoAmI();
+		whoami.ou = "infosys";
+		whoami.uid = "n-4501";
+		
+		QueryContext ctx = new QueryContext("IIT");
+		ctx.user = whoami;
+		QueryResult res = IndexReader.getInstance().search(ctx); 
+		assertEquals(0, res.teasers.length);
+
+		IndexWriter.getInstance().delete(doc.originalId);
 	}
 
-	public void testGuest() throws Exception {
+	public void testGuest(String id) throws Exception {
+		HDocument doc = new HDocument();
+		doc.originalId = id;
+		doc.title = "Register for private blogging at VOX.";
+		Access viewPerm = new Access();
+		viewPerm.addOrgUnit("bizosys");
+		doc.viewPermission = viewPerm; 
+		IndexWriter.getInstance().insert(doc);
+		
+		QueryContext ctx = new QueryContext("VOX");
+		QueryResult res = IndexReader.getInstance().search(ctx); 
+		assertEquals(0, res.teasers.length);
+
+		IndexWriter.getInstance().delete(doc.originalId);		
 	}
 
-	public void testAccessAnonymous() throws Exception  {
+	public void testAccessAnonymous(String id) throws Exception  {
+		HDocument doc = new HDocument();
+		doc.originalId = id;
+		doc.title = "Manmohan Singh is prime minister of India";
+		Access viewPerm = new Access();
+		viewPerm.addAnonymous();
+		doc.viewPermission = viewPerm; 
+		IndexWriter.getInstance().insert(doc);
+		
+		QueryContext ctx = new QueryContext("Singh");
+		QueryResult res = IndexReader.getInstance().search(ctx); 
+		assertEquals(1, res.teasers.length);
+
+		IndexWriter.getInstance().delete(doc.originalId);		
 	}
 }

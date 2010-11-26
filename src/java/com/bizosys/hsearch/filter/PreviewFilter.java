@@ -55,13 +55,16 @@ public class PreviewFilter implements Filter {
 	 *  true to drop this key/value
 	 */
 	public ReturnCode filterKeyValue(KeyValue kv) {
+		System.out.println("Preview Filter:" + new String(kv.getQualifier()));
 		if ( ACL_BYTE == kv.getQualifier()[0]) { // Match ACL
 			if ( ! this.fma.allowAccess(kv.getValue())) {
-				return ReturnCode.SKIP;
+				System.out.println("Skipped:");
+				return ReturnCode.NEXT_ROW;
 			}
+			System.out.println("Not Skipped:");
 		} else if (META_BYTE == kv.getQualifier()[0]) {
 			if ( ! this.fma.allowMeta(kv.getValue())) {
-				return ReturnCode.SKIP;
+				return ReturnCode.NEXT_ROW;
 			}
 		}
 		return ReturnCode.INCLUDE;
