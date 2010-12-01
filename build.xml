@@ -125,13 +125,26 @@
 			</manifest>			
 		</jar>
 	</target>
+
+	<!-- ================================================================== -->
+	<!-- Make Launcher jar   -->
+	<!-- ================================================================== -->
+	<target name="jar-launcher" depends="compile-core">
+		<jar jarfile="${build.dir}/${final.name}-launcher.jar" basedir="${build.classes}" includes="">
+			<include name="com/bizosys/hsearch/hbase/HBaseLauncher*.class"/>
+			<manifest>
+				<attribute name="Created-By" value="${company}(${build.time})"/>
+				<attribute name="Version" value="${version}"/>
+			</manifest>			
+		</jar>
+	</target>	
 	
 	<!-- ================================================================== -->
 	<!-- Make Term Filter jar   -->
 	<!-- ================================================================== -->
 	<target name="jar-termfilter" depends="compile-core">
 		<jar jarfile="${build.dir}/${final.name}-termfilter.jar" basedir="${build.classes}" includes="">
-			<include name="org/apache/hadoop/hsearch/filter/*.class"/>
+			<include name="com/bizosys/hsearch/filter/*.class"/>
 			<manifest>
 				<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="Version" value="${version}"/>
