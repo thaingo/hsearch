@@ -33,7 +33,7 @@ import java.awt.event.ActionListener;
 import org.apache.hadoop.hbase.master.HMaster;
 import org.apache.hadoop.hbase.zookeeper.HQuorumPeer;
 
-public class HSearchLauncher {
+public class HBaseLauncher {
 
 	static TrayIcon trayIcon;
 
