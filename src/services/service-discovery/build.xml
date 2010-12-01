@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<project name="service-discovery">
+	<import file="../build-plugin.xml"/>
+</project>

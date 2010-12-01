@@ -4,9 +4,10 @@
 
   <!-- ====================================================== -->
   <!-- Build & deploy all the plugin jars.                    -->
-  <!-- 	    <ant dir="extensionpoints" target="deploy"/>      -->
   <!-- ====================================================== -->
 	  <target name="deploy">
+	    <ant dir="extensionpoints" target="deploy"/>
+	  	<ant dir="service-discovery" target="deploy"/>
 	  </target>
 
   <!-- ====================================================== -->

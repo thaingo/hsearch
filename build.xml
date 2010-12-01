@@ -86,8 +86,8 @@
 	</target>
 
 	<target name="compile-a-plugin-jar">
-		<property name="sensor.name" value="session-usage" />
-		<ant dir="src/plugin/${sensor.name}" target="deploy" inheritAll="false" />
+		<property name="sensor.name" value="service-discovery" />
+		<ant dir="src/services/${sensor.name}" target="deploy" inheritAll="false" />
 	</target>
 	
 	<!-- ================================================================== -->
@@ -139,8 +139,6 @@
 		</jar>
 	</target>
 	
-	
-	
 	<!-- ================================================================== -->
 	<!-- All source file jar -->
 	<!-- ================================================================== -->
@@ -170,6 +168,8 @@
 			<copy todir="${web.src.dir}/WEB-INF/classes/" verbose="true">
 				<fileset dir="${conf.dir}"/>
 			</copy>
+
+		    <echo message="Web-Inf directory: ${web.src.dir}/WEB-INF/web.xml"/>
 			
 			<war destfile="${build.dir}/@{warfilename}" webxml="${web.src.dir}/WEB-INF/web.xml">
 
@@ -182,6 +182,8 @@
 
 				<lib dir="${build.dir}">
 					<include name="*.jar" />
+					<exclude name="hsearch*-src*.jar" />
+					<exclude name="hsearch*-test*.jar" />
 				</lib>
 
 				<manifest>
@@ -197,13 +199,8 @@
 	<!-- ================================================================== -->
 	<!-- D I S T R I B U T I O N  Targets                                   -->
 	<!-- ================================================================== -->
-	<target name="release.plugin">
-		<property name="sensor.name" value="session-usage" />
-		<ant dir="src/plugin/${sensor.name}" target="deploy" inheritAll="false" />
-		<copy file="${build.dir}/${sensor.name}/${sensor.name}.jar" todir="${web.src.dir}/WEB-INF/classes/plugins/${sensor.name}" />
-	</target>
-
 	<target name="release" depends="clean.all, init, jar-src, jar-examples, jar-core, jar-test, compile-plugins">
+		<makewardef sitexml="site.xml" warfilename="${warfilename}" jarfilestoinclude="*.jar"/>
 	</target>
 	
 	<!-- ================================================================== -->

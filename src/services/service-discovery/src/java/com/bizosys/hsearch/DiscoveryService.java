@@ -37,31 +37,30 @@ import com.bizosys.oneline.services.Service;
 import com.bizosys.oneline.services.ServiceMetaData;
 import com.bizosys.oneline.util.StringUtils;
 
-public class SearchService implements Service {
+public class DiscoveryService implements Service {
 
-	public static Logger l = Logger.getLogger(SearchService.class.getName());
+	public static Logger l = Logger.getLogger(DiscoveryService.class.getName());
 	
 	Configuration conf = null;
 	
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		this.conf = conf;
 		try {
-			l.info("Initializing Search Scheme.");
+			l.info("Initializing Scheme.");
 			SchemaManager.getInstance().init(conf, meta);
-			l.info("Search Scheme initialized.");
+			l.info("Scheme initialized.");
 			return true;
 		} catch (Exception ex) {
-			l.fatal("Search Service Initialization Failed.");
+			l.fatal("Discovery Service Initialization Failed.");
 			return false;
 		}
-		
 	}
 
 	public void stop() {
 	}
 	
 	public String getName() {
-		return "SearchService";
+		return "DiscoveryService";
 	}	
 	
 	public void process(Request req, Response res) {
