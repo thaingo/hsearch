@@ -93,15 +93,22 @@ public class SchemaManager  implements Service {
 
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		try {
+			HLog.l.info("Creating Preview Table");
 			createPreview(conf);
+			HLog.l.info("Creating Content Table");
 			createContent(conf);
+			HLog.l.info("Creating IdMapping Table");
 			createIdMap(conf);
+			HLog.l.info("Creating Invert Table");
 			createInvert(conf);
+			HLog.l.info("Creating Config Table");
 			createConfigs(conf);
+			HLog.l.info("Creating Dictionary Table");
 			createDictionary(conf);
 			return true;
 			
 		} catch (Exception sf) {
+			sf.printStackTrace(System.err);
 			HLog.l.fatal(sf);
 			return false;
 		} 

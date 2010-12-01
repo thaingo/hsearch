@@ -61,6 +61,7 @@ public class StopwordManager implements Service{
 	 * Launches dictionry refresh task and initializes the dictionry.
 	 */
 	public boolean init(Configuration conf, ServiceMetaData arg1) {
+		L.l.info("StopwordManager > Initializing Stopword Service.");
 		StopwordRefresh refreshTask = new StopwordRefresh();
 
 		int refreshInteral = conf.getInt("stopword.refresh", 30);

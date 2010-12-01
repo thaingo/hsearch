@@ -50,6 +50,7 @@ public class IndexService implements Service {
 	
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		try {
+			L.l.info("Initializing Index Service:");
 			IndexWriter.getInstance().init(conf);
 			IndexReader.getInstance().init(conf);
 			return true;

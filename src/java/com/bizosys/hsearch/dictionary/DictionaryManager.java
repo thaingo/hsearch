@@ -58,6 +58,7 @@ public class DictionaryManager implements Service{
 	 * Launches dictionry refresh task and initializes the dictionry.
 	 */
 	public boolean init(Configuration conf, ServiceMetaData arg1) {
+		HLog.l.info("Initializing Dictionary Service");
 		DictionaryRefresh refreshTask = new DictionaryRefresh();
 
 		int refreshInteral = conf.getInt("dictionary.refresh", 30);
