@@ -31,7 +31,7 @@ public class DocumentTypeTest extends TestCase {
 	}
 	
 	public void testSerialize() throws Exception {
-		DocumentType type = new DocumentType();
+		DocumentType type = DocumentType.getInstance();
 		type.types.put("employee", (byte) -128);
 		type.types.put("customer", (byte) -127);
 		type.persist();

@@ -54,7 +54,7 @@ public class DocumentType implements BatchTask {
 	
 	public Map<String, Byte> types = new HashMap<String, Byte>();
 	
-	public DocumentType() throws ApplicationFault {
+	private DocumentType() throws ApplicationFault {
 		this.process();
 	}
 	
