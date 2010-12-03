@@ -23,17 +23,14 @@ import java.io.Reader;
 import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.LengthFilter;
 import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.WhitespaceTokenizer;
 import org.apache.lucene.analysis.standard.StandardFilter;
-import com.bizosys.oneline.ApplicationFault;
 
-import com.bizosys.hsearch.inpipe.FilterTermLength;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.outpipe.L;
+import com.bizosys.oneline.ApplicationFault;
 
 public class LuceneQueryAnalyzer extends Analyzer {
 
