@@ -82,6 +82,16 @@ public class IdMapping {
 		}
 	}
 	
+	public static final void purge(long bucketId, short docSerialId) throws SystemFault{
+		try {
+			HWriter.delete(IOConstants.TABLE_IDMAP, 
+				new Storable(getKey(bucketId, docSerialId)) );
+		} catch (IOException ex) {
+			throw new SystemFault(ex);
+		}
+	}
+	
+	
 	public static final List<NVBytes> getKey(byte[] origKey) throws SystemFault{
 		return HReader.getCompleteRow(IOConstants.TABLE_IDMAP, origKey);
 	}

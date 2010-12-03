@@ -212,7 +212,7 @@
 	<!-- ================================================================== -->
 	<!-- D I S T R I B U T I O N  Targets                                   -->
 	<!-- ================================================================== -->
-	<target name="release" depends="clean.all, init, jar-src, jar-examples, jar-core, jar-test, compile-plugins">
+	<target name="release" depends="clean.all, init, jar-src, jar-examples, jar-core, jar-termfilter, jar-test, compile-plugins">
 		<makewardef sitexml="site.xml" warfilename="${warfilename}" jarfilestoinclude="*.jar"/>
 	</target>
 	

@@ -19,19 +19,20 @@
 */
 package com.bizosys.hsearch.index;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bizosys.oneline.ApplicationFault;
-
 import com.bizosys.hsearch.common.ByteField;
+import com.bizosys.hsearch.common.Field;
 import com.bizosys.hsearch.common.HDocument;
-import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.common.StorableList;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
+import com.bizosys.oneline.ApplicationFault;
 
 /**
  * The content of the original document
@@ -58,26 +59,26 @@ public class DocContent implements IDimension {
 	public StorableList citationFrom =  null;
 	
 	
-	public DocContent(HDocument aDoc) {
+	public DocContent(HDocument aDoc) throws ApplicationFault{
 		if(null == aDoc) return;
 		
-		this.citationTo = aDoc.citationTo;
-		this.citationFrom = aDoc.citationFrom;
+		this.citationTo = aDoc.getCitationTo();
+		this.citationFrom = aDoc.getCitationFrom();
 
 		if(null == aDoc.fields) return;
-		for (HField fld: aDoc.fields) {
-			if ( fld.isStored) {
+		for (Field fld: aDoc.fields) {
+			if ( fld.isStore()) {
 				if ( null == this.stored) this.stored = new ArrayList<ByteField>(); 
-				this.stored.add(fld.bfl);
+				this.stored.add(fld.getByteField());
 			} 
 			
-			if ( fld.isIndexable) {
-				if (fld.isAnalyzed) {
+			if ( fld.isIndexable()) {
+				if (fld.isAnalyze()) {
 					if ( null == this.analyzedIndexed) this.analyzedIndexed = new ArrayList<ByteField>();
-					this.analyzedIndexed.add(fld.bfl);
+					this.analyzedIndexed.add(fld.getByteField());
 				} else {
 					if ( null == this.nonAnalyzedIndexed) this.nonAnalyzedIndexed = new ArrayList<ByteField>(); 
-					this.nonAnalyzedIndexed.add(fld.bfl);
+					this.nonAnalyzedIndexed.add(fld.getByteField());
 				}
 			}
 		}
@@ -139,6 +140,27 @@ public class DocContent implements IDimension {
 		if ( null != this.stored ) this.stored.clear();
 		this.citationTo =  null; 
 		this.citationFrom =  null;
+	}
+	
+	public void toXml(Writer writer) throws IOException {
+		writer.append("<c>");
+		if ( null != this.stored ) {
+			for (ByteField bf: this.stored) {
+				writer.append('<').append(bf.name).append('>');
+				writer.append(bf.getValue().toString());
+				writer.append("</").append(bf.name).append('>');
+			}
+		}
+		
+		writer.append("<t>");
+		for ( Object obj: this.citationTo) writer.append(obj.toString());
+		writer.append("</t>");
+
+		writer.append("<f>");
+		for ( Object obj: this.citationFrom) writer.append(obj.toString());
+		writer.append("</f>");
+		
+		writer.append("</c>");
 	}
 	
 	@Override

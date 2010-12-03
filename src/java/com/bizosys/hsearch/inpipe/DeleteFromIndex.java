@@ -20,13 +20,17 @@
 package com.bizosys.hsearch.inpipe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.IUpdatePipe;
 import com.bizosys.hsearch.index.Doc;
-import com.bizosys.hsearch.schema.ILanguageMap;
+import com.bizosys.hsearch.index.IdMapping;
+import com.bizosys.hsearch.index.Term;
+import com.bizosys.hsearch.schema.EnglishMap;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
@@ -59,11 +63,43 @@ public class DeleteFromIndex implements PipeIn {
 				curDoc = aDoc;
 				IUpdatePipe pipe = new DeleteFromIndexWithCut(aDoc.docSerialId);
 				byte[] pk = Storable.putLong(aDoc.bucketId);
-				for (Character c : ILanguageMap.ALL_TABLES) {
+				if ( null == curDoc.terms.all) continue;
+				Map<Character,StringBuilder> tables = new HashMap<Character,StringBuilder>();
+				EnglishMap map = new EnglishMap();
+				
+				/**
+				 * Build table and family based on terms
+				 */
+				for (Term aTerm : curDoc.terms.all) {
+					char table = map.getTableName(aTerm.term);
+					char family = map.getColumnFamily(aTerm.term);
+					if ( tables.containsKey(table)) {
+						StringBuilder sb = tables.get(table); 
+						if ( -1 == sb.toString().indexOf(family) ) sb.append(family); 
+					} else {
+						StringBuilder sb = new StringBuilder();
+						sb.append(family);
+						tables.put(table, sb);
+					}
+				}
+				
+				for (Character c : tables.keySet()) {
 					String t = c.toString();
-					HWriter.update(t, pk, pipe);
+					String strFamilies = tables.get(c).toString();
+					char[] charFamilies = strFamilies.toCharArray();
+					byte[][] families = new byte[charFamilies.length][];
+					for ( int i=0; i<charFamilies.length; i++) {
+						families[i] = new byte[] { (byte) charFamilies[i]};
+					}
+					if ( L.l.isDebugEnabled() ) 
+						L.l.debug("Deleting table " + t + " families " + strFamilies);
+					HWriter.update(t, pk, pipe, families);
+					
+					//Delete the mapping too..
+					IdMapping.purge(aDoc.bucketId, aDoc.docSerialId);			
 				}
 			}
+			
 			return true;
 		} catch (Exception ex) {
 			if ( null != curDoc) throw new SystemFault(curDoc.toString(), ex);

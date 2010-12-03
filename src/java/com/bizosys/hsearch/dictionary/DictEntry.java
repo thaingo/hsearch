@@ -19,6 +19,8 @@
 */
 package com.bizosys.hsearch.dictionary;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -201,6 +203,17 @@ public class DictEntry implements IStorable{
 	    }
 	    return values;
 	}
+	
+	public void toXml(Writer writer) throws IOException {
+		writer.append("<e>");
+		writer.append("<w>").append(this.fldWord).append("</w>");
+		writer.append("<t>").append(this.fldType).append("</t>");
+		writer.append("<f>").append(new Integer(this.fldFreq).toString()).append("</f>");
+		writer.append("<r>").append(this.fldRelated).append("</r>");
+		writer.append("<d>").append(this.fldDetailXml).append("</d>");
+		writer.append("</e>");
+	}
+	
 	
 	@Override 
 	public String toString() {

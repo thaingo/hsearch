@@ -50,21 +50,10 @@ public class QueryContext {
 	 * The user who is accessing it.  
 	 */
 	public WhoAmI user = null;
-	public boolean checkForEdit = false;
-
-
-	public long currentTime = new Date().getTime();
-	
 
 	/* ************************************************
 	 * The filteration criteria applied to search *****
 	 * ***********************************************/
-
-	/**
-	 * TODO: Replace this 
-	 */
-	public String id = null;
-
 
 	/**
 	 * Query term as it is..
@@ -221,10 +210,6 @@ public class QueryContext {
 		
 		switch (reserveWord) {
 		
-		case ReserveQueryWord.RESERVE_id:
-			this.id = value;
-			break;
-
 		case ReserveQueryWord.RESERVE_docType:
 			this.docType = value;
 			break;
@@ -294,6 +279,7 @@ public class QueryContext {
 			this.metaFetchLimit = Integer.parseInt(value);
 			break;
 		case ReserveQueryWord.RESERVE_documentFetchLimit:
+			System.out.println("Document Fetch Limit");
 			this.documentFetchLimit = Integer.parseInt(value);
 			break;
 		case ReserveQueryWord.RESERVE_teaserSectionLength:
@@ -391,7 +377,6 @@ public class QueryContext {
 	public String toString() {
 		
 		StringBuilder sb = new StringBuilder();
-		if ( null != id) sb.append("id =").append(id).append('\n');
 		if ( null != clientType) sb.append("clientType =").append(clientType).append('\n');
 		if ( null != ipAddress ) sb.append("ipAddress =").append(ipAddress ).append('\n');
 		if ( null != user ) sb.append("user =").append(user.toString() ).append('\n');

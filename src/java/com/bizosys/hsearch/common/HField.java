@@ -21,7 +21,9 @@ package com.bizosys.hsearch.common;
 
 import java.util.Date;
 
-public class HField {
+import com.bizosys.oneline.ApplicationFault;
+
+public class HField implements Field {
 	
 	public boolean isIndexable = true;
 	public boolean isAnalyzed = true;
@@ -29,6 +31,13 @@ public class HField {
 	
 	public ByteField bfl = null;
 	
+	public HField(boolean isIndexable,
+		boolean isAnalyzed,boolean isStored ) {
+		
+		this.isIndexable = isIndexable;
+		this.isAnalyzed = isAnalyzed;
+		this.isStored = isStored;
+	}
 	
 	public HField(String name, String value) {
 		this.bfl = new ByteField(name, value);
@@ -78,5 +87,21 @@ public class HField {
 	public HField(String name, byte[] value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
+	}
+
+	public ByteField getByteField() throws ApplicationFault {
+		return this.bfl;
+	}
+
+	public boolean isAnalyze() {
+		return this.isAnalyzed;
+	}
+
+	public boolean isIndexable() {
+		return this.isIndexable;
+	}
+
+	public boolean isStore() {
+		return this.isStored;
 	}
 }

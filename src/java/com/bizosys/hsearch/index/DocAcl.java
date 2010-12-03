@@ -53,8 +53,11 @@ public class DocAcl implements IDimension, IStorable {
 	}
 	
 	public DocAcl(HDocument aDoc) {
-		this.viewPermission = aDoc.viewPermission;
-		this.editPermission = aDoc.editPermission;
+		if ( null != aDoc.viewPermission)
+			this.viewPermission = aDoc.viewPermission.getAccess();
+		
+		if ( null != aDoc.editPermission)
+			this.editPermission = aDoc.editPermission.getAccess();
 	}
 	
 	

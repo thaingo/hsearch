@@ -51,6 +51,11 @@ public class ComputeStaticRanking implements PipeOut{
 		QueryResult result = query.result;
 		
 		Map<String, DocWeight> sortedStaticMap = computeWeight(ctx, planner);
+		if ( L.l.isDebugEnabled()) {
+			if ( null == sortedStaticMap) L.l.debug("ComputeStaticRank NONE");
+			else L.l.debug("ComputeStaticRank TOTAL = " + sortedStaticMap.size());
+		}
+		
 		result.sortedStaticWeights = sortedStaticMap.values().toArray();
 		DocWeight.sort(result.sortedStaticWeights);
 		sortedStaticMap.clear();

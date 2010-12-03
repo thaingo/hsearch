@@ -35,7 +35,7 @@ public class ReserveQueryWord {
 	
 	public static final int NO_RESERVE_WORD = -1;
 	
-	public static final int RESERVE_id = 0;
+	public static final int RESERVE_pagesize = 0;
 	public static final int RESERVE_docType = 3;
 	public static final int RESERVE_state = 4;
 	public static final int RESERVE_tenant = 5;
@@ -67,7 +67,7 @@ public class ReserveQueryWord {
 	public static final int RESERVE_touchstones = 104;	
 
 	private ReserveQueryWord() {
-		reserveWord.put("olid", RESERVE_id);
+		reserveWord.put("page", RESERVE_pagesize);
 		reserveWord.put("typ", RESERVE_docType);
 		reserveWord.put("ste", RESERVE_state);
 		reserveWord.put("tenant", RESERVE_tenant);

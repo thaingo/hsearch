@@ -154,6 +154,10 @@ public class InvertedIndex {
 			}
 			if ( Integer.MIN_VALUE != col ) rowcol.put(row,col);
 		}
+		if ( L.l.isDebugEnabled()) {
+			L.l.debug("InvertedIndex:delete Rows :" + rowcol.values().toString() + 
+				"\tCols :" + rowcol.keySet().toString() );
+		}
 		
 		/**
 		 * Now cut the actual values
@@ -182,7 +186,8 @@ public class InvertedIndex {
 			if ( -1 == termsT) {
 				bb.put( (byte) -1);
 				termsT = Storable.getInt(pos,bytes );
-				bb.put(bytes, pos, 4);
+				if ( cutRow ) bb.putInt(termsT - 1); 
+				else bb.put(bytes, pos, 4);
 				pos = pos + 4;
 			} else {
 				if ( cutRow ) bb.put( (byte) (termsT - 1) );
@@ -232,6 +237,8 @@ public class InvertedIndex {
 			}
 		}
 		int len = bb.position();
+		if ( L.l.isDebugEnabled() ) L.l.debug(
+			"InvertedIndex : Original / Cut Byte Size =" + bytes.length + "/" + len);
 		if ( 0 == len ) return null;
 		byte[] deletedB = new byte[len];
 		bb.position(0);

@@ -28,7 +28,7 @@ public class Access {
 
 	public static final char UIDC = '0';
 	public static final char TEAMC = '1';
-	public static final byte ROLEC = '2';
+	public static final char ROLEC = '2';
 	public static final char OUC = '3';
 	public static final char OU_UIDC = '4';
 	public static final char OU_ROLEC = '5';
@@ -37,17 +37,17 @@ public class Access {
 	public static final byte[] ANY_BYTES = "0*".getBytes();
 	 
 	 
-	 AccessStorable storable = new AccessStorable();
+	AccessStorable storable = new AccessStorable();
 	 
-	 public Access() {
-	 }
+	public Access() {
+	}
 	 
-	 public Access(byte[] bytes) {
+	public Access(byte[] bytes) {
 		this.storable = new AccessStorable(bytes);
-	 }
+	}
 	 
-	 public void addAnonymous() {
-		 storable.add((UIDC + ANY).getBytes() );
+	public void addAnonymous() {
+		storable.add((UIDC + ANY).getBytes() );
 	}
 	
 	public void addAcl(String acl) {

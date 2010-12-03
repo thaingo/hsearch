@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.bizosys.hsearch.filter.Access;
+import com.bizosys.hsearch.filter.AccessDefn;
 
 
 public class HDocument {
@@ -67,28 +67,28 @@ public class HDocument {
 	/**
 	 * List all fields of this document
 	 */
-	public List<HField> fields = null;
+	public List<Field> fields = null;
 	
 	/**
 	 * To which the document has cited
 	 */
-	public StorableList citationTo =  null;
+	public List<String> citationTo =  null;
 
 	/**
 	 * From which the document has cited
 	 */
-	public StorableList citationFrom =  null;
+	public List<String> citationFrom =  null;
 	
 	
 	/**
 	 * Who has view access to the document
 	 */
-	public Access viewPermission = null;
+	public AccessDefn viewPermission = null;
 	
 	/**
 	 * Who has edit access to the document
 	 */
-	public Access editPermission = null;
+	public AccessDefn editPermission = null;
 
 	/**
 	 * The state of the docucment (Applied, Processed, Active, Inactive)
@@ -170,4 +170,22 @@ public class HDocument {
 	 * Which language are these documents. Let this comes before hand
 	 */
 	public Locale locale = Locale.ENGLISH;
+	
+	public StorableList getCitationTo() {
+		if ( null == this.citationTo) return null;
+		StorableList storable = new StorableList();
+		for (String strCitation : this.citationTo) {
+			storable.add(strCitation);
+		}
+		return storable;
+	}
+	
+	public StorableList getCitationFrom() {
+		if ( null == this.citationFrom) return null;
+		StorableList storable = new StorableList();
+		for (String strCitation : this.citationFrom) {
+			storable.add(strCitation);
+		}
+		return storable;
+	}
 }

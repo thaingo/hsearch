@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Untitled Page</title>
+	<script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript">
+
+
+    function Encode(req){
+        req = req.replace(/</g, "-lt-");
+        req = req.replace(/>/g, "-gt-");
+	    return req;
+    }
+
+    function PostNewRequest(){
+
+        var req = message.value;
+	new Ajax(PROCESS_XML, {postBody:req, onComplete: showResponse, onFailure: showFailure}).request();
+	return false;
+    }
+
+    function showResponse(request){
+        request = request.replace(/-lt-/g, "<");
+        request = request.replace(/-gt-/g, ">");
+        xmlmessage.innerText = request;
+    }
+
+    function showFailure(req){
+	alert("Error: returned status code " + req.status + " " + req.statusText);
+    }
+
+    </script>
+</head>
+<body>
+    <h1>Soap Console</h1>
+
+        <table cellpadding="4" cellspacing="0" width="80%">
+            <tr> 
+            	<td align="right" valign="top"><b>Soap Envelop</b></td>
+                <td> <textarea cols="80" name="message" rows="10">sensor=sensor.config&action=GET_CONFIG&keys=searchforms</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+		   <input type="button" value="Execute API" name="Process" onclick="PostNewRequest()" /> 
+                 </td>
+            </tr>
+
+            <tr>
+                <td align="right" id="container" valign="top">
+	   	<b>SOAP Result</b>
+		</td>
+                <td>
+			<div id="xmlmessage" style="background-color:#ebf8f8;border:solid 1px #66cccc">No Result</div>
+                 </td>
+            </tr>
+
+        </table>
+
+
+
+ </body>
+</html>
+

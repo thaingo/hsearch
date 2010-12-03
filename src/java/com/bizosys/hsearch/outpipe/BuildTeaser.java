@@ -53,6 +53,7 @@ public class BuildTeaser implements PipeOut{
 		
 		int documentFetchLimit = (-1 == ctx.documentFetchLimit) ? 
 			DEFAULT_PAGE_SIZE : ctx.documentFetchLimit;
+		System.out.println("KK" + documentFetchLimit + ":" +ctx.documentFetchLimit );
 		
 		int teaserCutSection = (-1 == ctx.teaserSectionLen) ?
 			DEFAULT_TEASER_LENGTH : ctx.teaserSectionLen;

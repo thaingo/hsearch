@@ -214,14 +214,16 @@ public class HWriter {
 	}
 		
 	/**
-	 * If the record is not found, it will do nothing
+	 * Update a table. It calls back the update call back function for
+	 * various modifications during update operations as bytes merging.
 	 * @param tableName
 	 * @param pk
 	 * @param pipe
+	 * @param families
 	 * @throws IOException
 	 */
 	public static void update(String tableName, 
-		byte[] pk, IUpdatePipe pipe) throws IOException {
+		byte[] pk, IUpdatePipe pipe, byte[][] families) throws IOException {
 		
 		if ( null == tableName  || null == pk) return;
 		/**
@@ -236,20 +238,44 @@ public class HWriter {
 			facade = HBaseFacade.getInstance();
 			table = facade.getTable(tableName);
 			Get getter = new Get(pk);
+			if ( null != families) {
+				for (byte[] family : families) {
+					getter = getter.addFamily(family);
+				}
+			}
 			if ( ! table.exists(getter) ) return;
 			lock = table.lockRow(pk);
 			Get lockedGet = new Get(pk,lock);
-			Put lockedUpdate = new Put(pk,lock);
+			Put lockedUpdate = null;
 			Result r = table.get(lockedGet);
+			
+			Delete lockedDelete = null;
 			for (KeyValue kv : r.list()) {
-				byte[] modifiedB = pipe.process(kv.getFamily(), kv.getQualifier(), kv.getValue());
-				KeyValue updatedKV = new KeyValue(r.getRow(), 
-					kv.getFamily(), kv.getQualifier(),modifiedB);  
-				lockedUpdate.add(updatedKV);
+				byte[] curVal = kv.getValue();
+				if ( null == curVal) continue;
+				if ( 0 == curVal.length) continue;
+				byte[] modifiedB = pipe.process(kv.getFamily(), kv.getQualifier(), curVal);
+				if ( null == modifiedB) {
+					if ( null == lockedDelete ) lockedDelete = new Delete(pk,-1,lock);
+					lockedDelete = lockedDelete.deleteColumn(kv.getFamily(), kv.getQualifier());
+					
+				} else if (curVal.length == modifiedB.length) {
+					//Do nothing
+				} else {
+					if ( null == lockedUpdate ) lockedUpdate = new Put(pk,lock);
+					KeyValue updatedKV = new KeyValue(r.getRow(), 
+						kv.getFamily(), kv.getQualifier(),modifiedB);  
+					lockedUpdate.add(updatedKV);
+				}
 			}
-			lockedUpdate.setWriteToWAL(true);
-			table.put(lockedUpdate);
+			if ( null != lockedUpdate ) {
+				lockedUpdate.setWriteToWAL(true);
+				table.put(lockedUpdate);
+			}
+			if ( null != lockedDelete ) table.delete(lockedDelete);
+
 			table.flushCommits();
+			
 		} finally {
 			if ( null != lock) table.unlockRow(lock);
 			if ( null != facade && null != table) {

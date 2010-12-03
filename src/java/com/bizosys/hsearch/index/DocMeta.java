@@ -19,6 +19,9 @@
 */
 package com.bizosys.hsearch.index;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -492,7 +495,19 @@ public class DocMeta implements IStorable, IDimension {
 	
 	@Override
 	public String toString() {
-		StringBuilder writer = new StringBuilder();
+		StringWriter writer = new StringWriter();
+		try { 
+			toXml(writer);
+			writer.close();
+			return writer.toString();
+			//   Closing a StringWriter has no effect.
+		} catch (Exception ex) {
+			L.l.fatal(ex);
+			return ex.getMessage();
+		}
+	}
+	
+	public void toXml(Writer writer) throws IOException {
 		writer.append("<m>");
 		if ( null != this.tags) {
 			writer.append("<a>").append(this.tags).append("</a>");
@@ -507,10 +522,15 @@ public class DocMeta implements IStorable, IDimension {
 		}
 		if ( StringUtils.isNonEmpty(this.state) ) writer.append("<s>").append(this.state).append("</s>");
 		if ( StringUtils.isNonEmpty(this.docType) ) writer.append("<t>").append(this.docType).append("</t>");
-		writer.append("<x>").append(securityHigh).append("</x>");
-		writer.append("<z>").append(sentimentPositive).append("</z>");
+		writer.append("<x>");
+		if (securityHigh) writer.append("true");
+		else writer.append("false");
+		writer.append("</x>");
+		writer.append("<z>");
+		if (sentimentPositive) writer.append("true");
+		else writer.append("false");
+		writer.append("</z>");
 		writer.append("</m>");
-		return writer.toString();
 	}
 
 	public void toNVs(List<NV> nvs) throws ApplicationFault {

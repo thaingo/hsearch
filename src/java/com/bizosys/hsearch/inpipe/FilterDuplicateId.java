@@ -56,7 +56,11 @@ public class FilterDuplicateId implements PipeIn {
 		if ( null == teaser.id) return false;
 		
 		IdMapping mapping = IdMapping.load(teaser.id);
-		if ( null == mapping ) return true;
+		if ( null == mapping ) {
+			if ( L.l.isDebugEnabled() ) L.l.debug(
+				"FilterDuplicateId: Skipping delete - " + teaser.id);
+			return true;
+		}
 		IndexWriter.getInstance().delete(teaser.id.toString());
 		return true;
 	}

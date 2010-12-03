@@ -25,8 +25,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.bizosys.ferrari.TestFerrari;
+import com.bizosys.hsearch.common.Field;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
+import com.bizosys.hsearch.dictionary.DictEntry;
 import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.query.DocTeaserWeight;
 import com.bizosys.hsearch.query.QueryContext;
@@ -42,27 +44,31 @@ public class IndexWriterTest extends TestCase {
 		IndexWriterTest t = new IndexWriterTest();
 		Configuration conf = new Configuration();
 		ServiceFactory.getInstance().init(conf, null);
-		List<String> kwL = DictionaryManager.getInstance().getDictionary().getAll();
-		for (String kw : kwL) {
-			System.out.println(kw.toString());
+		DictionaryManager.getInstance().deleteAll();
+		
+        //TestFerrari.testRandom(t);
+		for ( int i=13; i<5000; i++) {
+			IndexWriter.getInstance().delete("ORIG_ID:" + i);
 		}
 		
-		DictionaryManager.getInstance().deleteAll();
-        TestFerrari.testRandom(t);
 	}
 	
 	public void testIndexSingleDoc(String id, String name, String location) throws Exception {
+		TermType ttype = TermType.getInstance();
+		ttype.types.put("LOCATION", (byte) -99);
+		ttype.persist();
+
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = id;
 		hdoc.title = name;
-		hdoc.fields = new ArrayList<HField>();
+		hdoc.fields = new ArrayList<Field>();
 		hdoc.fields.add(new HField("LOCATION", location));
 		IndexWriter.getInstance().insert(hdoc);
 		
 		QueryResult res = IndexReader.getInstance().search(new QueryContext(name));
 		assertEquals(1, res.teasers.length);
 		DocTeaserWeight dtw = (DocTeaserWeight)res.teasers[0];
-		assertEquals(id.toLowerCase(), new String(dtw.id.toBytes()));
+		assertEquals(id, new String(dtw.id.toBytes()));
 		assertEquals(name, dtw.title.toString());
 		System.out.println(res.toString());
 	}
@@ -74,17 +80,21 @@ public class IndexWriterTest extends TestCase {
 	
 	
 	public void testIndexMultiDoc(String id1,String id2,String name, String location) throws Exception {
+		TermType ttype = TermType.getInstance();
+		ttype.types.put("LOCATION", (byte) -99);
+		ttype.persist();
+		
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = id1;
 		hdoc.title = name;
-		hdoc.fields = new ArrayList<HField>();
+		hdoc.fields = new ArrayList<Field>();
 		hdoc.fields.add(new HField("LOCATION", location));
 		IndexWriter.getInstance().insert(hdoc);
 		
 		HDocument hdoc2 = new HDocument();
 		hdoc2.originalId = id2;
 		hdoc2.title = name;
-		hdoc2.fields = new ArrayList<HField>();
+		hdoc2.fields = new ArrayList<Field>();
 		hdoc2.fields.add(new HField("LOCATION", location));
 		IndexWriter.getInstance().insert(hdoc2);
 		
@@ -102,10 +112,14 @@ public class IndexWriterTest extends TestCase {
 	
 	public void testIndexFieldInsert(String id, String title) throws Exception {
 		
+		TermType ttype = TermType.getInstance();
+		ttype.types.put("BODY", (byte) -99);
+		ttype.persist();
+		
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = id;
 		hdoc.title = title;
-		hdoc.fields = new ArrayList<HField>();
+		hdoc.fields = new ArrayList<Field>();
 		HField fld = new HField("BODY",FileReaderUtil.toString("sample.txt"));
 		hdoc.fields.add(fld);
 		IndexWriter.getInstance().insert(hdoc);
@@ -119,7 +133,7 @@ public class IndexWriterTest extends TestCase {
 		HDocument hdoc = new HDocument();
 		hdoc.originalId = "BIZOSYS-103";
 		hdoc.title = "Ram tere Ganga maili";
-		hdoc.fields = new ArrayList<HField>();
+		hdoc.fields = new ArrayList<Field>();
 		
 		QueryContext ctx1 = new QueryContext("Ganga");
 		IndexWriter.getInstance().insert(hdoc);
@@ -137,6 +151,52 @@ public class IndexWriterTest extends TestCase {
 		}
 		
 	}	
+
+	public void testIndexDeleteInFields() throws Exception{
+		QueryResult res = null;
+		TermType ttype = TermType.getInstance();
+		ttype.types.put("emp", (byte) -98);
+		ttype.types.put("role", (byte) -99);
+		ttype.persist();
+		Thread.sleep(20);
+		
+		//Step 1 - Insert
+		HDocument hdoc = new HDocument();
+		hdoc.originalId = "BIZOSYS-9812";
+		hdoc.fields = new ArrayList<Field>();
+		hdoc.fields.add(new HField("emp", "Swami Vivenkananda"));
+		hdoc.fields.add(new HField("role", "architect"));
+		IndexWriter.getInstance().insert(hdoc);
+
+		//Step 2 - Check in Dictionary
+		DictEntry de = DictionaryManager.getInstance().getDictionary().get("vivenkanand");
+		assertNotNull(de);
+		assertEquals(1, de.fldFreq);
+
+		//Step 3 - Check in Index
+		QueryContext ctx1 = new QueryContext("Vivenkananda");
+		res = IndexReader.getInstance().search(ctx1);
+		assertEquals(1, res.teasers.length);
+		
+		//Step 4 - Delete
+		IndexWriter.getInstance().delete("BIZOSYS-9812");
+		
+		//Step 5 - Check in Dictionary
+		DictEntry de2 = DictionaryManager.getInstance().getDictionary().get("vivenkanand");
+		assertNotNull(de2);
+		assertEquals(0, de2.fldFreq);
+		
+		//Step 6 - Check in Index
+		QueryContext ctx2 = new QueryContext("Vivenkananda");
+		String pipes = "LuceneQueryParser,"+
+		"ComputeTypeCodes,QuerySequencing,SequenceProcessor," +
+		"ComputeStaticRanking,CheckMetaInfo,ComputeDynamicRanking,BuildTeaser";
+		res = IndexReader.getInstance().search(
+			ctx2,IndexReader.getInstance().getPipes(pipes));
+		Thread.sleep(50);
+		assertEquals(0, res.teasers.length);
+		
+	}	
 	
 	public void testIndexUpdate(String keyword1, String keyword2, String keyword3, 
 			String keyword4, String keyword5, String keyword6, String keyword7,  
@@ -146,6 +206,10 @@ public class IndexWriterTest extends TestCase {
 				keyword1, keyword2, keyword3, keyword4, keyword5,
 				keyword6, keyword7, keyword8, keyword9, keyword10
 		};
+		
+		TermType ttype = TermType.getInstance();
+		ttype.types.put("fld1", (byte) -98);
+		ttype.persist();
 
 		StringBuilder sb = new StringBuilder();
 		List<HDocument> hdocs = new ArrayList<HDocument>(5000); 
@@ -157,8 +221,8 @@ public class IndexWriterTest extends TestCase {
 			for (String k : keywords) {
 				sb.append(k).append(i).append(' ');		
 			} 
-			hdoc.fields = new ArrayList<HField>();
-			HField fld = new HField("FLD1",sb.toString());
+			hdoc.fields = new ArrayList<Field>();
+			HField fld = new HField("fld1",sb.toString());
 			hdoc.fields.add(fld);
 			hdocs.add(hdoc);
 		}

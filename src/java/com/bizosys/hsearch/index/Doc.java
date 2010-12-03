@@ -19,6 +19,8 @@
 */
 package com.bizosys.hsearch.index;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import com.bizosys.hsearch.common.HDocument;
@@ -85,6 +87,7 @@ public class Doc {
 			IOConstants.TABLE_PREVIEW, mappedKey.getBytes());
 		if ( null != previewB) {
 			this.teaser = new DocTeaser(origId.getBytes(), previewB);
+			this.teaser.id = new Storable(origId);
 			for (NVBytes nv : previewB) {
 				if ( Storable.compareBytes(nv.name, IOConstants.META_BYTES)) 
 					this.meta = new DocMeta(nv.data);
@@ -124,5 +127,14 @@ public class Doc {
 		if ( null != content ) sb.append("\n Content").append(content.toString());
 		sb.append("\n>>>> Document Ends <<<<\n");
 		return sb.toString();
+	}
+	
+	public void toXml(Writer writer) throws IOException {
+		if ( null != bucketId ) writer.append("<b>").append(bucketId.toString()).append("</b>");
+		if ( null != docSerialId ) writer.append("<n>").append(docSerialId.toString()).append("</n>");
+		//if ( null != acl ) writer.append("<a>").append(acl.toString()).append("</a>");
+		if ( null != meta ) meta.toXml(writer);
+		if ( null != teaser ) teaser.toXml(writer);
+		if ( null != content ) content.toXml(writer);
 	}
 }

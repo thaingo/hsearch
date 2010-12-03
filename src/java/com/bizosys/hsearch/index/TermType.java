@@ -60,7 +60,7 @@ public class TermType implements BatchTask {
 	
 	public Map<String, Byte> types = new HashMap<String, Byte>();
 	
-	public TermType() throws ApplicationFault {
+	private TermType() throws ApplicationFault {
 		/**
 		 * Add Reserved Types
 		 */

@@ -254,8 +254,9 @@ public class IndexWriter {
 		Doc origDoc = IndexReader.getInstance().get(documentId);
 		if ( null == origDoc.teaser) return false;
 		if ( null != origDoc.content) {
-			if ( null != origDoc.content.stored )
-				origDoc.content.analyzedIndexed = origDoc.content.stored; 
+			if ( null != origDoc.content.stored ) {
+				origDoc.content.analyzedIndexed = origDoc.content.stored;
+			}
 		}
 
 		List<PipeIn> deletePipe = getPipes(

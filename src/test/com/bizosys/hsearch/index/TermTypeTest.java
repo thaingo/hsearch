@@ -31,7 +31,7 @@ public class TermTypeTest extends TestCase {
 	}
 	
 	public void testSerialize() throws Exception {
-		TermType type = new TermType();
+		TermType type = TermType.getInstance();
 		type.types.put("Employee", (byte) -128);
 		type.types.put("customers", (byte) -127);
 		type.persist();

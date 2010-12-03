@@ -27,9 +27,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.bizosys.ferrari.TestFerrari;
+import com.bizosys.hsearch.common.Field;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
 import com.bizosys.hsearch.filter.Access;
+import com.bizosys.hsearch.filter.AccessDefn;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.inpipe.util.StopwordRefresh;
 import com.bizosys.hsearch.query.DocTeaserWeight;
@@ -48,8 +50,8 @@ public class IndexReaderTest extends TestCase {
 		ServiceFactory.getInstance().init(conf, null);
 		
 		IndexReaderTest t = new IndexReaderTest();
-        //TestFerrari.testRandom(t);
-		t.testTeaserLength();
+        TestFerrari.testRandom(t);
+		//t.testDocumentFetchLimit();
 	}
 
 	public void testGet(String title) throws Exception {
@@ -60,7 +62,7 @@ public class IndexReaderTest extends TestCase {
 		doc1.originalId = id;
 		doc1.title = "Title : " + title ;
 		doc1.cacheText = doc1.title + " " + content;
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		HField fld = new HField("BODY", content);
 		doc1.fields.add(fld);
 		IndexWriter.getInstance().insert(doc1);
@@ -80,6 +82,7 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id : " + id ;
 		doc1.title = "Title : " + title;
+		
 		IndexWriter.getInstance().insert(doc1);
 		QueryContext ctx = new QueryContext(title);
 		QueryResult res = IndexReader.getInstance().search(ctx);
@@ -90,7 +93,7 @@ public class IndexReaderTest extends TestCase {
 		assertEquals(new String(teaser.id.toBytes()), doc1.originalId);
 		assertEquals(new String(teaser.title.toBytes()), doc1.title);
 		
-		IndexWriter.getInstance().delete(doc1.originalId);
+		//IndexWriter.getInstance().delete(doc1.originalId);
 	}
 
 	public void testNullWord() throws Exception  {
@@ -148,26 +151,28 @@ public class IndexReaderTest extends TestCase {
 		assertTrue(allIds.indexOf(doc1.originalId) >= 0);
 		
 		IndexWriter.getInstance().delete(doc1.originalId);
+		System.out.println("testSpecialCharacter DONE");
 	}
 	
 	
 	public void testDocumentType() throws Exception  {
 		String id = "ID005";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("employee", (byte) -113);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("empid", (byte) -100);
 		ttype.types.put("name", (byte) -99);
 		ttype.persist();
+		Thread.sleep(50);
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		HField fld1 = new HField("empid", "5183");
 		HField fld2 = new HField("name", "Abinash Karan");
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(fld1);
 		doc1.fields.add(fld2);
 		doc1.docType = "employee";
@@ -177,7 +182,7 @@ public class IndexReaderTest extends TestCase {
 		doc2.originalId = "Id 2 : " + id ;
 		HField fld3 = new HField("empid", "5184");
 		HField fld4 = new HField("name", "Abinash Bagha");
-		doc2.fields = new ArrayList<HField>();
+		doc2.fields = new ArrayList<Field>();
 		doc2.fields.add(fld3);
 		doc2.fields.add(fld4);
 		IndexWriter.getInstance().insert(doc2);
@@ -186,7 +191,7 @@ public class IndexReaderTest extends TestCase {
 		doc3.originalId = "Id 3 : " + id ;
 		HField fld5 = new HField("empid", "5185");
 		HField fld6 = new HField("name", "Abinash Mohanty");
-		doc3.fields = new ArrayList<HField>();
+		doc3.fields = new ArrayList<Field>();
 		doc3.fields.add(fld5);
 		doc3.fields.add(fld6);
 		IndexWriter.getInstance().insert(doc3);
@@ -210,24 +215,25 @@ public class IndexReaderTest extends TestCase {
 	public void testAbsentDocType() throws Exception  {
 		String id = "ID006";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("toys", (byte) -109);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("creative", (byte) -98);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		HField fld1 = new HField("creative", "dow");
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(fld1);
 		doc1.docType = "toys";
 		IndexWriter.getInstance().insert(doc1);
 		
-		QueryResult res1 = IndexReader.getInstance().search(new QueryContext("typ:toys dow"));
-		assertNotNull(res1.teasers);
+		QueryResult res1 = IndexReader.getInstance().search(
+			new QueryContext("typ:toys dow"));
+		if ( 1 != res1.teasers.length) System.out.println(res1.toString());
 		assertEquals(1, res1.teasers.length);
 		
 		try { 
@@ -242,18 +248,18 @@ public class IndexReaderTest extends TestCase {
 	public void testTermType() throws Exception  {
 		String id = "ID007";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("molecules", (byte) -108);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("gas", (byte) -97);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		HField fld1 = new HField("gas", "Hydrogen");
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(fld1);
 		doc1.docType = "molecules";
 		IndexWriter.getInstance().insert(doc1);
@@ -279,18 +285,18 @@ public class IndexReaderTest extends TestCase {
 	public void testAbsentTermType() throws Exception  {
 		String id = "ID008";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("stories", (byte) -87);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("character", (byte) -121);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		HField fld1 = new HField("character", "cyndrella");
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(fld1);
 		doc1.docType = "stories";
 		IndexWriter.getInstance().insert(doc1);
@@ -307,19 +313,19 @@ public class IndexReaderTest extends TestCase {
 	public void testDocumentTypeWithTermType() throws Exception  {
 		String id = "ID009";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("molecules", (byte) -108);
 		dtype.types.put("fuel", (byte) -109);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("gas", (byte) -97);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
 		HField fld1 = new HField("gas", "Hydrogen");
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(fld1);
 		doc1.docType = "molecules";
 		IndexWriter.getInstance().insert(doc1);
@@ -327,7 +333,7 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc2 = new HDocument();
 		doc2.originalId = "Id 2 : " + id ;
 		HField fld2 = new HField("gas", "Hydrogen");
-		doc2.fields = new ArrayList<HField>();
+		doc2.fields = new ArrayList<Field>();
 		doc2.fields.add(fld2);
 		doc2.docType = "fuel";
 		IndexWriter.getInstance().insert(doc2);
@@ -359,11 +365,11 @@ public class IndexReaderTest extends TestCase {
 	public void testAnd() throws Exception  {
 		String id = "ID010";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("technology", (byte) -108);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("lang", (byte) -97);
 		ttype.types.put("os", (byte) -98);
 		ttype.types.put("middleware", (byte) -99);
@@ -371,7 +377,7 @@ public class IndexReaderTest extends TestCase {
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(new HField("lang", "Java"));
 		doc1.fields.add(new HField("os", "linux"));
 		doc1.fields.add(new HField("middleware", "weblogic"));
@@ -380,7 +386,7 @@ public class IndexReaderTest extends TestCase {
 		
 		HDocument doc2 = new HDocument();
 		doc2.originalId = "Id 2 : " + id ;
-		doc2.fields = new ArrayList<HField>();
+		doc2.fields = new ArrayList<Field>();
 		doc2.fields.add(new HField("lang", "Java"));
 		doc2.fields.add(new HField("os", "windows"));
 		doc2.fields.add(new HField("middleware", "weblogic"));
@@ -389,7 +395,7 @@ public class IndexReaderTest extends TestCase {
 		
 		HDocument doc3 = new HDocument();
 		doc3.originalId = "Id 2 : " + id ;
-		doc3.fields = new ArrayList<HField>();
+		doc3.fields = new ArrayList<Field>();
 		doc3.fields.add(new HField("lang", "Java"));
 		doc3.fields.add(new HField("os", "linux"));
 		doc3.fields.add(new HField("middleware", "hadoop"));
@@ -420,11 +426,11 @@ public class IndexReaderTest extends TestCase {
 	public void testOr() throws Exception  {
 		String id = "ID011";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("fruit", (byte) -108);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("name", (byte) -97);
 		ttype.types.put("season", (byte) -98);
 		ttype.types.put("price", (byte) -99);
@@ -432,7 +438,7 @@ public class IndexReaderTest extends TestCase {
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(new HField("name", "Mango"));
 		doc1.fields.add(new HField("season", "summer"));
 		doc1.fields.add(new HField("price", "Rs70/-"));
@@ -441,7 +447,7 @@ public class IndexReaderTest extends TestCase {
 		
 		HDocument doc2 = new HDocument();
 		doc2.originalId = "Id 2 : " + id ;
-		doc2.fields = new ArrayList<HField>();
+		doc2.fields = new ArrayList<Field>();
 		doc2.fields.add(new HField("name", "Banana"));
 		doc2.fields.add(new HField("season", "Any"));
 		doc2.fields.add(new HField("price", "Rs28/-"));
@@ -450,7 +456,7 @@ public class IndexReaderTest extends TestCase {
 		
 		HDocument doc3 = new HDocument();
 		doc3.originalId = "Id 3 : " + id ;
-		doc3.fields = new ArrayList<HField>();
+		doc3.fields = new ArrayList<Field>();
 		doc3.fields.add(new HField("name", "Watermelon"));
 		doc3.fields.add(new HField("season", "Summer"));
 		doc3.fields.add(new HField("price", "Rs70/-"));
@@ -549,18 +555,18 @@ public class IndexReaderTest extends TestCase {
 	public void testTypeAndNonTypeMixed() throws Exception  {
 		String id = "ID016";
 
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("fruit", (byte) -108);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("name", (byte) -97);
 		ttype.types.put("price", (byte) -99);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(new HField("name", "apple"));
 		doc1.fields.add(new HField("price", "123.00"));
 		doc1.docType = "fruit";
@@ -578,18 +584,18 @@ public class IndexReaderTest extends TestCase {
 	public void test_TypeNonType_WrongType_NonExistance() throws Exception  {
 		String id = "ID017";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("baby", (byte) -108);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("babyname", (byte) -97);
 		ttype.types.put("house", (byte) -99);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(new HField("babyname", "Ava"));
 		doc1.fields.add(new HField("house", "466"));
 		doc1.docType = "baby";
@@ -617,17 +623,17 @@ public class IndexReaderTest extends TestCase {
 	public void testDocumentStateFilter() throws Exception  {
 		String id = "ID018";
 		
-		DocumentType dtype = new DocumentType();
+		DocumentType dtype = DocumentType.getInstance();
 		dtype.types.put("leave", (byte) -108);
 		dtype.persist();
 		
-		TermType ttype = new TermType();
+		TermType ttype = TermType.getInstance();
 		ttype.types.put("fromdate", (byte) -97);
 		ttype.persist();
 
 		HDocument doc1 = new HDocument();
 		doc1.originalId = "Id 1 : " + id ;
-		doc1.fields = new ArrayList<HField>();
+		doc1.fields = new ArrayList<Field>();
 		doc1.fields.add(new HField("fromdate", "12thDec,2009"));
 		doc1.docType = "leave";
 		doc1.state =  "closed";
@@ -872,8 +878,8 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Welcome to IIT Library";
-		Access viewPerm = new Access();
-		viewPerm.addOrgUnit("bizosys");
+		AccessDefn viewPerm = new AccessDefn();
+		viewPerm.ous = new String[] {"bizosys"};
 		doc.viewPermission = viewPerm; 
 		IndexWriter.getInstance().insert(doc);
 		
@@ -895,8 +901,8 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Welcome to IIT Library";
-		Access viewPerm = new Access();
-		viewPerm.addOrgUnit("bizosys");
+		AccessDefn viewPerm = new AccessDefn();
+		viewPerm.ous = new String[] {"bizosys"};
 		doc.viewPermission = viewPerm; 
 		IndexWriter.getInstance().insert(doc);
 		
@@ -918,8 +924,8 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Register for private blogging at VOX.";
-		Access viewPerm = new Access();
-		viewPerm.addOrgUnit("bizosys");
+		AccessDefn viewPerm = new AccessDefn();
+		viewPerm.ous = new String[] {"bizosys"};
 		doc.viewPermission = viewPerm; 
 		IndexWriter.getInstance().insert(doc);
 		
@@ -936,8 +942,8 @@ public class IndexReaderTest extends TestCase {
 		HDocument doc = new HDocument();
 		doc.originalId = id;
 		doc.title = "Manmohan Singh is prime minister of India";
-		Access viewPerm = new Access();
-		viewPerm.addAnonymous();
+		AccessDefn viewPerm = new AccessDefn();
+		viewPerm.uids = new String[] {Access.ANY};
 		doc.viewPermission = viewPerm; 
 		IndexWriter.getInstance().insert(doc);
 		

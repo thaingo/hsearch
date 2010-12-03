@@ -27,12 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.omg.CORBA.portable.ApplicationException;
+import junit.framework.Test;
 
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.util.StringUtils;
-
-import junit.framework.Test;
 
 public class TestRandomValue  {
 
@@ -116,7 +114,6 @@ public class TestRandomValue  {
 			for (Object[] objects : values) {
 				invoke(runMethod, testCase, objects);
 			}
-			totalSucess++;
 		} catch (Exception ex) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(testCase.getClass().getName() + ":" + runMethod.getName()); 

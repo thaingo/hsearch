@@ -42,9 +42,7 @@ public class LuceneQueryParserTest extends TestCase {
 		List<String> stopwords = new ArrayList<String>();
 		stopwords.add("but");
 		StopwordManager.getInstance().setLocalStopwords(stopwords);
-
 		LuceneQueryParserTest t = new LuceneQueryParserTest();
-		
         TestFerrari.testAll(t);
 	}
 
@@ -158,13 +156,6 @@ public class LuceneQueryParserTest extends TestCase {
 		assertEquals( "abinash", planner.optionalTerms.get(1).wordStemmed);
 	}
 	
-	public void testDocId() throws Exception  {
-		QueryContext ctx = new QueryContext("olid:560083 abinash");
-		parseQuery(ctx);
-		assertEquals("560083", ctx.id);
-	}
-	
-
 	public void testDocumentTypeFilter() throws Exception  {
 		QueryContext ctx = new QueryContext("typ:client abinash");
 		parseQuery(ctx);
