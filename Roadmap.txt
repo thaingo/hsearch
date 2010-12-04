@@ -1,16 +1,19 @@
 Features
 -----------
-1.  Build the REST service
-2.  Create a Java client library
-3.  SystemFault Admin takes action, ApplicationFault User does.
-4.  Regular expression and starts with queries needs to be integrated with 
-    the dictionary.
-5. Implement Meta facetting + Natural Language processing
-6. Implement sorting
-7. Implement did you know
-8. Implement profile based document weight calculation
-9. Implement GeoService
-10 Implement MultiLingual Support 
+1  Build the REST service
+2  SystemFault Admin takes action, ApplicationFault User does.
+3  Regular expression and starts with queries needs to be integrated with 
+   the dictionary.
+4  Implement Meta facetting + Natural Language processing
+5  Implement sorting
+6  Implement profile based document weight calculation
+7  Implement Addon Package of Crawlers
+8  Implement Encrypted Index for Security
+9  Implement Entity recognization
+10 Implement Preview Creation Package
+11 Implement did you know
+12 Implement GeoService
+13 Implement MultiLingual Support
 
 Performance & Scalability
 ---------------------------------
@@ -24,8 +27,17 @@ Performance & Scalability
 Robustness
 -----------
 1.  Move all locks to a centralized place to remove on application shutdown
+2.  Create Index backup mechanism
+3.  Create Virus check mechanism
 
 Quality
 -----------
 1.  Complete all test cases and prepare a report.
-2.  Easy adoption by implementing a health vault application.
+2.  Write NagOS monitoring plug-in
+
+Adoption
+-----------
+1.  Create a Java, Flex and Javascript client library
+2.  Create API documents
+3.  Create deployment papaer for higher data guard support
+4.  Easy adoption by implementing a healthvault application.
