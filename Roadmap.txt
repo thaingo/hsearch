@@ -1,7 +1,31 @@
-0.  Complete all test cases and prepare a report.
+Features
+-----------
 1.  Build the REST service
 2.  Create a Java client library
-3.  Enable batch mode for insert, so that locking is not there.
-4.  Create a Book/Article repository and index them.
-5.  All ApplicationFault keyword should be ResourceBundled Map.
-6.  SystemFault Admin takes action, ApplicationFault User does.
+3.  SystemFault Admin takes action, ApplicationFault User does.
+4.  Regular expression and starts with queries needs to be integrated with 
+    the dictionary.
+5. Implement Meta facetting + Natural Language processing
+6. Implement sorting
+7. Implement did you know
+8. Implement profile based document weight calculation
+9. Implement GeoService
+10 Implement MultiLingual Support 
+
+Performance & Scalability
+---------------------------------
+1.  Enable batch mode for insert, so that locking is not there.
+2.  DeleteFromIndex (Cut fields for matching (Column Family + Column) )
+3.  Implement HSearchServer for HBase cluster zoning
+4.  IPP enablement
+5.  Perform check on 1 Billion records, 1 Lakh words
+6.  Cluser Zone indexing on 100 Billion records, 1 Lakh words
+
+Robustness
+-----------
+1.  Move all locks to a centralized place to remove on application shutdown
+
+Quality
+-----------
+1.  Complete all test cases and prepare a report.
+2.  Easy adoption by implementing a health vault application.
