@@ -467,8 +467,8 @@ public class HWriter {
 	throws IOException {
 			
 		if ( null == tableName  || null == record) return;
-		if  (HLog.l.isInfoEnabled()) 
-			HLog.l.info("HWriter: merge Record (" + tableName + ")") ;
+		if  (HLog.l.isDebugEnabled()) 
+			HLog.l.debug("HWriter: merge Record (" + tableName + ")") ;
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;

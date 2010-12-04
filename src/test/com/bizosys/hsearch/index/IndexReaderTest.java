@@ -50,7 +50,7 @@ public class IndexReaderTest extends TestCase {
 		ServiceFactory.getInstance().init(conf, null);
 		
 		IndexReaderTest t = new IndexReaderTest();
-        TestFerrari.testRandom(t);
+        TestFerrari.testAll(t);
 		//t.testDocumentFetchLimit();
 	}
 

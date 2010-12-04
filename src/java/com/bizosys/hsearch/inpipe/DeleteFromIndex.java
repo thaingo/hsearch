@@ -73,6 +73,7 @@ public class DeleteFromIndex implements PipeIn {
 				for (Term aTerm : curDoc.terms.all) {
 					char table = map.getTableName(aTerm.term);
 					char family = map.getColumnFamily(aTerm.term);
+					//char col = map.getColumn(aTerm.term);
 					if ( tables.containsKey(table)) {
 						StringBuilder sb = tables.get(table); 
 						if ( -1 == sb.toString().indexOf(family) ) sb.append(family); 
