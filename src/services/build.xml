@@ -8,6 +8,7 @@
 	  <target name="deploy">
 	    <ant dir="extensionpoints" target="deploy"/>
 	  	<ant dir="service-discovery" target="deploy"/>
+	  	<ant dir="service-configuration" target="deploy"/>
 	  </target>
 
   <!-- ====================================================== -->

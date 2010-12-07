@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<project name="service-configuration">
+	<import file="../build-plugin.xml"/>
+</project>

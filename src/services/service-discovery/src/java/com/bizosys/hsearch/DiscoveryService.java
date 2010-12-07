@@ -129,7 +129,7 @@ public class DiscoveryService implements Service {
 			res.error("Failure : SearchService:" + action + " " + ix.getMessage());
 		}
 	}
-
+	
 	/**
 	 * Gets a document given the {id}
 	 * @param req

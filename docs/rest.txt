@@ -1,1 +1,0 @@
-http://localhost/hsearch-0.89/service.html?service=discovery&action=index

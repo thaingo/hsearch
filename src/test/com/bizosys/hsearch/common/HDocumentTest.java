@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import com.bizosys.hsearch.filter.Access;
 import com.bizosys.oneline.util.XmlUtils;
 
 public class HDocumentTest {
@@ -58,14 +59,16 @@ public class HDocumentTest {
 		doc.validTill = new Date();
 		doc.viewPermission = new AccessDefn();
 		doc.viewPermission.roles = new String[] {"Role1"};
-		doc.viewPermission.ouAndRoles = new String[][] { new String[]{"unit1", "role1"} };
+		doc.viewPermission.uids = new String[] { Access.ANY };
 		
 		doc.weight = 99;
     	String xmlDoc = XmlUtils.xstream.toXML(doc);
 		HDocument docDeserialized = (HDocument) 
 			XmlUtils.xstream.fromXML(xmlDoc);
 		
-    	String xmlDocSerialized = XmlUtils.xstream.toXML(docDeserialized);
-		System.out.println(xmlDoc.equals(xmlDocSerialized));
+    	//String xmlDocSerialized = XmlUtils.xstream.toXML(docDeserialized);
+		//System.out.println(xmlDoc.equals(xmlDocSerialized));
+		
+		System.out.println(xmlDoc);
 	}
 }

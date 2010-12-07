@@ -19,15 +19,21 @@
 */
 package com.bizosys.hsearch.index;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import com.bizosys.ferrari.TestFerrari;
+import com.bizosys.oneline.util.XmlUtils;
+import com.thoughtworks.xstream.XStream;
 
 public class DocumentTypeTest extends TestCase {
 
 	public static void main(String[] args) throws Exception {
 		DocumentTypeTest t = new DocumentTypeTest();
-        TestFerrari.testAll(t);
+        //TestFerrari.testAll(t);
+		t.testXML();
 	}
 	
 	public void testSerialize() throws Exception {
@@ -36,5 +42,12 @@ public class DocumentTypeTest extends TestCase {
 		type.types.put("customer", (byte) -127);
 		type.persist();
 		assertTrue( (byte) -127 ==  type.types.get("customer"));
+	}
+	
+	private void testXML() {
+		Map<String, Byte> types = new HashMap<String, Byte>();
+		types.put("employee", (byte) -128);
+		types.put("customer", (byte) -127);
+		System.out.println(XmlUtils.xstream.toXML(types));
 	}
 }
