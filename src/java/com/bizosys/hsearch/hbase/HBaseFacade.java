@@ -29,20 +29,35 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTablePool;
 
 /**
- * HTable.flushCommits() on Shutdown
- * @author bizosys
+ * Initializes and Serves HBase resources from here
+ * @author Abinasha Karana
  *
  */
 public class HBaseFacade {
 
+	/**
+	 * Configuration Settings
+	 */
 	protected Configuration conf;
+	
+	/**
+	 * HBase admin
+	 */
 	protected HBaseAdmin admin = null;
+	
+	/**
+	 * HBase table description
+	 */
 	protected HTableDescriptor desc = null;
 	
-	private static HBaseFacade instance = null;
 	/**
-	 * Give a static instance
-	 * @return
+	 * Singleton instance
+	 */
+	private static HBaseFacade instance = null;
+	
+	/**
+	 * Give a static singleton instance
+	 * @return	HBaseFacade
 	 * @throws IOException
 	 */
 	public static HBaseFacade getInstance() throws IOException
@@ -55,15 +70,17 @@ public class HBaseFacade {
 		return instance;
 	}
 
-	
-	
+	/**
+	 * Initialized HBase administrator reading the configuration file
+	 * @throws IOException
+	 */
 	private HBaseFacade() throws IOException{
-		HLog.l.debug("HBaseFacade > Initializing HBaseFacade");
+		HbaseLog.l.debug("HBaseFacade > Initializing HBaseFacade");
 		conf = HBaseConfiguration.create();
 		try {
 			admin = new HBaseAdmin(conf);
 			HBaseFacade.instance = this;
-			HLog.l.debug("HBaseFacade > HBaseFacade initialized.");
+			HbaseLog.l.debug("HBaseFacade > HBaseFacade initialized.");
 		} catch (MasterNotRunningException ex) {
 			throw new IOException ("HBaseFacade > HBase Master instance is not running..");			
 		}
@@ -77,17 +94,36 @@ public class HBaseFacade {
 		try {
 			admin.shutdown();
 		} catch (IOException ex) {
-			
+			HbaseLog.l.warn("HBAseFacade:stop()", ex);
 		}
 	}
 	
+	/**
+	 * Get the HBase admin
+	 * @return	HBase Admin Object
+	 * @throws IOException
+	 */
 	public HBaseAdmin getAdmin() throws IOException {
 		if ( null == admin) throw new IOException ("HBaseFacade > HBase Service is not initialized");
 		return admin;
 	}
 	
-    HTablePool pool = null;
+    /**
+     * HBase table pool
+     */
+	HTablePool pool = null;
+	
+	/**
+	 * Number of current live tables
+	 */
     int liveTables = 0; 
+    
+    /**
+     * Get a Wrapped HBase table
+     * @param tableName	The table name
+     * @return	Wrapped HBase table
+     * @throws IOException
+     */
 	public HTableWrapper getTable(String tableName) throws IOException {
 		
 		if ( null == pool ) pool = new HTablePool(this.conf, Integer.MAX_VALUE);
@@ -98,18 +134,31 @@ public class HBaseFacade {
 		return table;
 	}
 
+	/**
+	 * Returns the wrapped table to the pool for recycling
+	 * @param table	The Wrapped HBase table
+	 */
 	public void putTable(HTableWrapper table) {
 		if ( null == pool ) return;
 		pool.putTable(table.table);
 		liveTables--;
 	}
 	
+	/**
+	 * Recycles a table
+	 * @param table
+	 * @throws IOException
+	 */
 	public void recycleTable(HTableWrapper table) throws IOException {
 		if ( null == pool ) return;
 		pool.putTable(table.table);
 		table.table = pool.getTable(table.tableName);
 	}	
 	
+	/**
+	 * Monitoring purposes keeps counting active table connections in operation 
+	 * @return	Number of connections made
+	 */
 	public int getLiveTables() {
 		return this.liveTables;
 	}

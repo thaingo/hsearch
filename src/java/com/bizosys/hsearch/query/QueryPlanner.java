@@ -22,6 +22,15 @@ package com.bizosys.hsearch.query;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Best on term preciousness, optional and must conditions
+ * the execution is sequenced. In each step one or more words
+ * gets matched. Precious must words executed first. In all 
+ * downlevel processing, proper filteration is applied to eliminate
+ * unnecessary volume.
+ * @author karan
+ *
+ */
 public class QueryPlanner {
 
 	public StringBuilder sb = new StringBuilder();
@@ -62,24 +71,7 @@ public class QueryPlanner {
 			return phrases;
 		}
 	}
-	
-	/**
-	 * All items from the list will get executed as parallel query. (OR)
-	 * Result Set from the parallel queries are intersected
-	 * 
-	 * The array of keywords inside a parallel query is run sequentially.
-	 * The sequencing is done using the dictionry.  
-	 * @return
-	 */
-	public List<String[]> getParallelTerms() {
-		return null;
-	}	
 
-	
-	public String getClusterQuery() {
-		return this.getQueryString();
-	}
-	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

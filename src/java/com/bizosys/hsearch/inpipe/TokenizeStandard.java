@@ -35,6 +35,11 @@ import com.bizosys.hsearch.index.TermStream;
 import com.bizosys.hsearch.inpipe.util.ReaderType;
 import com.bizosys.hsearch.util.LuceneConstants;
 
+/**
+ * Standard Tokenizer
+ * @author karan
+ *
+ */
 public class TokenizeStandard extends TokenizeBase implements PipeIn {
 
 	public TokenizeStandard() {
@@ -72,7 +77,7 @@ public class TokenizeStandard extends TokenizeBase implements PipeIn {
 			}
 	    	return true;
     	} catch (Exception ex) {
-    		throw new ApplicationFault(ex);
+    		throw new SystemFault(ex);
     	}
 	}
 

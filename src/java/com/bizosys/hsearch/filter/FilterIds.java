@@ -23,17 +23,23 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-
+/**
+ * Finds out whether a document carries the matching 
+ * term hash, document type and term type restricting it inside
+ * allowed merged sections (buckets).
+ * @author karan
+ *
+ */
 public class FilterIds {
-	public static final int KEYWORD_BYTES = 5;
+	
+	private static final int KEYWORD_BYTES = 5;
 	
 	/**
+	 * Restrict the findings only inside the filtered buckets
 	 * After the Top 4 all others are continuous bucket Ids
-	 * @param rowKey
-	 * @param offset
-	 * @param length
-	 * @param inB
-	 * @return
+	 * @param rowKey	The primary key
+	 * @param inB	Input Bytes
+	 * @return	Is bucket matched?
 	 */
 	public static final boolean isMatchingBucket(byte[] rowKey, byte[] inB) {
 		
@@ -55,10 +61,10 @@ public class FilterIds {
 	}
 	
 	/**
-	 * Check for matching col bytes.
-	 * @param storeB
-	 * @param inB
-	 * @return
+	 * Match the term hash, doc type and term type 
+	 * @param storeB	Stored bytes
+	 * @param inB	Input Bytes
+	 * @return	Matching Term-Lists Byte Array
 	 */
 	public static final byte[] isMatchingColBytes( byte[] storeB, byte[] inB) {
 		if ( null == storeB ) return null;
@@ -129,9 +135,9 @@ public class FilterIds {
 	}
 	
 	/**
-	 * Reads the header section of input data
-	 * @param in
-	 * @return
+	 * Reads the header section of input data to find total bytes encapsuled
+	 * @param in	Input data
+	 * @return	Total bytes to be read
 	 * @throws IOException
 	 */
 	public static final int readHeader(DataInput in) throws IOException {
@@ -144,8 +150,8 @@ public class FilterIds {
 	
 	/**
 	 * Write the header seciton of supplied header
-	 * @param out
-	 * @param BT
+	 * @param out	Data output
+	 * @param BT	Total Bytes
 	 * @throws IOException
 	 */
 	public static final void writeHeader(DataOutput out, int BT) throws IOException {
@@ -156,9 +162,9 @@ public class FilterIds {
 	
 	/**
 	 * Integer - Byte conversion
-	 * @param index
-	 * @param inputBytes
-	 * @return
+	 * @param index	The reading start position
+	 * @param inputBytes	Byte Array
+	 * @return	The Integer data type
 	 */
 	public static final int getInt(int index, byte[] inputBytes) {
 		

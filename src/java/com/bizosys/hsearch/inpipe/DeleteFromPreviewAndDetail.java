@@ -32,6 +32,11 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 
+/**
+ * Delete document from preview and detail record
+ * @author karan
+ *
+ */
 public class DeleteFromPreviewAndDetail implements PipeIn {
 
 	List<byte[]> ids = new ArrayList<byte[]>(3);
@@ -48,7 +53,7 @@ public class DeleteFromPreviewAndDetail implements PipeIn {
 			ids.add(IdMapping.getKey(doc.bucketId, doc.docSerialId).getBytes());
 			return true;
 		} else {
-			L.l.warn("DeleteFromPreviewAndDetail: Document Original Id or Bucket Id with doc serial is absent.");
+			InpipeLog.l.warn("DeleteFromPreviewAndDetail: Document Original Id or Bucket Id with doc serial is absent.");
 			throw new ApplicationFault ("DeleteFromPreviewAndDetail: No Ids provided for deletion.");
 		}
 	}
@@ -74,7 +79,7 @@ public class DeleteFromPreviewAndDetail implements PipeIn {
 		return true;
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
+	public boolean init(Configuration conf) {
 		return true;
 	}
 

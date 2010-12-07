@@ -34,6 +34,13 @@ import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryPlanner;
 import com.bizosys.hsearch.query.QueryTerm;
 
+/**
+ * Resolve the term type and document type code.
+ * @see TermType
+ * @see DocumentType
+ * @author karan
+ *
+ */
 public class ComputeTypeCodes implements PipeOut{
 	
 	public ComputeTypeCodes() {
@@ -51,14 +58,17 @@ public class ComputeTypeCodes implements PipeOut{
 		return true;
 	}
 	
-	private void deduceDocumentType(QueryContext ctx ) throws ApplicationFault {
+	private void deduceDocumentType(QueryContext ctx )
+	throws SystemFault,ApplicationFault{
 		
 		if ( null == ctx) return ;
 		if ( null == ctx.docType) return ;
 		ctx.docTypeCode = DocumentType.getInstance().getTypeCode(ctx.docType);
 	}
 	
-	private void deduceTermType(List<QueryTerm> queryWordL) throws ApplicationFault {
+	private void deduceTermType(List<QueryTerm> queryWordL) 
+	throws SystemFault,ApplicationFault {
+		
 		if ( null == queryWordL) return;
 		for (QueryTerm term : queryWordL) {
 			if ( StringUtils.isEmpty(term.termType) ) continue;

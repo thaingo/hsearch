@@ -19,41 +19,70 @@
 */
 package com.bizosys.hsearch.inpipe;
 
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.SystemFault;
-import com.bizosys.oneline.conf.Configuration;
-import com.bizosys.oneline.pipes.PipeIn;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.DocMeta;
+import com.bizosys.hsearch.index.DocTeaser;
 import com.bizosys.hsearch.util.IpUtil;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
 
+/**
+ * Deduce the Host IP address based on URL. 
+ * It converts the IP address to a single integer (IP House)
+ * @see IpUtil	 
+ * @author karan
+ *
+ */
 public class ComputeIpHouse implements PipeIn {
 
-	public boolean commit() throws ApplicationFault, SystemFault {
-		return true;
+	public boolean commit() { 
+		return true; 	
+	}	
+
+	public PipeIn getInstance() { 
+		return this; 	
 	}
 
-	public PipeIn getInstance() {
-		return this;
+	public String getName() { 
+		return "ComputeIpHouse"; 	
 	}
 
-	public String getName() {
-		return "ComputeIpHouse";
+	public boolean init(Configuration conf)  { 
+		return true; 
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
-		return true;
-	}
-
-	public boolean visit(Object docObj) throws ApplicationFault, SystemFault {
+	public boolean visit(Object docObj) {
 		if ( null == docObj) return false;
 		Doc doc = (Doc) docObj;
 		
     	DocMeta meta = doc.meta;
     	if ( null == meta ) return false;
-    	meta.ipHouse = IpUtil.computeHouse(doc.ipAddress);
-		return true;
+    	
+    	DocTeaser teaser = doc.teaser;
+    	if ( null == teaser ) return false;
+
+    	if ( null == teaser.url ) return true;
+    	try {
+	    	String url = teaser.url.getValue().toString();
+	    	String urlL =url.toLowerCase();
+	    	if ( ! ( urlL.startsWith("http") || 
+	    		urlL.startsWith("ftp") ) )  return true; 
+	    	URL resolvedUrl = new URL(url); 
+	    	InetAddress ipaddress = InetAddress.getByName(resolvedUrl.getHost());
+	    	meta.ipHouse = IpUtil.computeHouse(ipaddress.getHostAddress());
+	    	return true;
+    	} catch (UnknownHostException ex) {
+    		InpipeLog.l.info(ex);
+    		return false;
+    	} catch (MalformedURLException ex) {
+    		InpipeLog.l.info(ex);
+    		return false;
+    	}
 	}
 	
 }

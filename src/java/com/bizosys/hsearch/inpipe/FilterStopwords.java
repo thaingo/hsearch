@@ -33,6 +33,11 @@ import com.bizosys.hsearch.index.DocTerms;
 import com.bizosys.hsearch.index.TermStream;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 
+/**
+ * Eliminate stopwords from indexing.
+ * @author karan
+ *
+ */
 public class FilterStopwords implements PipeIn{
 	
 	public FilterStopwords() {}

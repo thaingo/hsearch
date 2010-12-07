@@ -25,8 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
-import com.bizosys.hsearch.hbase.HLog;
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
@@ -34,10 +35,13 @@ import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.inpipe.SaveToIndexRecord;
 import com.bizosys.hsearch.schema.ILanguageMap;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.RecordScalar;
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 
+/**
+ * Multiple term families grouped inside a Termtable
+ * @author karan
+ *
+ */
 public class TermTables {
 	
 	private static final byte[] BUCKET_COUNTER_BYTES = "BUCKET_COUNTER".getBytes();
@@ -96,14 +100,14 @@ public class TermTables {
 		}
 	}
 	
-	public void persist(boolean merge) throws SystemFault, ApplicationFault {
+	public void persist(boolean merge) throws SystemFault {
 		try {
 			for ( Character tableName : tables.keySet()) {
 				TermFamilies termFamilies = tables.get(tableName);
 				SaveToIndexRecord record = new SaveToIndexRecord(bucketId);
 				record.setTermFamilies(termFamilies); 
-				if  (HLog.l.isDebugEnabled()) 
-					HLog.l.debug("TermTables.persist Table " + tableName + record.toString());
+				if  (HbaseLog.l.isDebugEnabled()) 
+					HbaseLog.l.debug("TermTables.persist Table " + tableName + record.toString());
 				HWriter.merge(tableName.toString(), record);
 			}
 		} catch (Exception ex) {
@@ -115,7 +119,7 @@ public class TermTables {
 	 * Populates the existing value.
 	 * @param tableName
 	 * @param termFamilies
-	 * @throws ApplicationFault
+	 * @throws SystemFault
 	 */
 	public void setExistingValue(String tableName, 
 		TermFamilies termFamilies) throws SystemFault {
@@ -142,28 +146,28 @@ public class TermTables {
 	/**
 	 * Get the Running bucket Id
 	 */
-	public static long getCurrentBucketId() throws ApplicationFault{
-		HLog.l.info("TermTables > aquiring the running bucket.");
+	public static long getCurrentBucketId() throws SystemFault {
+		HbaseLog.l.info("TermTables > aquiring the running bucket.");
 		
 		NV nv = new NV(IOConstants.NAME_VALUE_BYTES,IOConstants.NAME_VALUE_BYTES);
 		RecordScalar scalar = new RecordScalar(BUCKET_COUNTER_BYTES, nv); 
 		HReader.getScalar(IOConstants.TABLE_CONFIG,scalar);
 		long currentBucket = Storable.getLong(0, nv.data.toBytes());
 
-		if ( HLog.l.isInfoEnabled()) 
-			HLog.l.info("TermTables > Running bucket = " + currentBucket);
+		if ( HbaseLog.l.isInfoEnabled()) 
+			HbaseLog.l.info("TermTables > Running bucket = " + currentBucket);
 		return currentBucket;
 	}
 	
 	
 	/**
 	 * This creates bucket Id, unique across machines.
-	 * @return
-	 * @throws ApplicationFault
+	 * @return	The bucket Id
+	 * @throws SystemFault
 	 */
-	public static long createBucketId() throws ApplicationFault{
+	public static long createBucketId() throws SystemFault {
 		
-		HLog.l.debug("TermBucket > Creating a new bucket Zone");
+		HbaseLog.l.debug("TermBucket > Creating a new bucket Zone");
 		
 		/**
 		 * Get next bucket Id
@@ -175,48 +179,48 @@ public class TermTables {
 		/**
 		 * Put the bucket as a row for counting document serials. 
 		 */
-		HLog.l.debug("TermBucket > Setting serial counter for this bucket :" + bucketId);
+		HbaseLog.l.debug("TermBucket > Setting serial counter for this bucket :" + bucketId);
 
 		long startPos = Short.MIN_VALUE;
 		nv.data = new Storable(startPos);
 		RecordScalar docSerial = new RecordScalar(
 			Storable.putLong(bucketId), nv); 
 		try {
-			HWriter.insert(IOConstants.TABLE_CONFIG, docSerial);
-			HLog.l.info("TermBucket > Bucket setup completed :" + bucketId);
+			HWriter.insertScalar(IOConstants.TABLE_CONFIG, docSerial);
+			HbaseLog.l.info("TermBucket > Bucket setup completed :" + bucketId);
 			return bucketId;
 		} catch (IOException ex) {
-			HLog.l.fatal("TermBucket > Setting serial counter Failed:" + bucketId, ex);
-			throw new ApplicationFault(ex);
+			HbaseLog.l.fatal("TermBucket > Setting serial counter Failed:" + bucketId, ex);
+			throw new SystemFault(ex);
 		}
 	}
 	
 	/**
 	 * This create document serial no inside a bucket id, unique across machines
-	 * @param bucketId
-	 * @param amount
-	 * @return
-	 * @throws ApplicationFault
+	 * @param bucketId	The current bucket id
+	 * @param amount	Amount of documents to be added
+	 * @return	Moved document serial position
+	 * @throws SystemFault
 	 * @throws BucketIsFullException
 	 */
 	public static short createDocumentSerialIds(long bucketId, int amount) 
-		throws SystemFault, ApplicationFault, BucketIsFullException {
+		throws SystemFault, BucketIsFullException {
 		
 		/**
 		 * Generate Ids for this bucket
 		 */
 		
-		HLog.l.debug("Generating buckets keys");
+		HbaseLog.l.debug("Generating buckets keys");
 		NV nv = new NV(IOConstants.NAME_VALUE_BYTES,IOConstants.NAME_VALUE_BYTES);
 		byte[] pkBucketId = Storable.putLong(bucketId);
 		RecordScalar scalar = new RecordScalar(pkBucketId, nv);
 		long bucketMaxPos =  
 			HReader.generateKeys(IOConstants.TABLE_CONFIG,scalar,amount);
-		HLog.l.debug("Buckets keys generated :" + bucketMaxPos);
+		HbaseLog.l.debug("Buckets keys generated :" + bucketMaxPos);
 
 		int maxValue = Short.MAX_VALUE - Short.MIN_VALUE;
 		if (  bucketMaxPos >= maxValue) {
-			HLog.l.warn("Crossed the bucket limit of storage :" + bucketMaxPos);
+			HbaseLog.l.warn("Crossed the bucket limit of storage :" + bucketMaxPos);
 			BucketIsFullException bife = new BucketIsFullException(bucketMaxPos);
 			throw bife;
 		}
@@ -225,12 +229,11 @@ public class TermTables {
 	
 	/**
 	 * This gives all the rows from all tables.
-	 * @param bucketId
-	 * @return
+	 * @param bucketId	Bucket Id
+	 * @return	List of name-value bytes
 	 * @throws SystemFault
-	 * @throws ApplicationFault
 	 */
-	public static List<NVBytes> get(long bucketId) throws SystemFault, ApplicationFault{
+	public static List<NVBytes> get(long bucketId) throws SystemFault {
 		List<NVBytes> allFields = null; 
 		for (Character c : ILanguageMap.ALL_TABLES) {
 			List<NVBytes> nvs = HReader.getCompleteRow(c.toString(),Storable.putLong(bucketId));
@@ -249,17 +252,17 @@ public class TermTables {
 		try {
 			NV nv = new NV(IOConstants.NAME_VALUE_BYTES,IOConstants.NAME_VALUE_BYTES);
 			if ( ! HReader.exists(IOConstants.TABLE_CONFIG, BUCKET_COUNTER_BYTES)) {
-				HLog.l.info("Bucket Counter setup is not there. Setting up bucket id counter.");
+				HbaseLog.l.info("Bucket Counter setup is not there. Setting up bucket id counter.");
 				RecordScalar bucketCounter = new RecordScalar(new Storable(BUCKET_COUNTER_BYTES), nv);
 				nv.data = new Storable(Long.MIN_VALUE);
-				HWriter.insert(IOConstants.TABLE_CONFIG, bucketCounter);
-				HLog.l.info("Bucket Counter setup is complete.");
+				HWriter.insertScalar(IOConstants.TABLE_CONFIG, bucketCounter);
+				HbaseLog.l.info("Bucket Counter setup is complete.");
 			}
 		} catch (IOException ex) {
-			HLog.l.fatal("TermBucket > Bucker Bucket Counter Creation Failure:", ex);
+			HbaseLog.l.fatal("TermBucket > Bucker Bucket Counter Creation Failure:", ex);
 			System.exit(1);
-		} catch (ApplicationFault ex) {
-			HLog.l.fatal("TermBucket > Bucker Bucket Counter Creation Failure:", ex);
+		} catch (SystemFault ex) {
+			HbaseLog.l.fatal("TermBucket > Bucker Bucket Counter Creation Failure:", ex);
 			System.exit(1);
 		}
 	}

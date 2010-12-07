@@ -31,11 +31,10 @@ import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
-import com.bizosys.hsearch.util.RecordScalar;
 
 public class HReader {
 	
@@ -43,9 +42,11 @@ public class HReader {
 	 * Scalar data will contain the amount to increase
 	 * @param tableName
 	 * @param scalar
-	 * @throws ApplicationFault
+	 * @throws SystemFault
 	 */
-	public static long generateKeys(String tableName, RecordScalar scalar, long amount ) throws ApplicationFault{
+	public static long generateKeys(String tableName, 
+		RecordScalar scalar, long amount ) throws SystemFault {
+		
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
 		try {
@@ -56,13 +57,13 @@ public class HReader {
 					scalar.kv.name.toBytes(), amount);
 			return incrementedValue;
 		} catch (Exception ex) {
-			throw new ApplicationFault("Error in getScalar :" + scalar.toString(), ex);
+			throw new SystemFault("Error in getScalar :" + scalar.toString(), ex);
 		} finally {
 			if ( null != facade && null != table) facade.putTable(table);
 		}
 	}
 	
-	public static boolean exists (String tableName, byte[] pk) throws ApplicationFault{
+	public static boolean exists (String tableName, byte[] pk) throws SystemFault{
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
 		try {
@@ -71,7 +72,7 @@ public class HReader {
 			Get getter = new Get(pk);
 			return table.exists(getter);
 		} catch (Exception ex) {
-			throw new ApplicationFault("Error in existance checking :" + pk.toString(), ex);
+			throw new SystemFault("Error in existance checking :" + pk.toString(), ex);
 		} finally {
 			if ( null != facade && null != table) facade.putTable(table);
 		}
@@ -116,7 +117,7 @@ public class HReader {
 		}
 	}	
 	
-	public static void getScalar (String tableName, RecordScalar scalar) throws ApplicationFault{
+	public static void getScalar (String tableName, RecordScalar scalar) throws SystemFault {
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
 		try {
@@ -127,14 +128,14 @@ public class HReader {
 			byte[] val = result.getValue(scalar.kv.family.toBytes(), scalar.kv.name.toBytes());
 			if ( null != val ) scalar.kv.data = new Storable(val); 
 		} catch (Exception ex) {
-			throw new ApplicationFault("Error in getScalar :" + scalar.toString(), ex);
+			throw new SystemFault("Error in getScalar :" + scalar.toString(), ex);
 		} finally {
 			if ( null != facade && null != table) facade.putTable(table);
 		}
 	}
 	
 	public static byte[] getScalar (String tableName, 
-			byte[] family, byte[] col, byte[] pk) throws ApplicationFault{
+			byte[] family, byte[] col, byte[] pk) throws SystemFault{
 		
 		if ( null == family || null == col || null == pk ) return null;
 		
@@ -153,15 +154,15 @@ public class HReader {
 			sb.append("] , Column : [").append(Storable.getString(col));
 			sb.append("] , Key : [").append(Storable.getString(pk));
 			sb.append(']');
-			throw new ApplicationFault(sb.toString(), ex);
+			throw new SystemFault(sb.toString(), ex);
 		} finally {
 			if ( null != facade && null != table) facade.putTable(table);
 		}
 	}
 	
 	
-	public static void getAllValues(String tableName, NV kv, IScanCallBack callback ) 
-		throws ApplicationFault {
+	public static void getAllValues(String tableName, NV kv, 
+		IScanCallBack callback ) throws SystemFault {
 		
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -187,14 +188,14 @@ public class HReader {
 				if ( null == storedBytes) continue;
 				callback.process(storedBytes);
 			}
-			if ( HLog.l.isDebugEnabled()) {
+			if ( HbaseLog.l.isDebugEnabled()) {
 				long timeE = System.currentTimeMillis();
-				HLog.l.debug("HReader.getAllValues (" + tableName + ") = " + 
+				HbaseLog.l.debug("HReader.getAllValues (" + tableName + ") = " + 
 					(timeE - timeS) );
 			}
 			
 		} catch ( IOException ex) {
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		} finally {
 			if ( null != scanner) scanner.close();
 			if ( null != table ) facade.putTable(table);
@@ -204,15 +205,15 @@ public class HReader {
 	
 	/**
 	 * Get the keys of the table
-	 * @param tableName
-	 * @param kv
-	 * @param startKey
-	 * @param pageSize
-	 * @return
-	 * @throws ApplicationFault
+	 * @param tableName	Table name
+	 * @param kv	Key-Value
+	 * @param startKey	Start Row Primary Key
+	 * @param pageSize	Page size
+	 * @return	Record Keys	
+	 * @throws SystemFault
 	 */
 	public static List<byte[]> getAllKeys(String tableName, NV kv, 
-		byte[] startKey, int pageSize) throws ApplicationFault {
+		byte[] startKey, int pageSize) throws SystemFault {
 	
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -240,7 +241,7 @@ public class HReader {
 			}
 			return keys;
 		} catch ( IOException ex) {
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		} finally {
 			if ( null != scanner) scanner.close();
 			if ( null != table ) facade.putTable(table);

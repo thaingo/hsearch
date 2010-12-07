@@ -30,14 +30,19 @@ import com.bizosys.oneline.services.batch.BatchTask;
 import com.bizosys.oneline.util.StringUtils;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
-import com.bizosys.hsearch.inpipe.L;
+import com.bizosys.hsearch.inpipe.InpipeLog;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.RecordScalar;
 
+/**
+ * Scheduler stopword refresh task
+ * @author karan
+ *
+ */
 public class StopwordRefresh implements BatchTask {
 	
 	private static final char STOPWORD_SEPARATOR = '\t';
@@ -69,22 +74,22 @@ public class StopwordRefresh implements BatchTask {
 	 * @throws ApplicationFault
 	 */
 	@SuppressWarnings("unchecked")
-	private Set<String> buildStopwords(List<String> allStopWords) throws ApplicationFault {
+	private Set<String> buildStopwords(List<String> allStopWords) throws SystemFault{
 		
 		if ( null == allStopWords) {
-			L.l.warn(" FilterStopWords: No stop words." );
+			InpipeLog.l.warn(" FilterStopWords: No stop words." );
 			return null;
 		}
 		
 		try {
 			Set wordSet = StopFilter.makeStopSet(allStopWords);
-			if (L.l.isInfoEnabled()) { 
-				L.l.info(" StopwordManager: stopWords.size - " + wordSet.size());
+			if (InpipeLog.l.isInfoEnabled()) { 
+				InpipeLog.l.info(" StopwordManager: stopWords.size - " + wordSet.size());
 			}
 			return (Set<String>) wordSet;
 
 		} catch (Exception ex) {
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		}
 	}
 	
@@ -98,7 +103,7 @@ public class StopwordRefresh implements BatchTask {
 		try {
 			HWriter.insertScalar(IOConstants.TABLE_CONFIG, scalar);
 		} catch (IOException ex) {
-			L.l.fatal("StopwordRefresh > ", ex);
+			InpipeLog.l.fatal("StopwordRefresh > ", ex);
 			throw new SystemFault(ex);
 		}
 		

@@ -24,6 +24,12 @@ import java.net.UnknownHostException;
 
 import com.bizosys.oneline.util.StringUtils;
 
+/**
+ * Provides running host identity. IP address and Host name
+ * 
+ * @author karan
+ *
+ */
 public class HostUtils {
 	private static String HOST_NAME = null;
 	private static String IP = null;

@@ -21,8 +21,6 @@ package com.bizosys.hsearch.index;
 
 import java.util.List;
 
-import com.bizosys.oneline.ApplicationFault;
-
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
@@ -31,6 +29,7 @@ import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
 
 /**
+ * Stores the view and edit permission of a document.
  * An empty ACL only contains 4 bytes.
  * @author karan
  *
@@ -126,7 +125,7 @@ public class DocAcl implements IDimension, IStorable {
 		return bytes;
 	}
 
-	public void toNVs(List<NV> nvs) throws ApplicationFault {
+	public void toNVs(List<NV> nvs) {
 		if ( null == this.viewPermission && null == this.editPermission) return;
 		nvs.add(new NV(IOConstants.SEARCH_BYTES,IOConstants.ACL_BYTES, this));
 	}

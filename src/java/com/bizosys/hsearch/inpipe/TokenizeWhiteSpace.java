@@ -33,6 +33,11 @@ import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.TermStream;
 import com.bizosys.hsearch.inpipe.util.ReaderType;
 
+/**
+ * Tokenizes based on white space
+ * @author karan
+ *
+ */
 public class TokenizeWhiteSpace extends TokenizeBase implements PipeIn {
 
 	public TokenizeWhiteSpace() {
@@ -47,7 +52,7 @@ public class TokenizeWhiteSpace extends TokenizeBase implements PipeIn {
 		return "WhitespaceAnalyzer";
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault,SystemFault {
+	public boolean init(Configuration conf){
 		return true;
 	}
 
@@ -69,7 +74,7 @@ public class TokenizeWhiteSpace extends TokenizeBase implements PipeIn {
 			}
 	    	return true;
     	} catch (Exception ex) {
-    		throw new ApplicationFault(ex);
+    		throw new SystemFault(ex);
     	}
 	}
 

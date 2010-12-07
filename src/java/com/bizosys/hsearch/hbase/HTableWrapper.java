@@ -33,24 +33,56 @@ import org.apache.hadoop.hbase.client.RetriesExhaustedException;
 import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
 
+/**
+ * Wraps an HBase table object.
+ * @author karan 
+ *@see org.apache.hadoop.hbase.client.HTableInterface
+ */
 public class HTableWrapper {
 	
+	/**
+	 * The table interface
+	 */
 	HTableInterface table = null;
+	
+	/**
+	 * Name of HBase table
+	 */
 	String tableName = null;
 	
+	/**
+	 * Constructor
+	 * @param tableName	The table name
+	 * @param table	Table interface
+	 */
 	public HTableWrapper(String tableName, HTableInterface table) {
 		this.table = table;
 		this.tableName = tableName;
 	}
 
+	/**
+	 * Get the table name in bytes
+	 * @return	Table name as byte array
+	 */
 	public byte[] getTableName() {
 		return table.getTableName();
 	}
 
+	/**
+	 * Get table description
+	 * @return	Table Descriptor
+	 * @throws IOException
+	 */
 	public HTableDescriptor getTableDescriptor() throws IOException {
 		return table.getTableDescriptor();
 	}
 
+	/**
+	 * Checks for table existance
+	 * @param	get object 
+	 * @return 	True on existence
+	 * @throws IOException
+	 */
 	public boolean exists(Get get) throws IOException {
 		return table.exists(get);
 	}
@@ -122,6 +154,4 @@ public class HTableWrapper {
 		return table.incrementColumnValue(row, family, qualifier, amount, true);
 	}
 	
-	//public List<Result[]> aggregtate(final Aggregate aggregate) throws IOException;
-	  
 }

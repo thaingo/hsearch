@@ -25,12 +25,12 @@ import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.ServiceFactory;
 
 import com.bizosys.ferrari.TestFerrari;
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.RecordScalar;
 
 public class HReaderTest extends TestCase {
 

@@ -19,11 +19,35 @@
 */
 package com.bizosys.hsearch.query;
 
+/**
+ * The query processing data Object which moves in the pipe.
+ * Each pipe consumes from this value object and optionally 
+ * adds further information for processing by down pipes.
+ * @author karan
+ *
+ */
 public class HQuery {
+	
+	/**
+	 * The user query context.
+	 */
 	public QueryContext ctx;
+	
+	/**
+	 * Computed query execution planning
+	 */
 	public QueryPlanner planner;
+	
+	/**
+	 * Query processing result
+	 */
 	public QueryResult result =null;
 	
+	/**
+	 * Constructor
+	 * @param ctx
+	 * @param planner
+	 */
 	public HQuery(QueryContext ctx, QueryPlanner planner ) {
 		this.ctx = ctx;
 		this.planner = planner;

@@ -21,7 +21,18 @@ package com.bizosys.hsearch.util;
 
 import com.bizosys.oneline.util.StringUtils;
 
+/**
+ * Represent the IP address to a unique integer.
+ * @author Abinasha Karana
+ *
+ */
 public class IpUtil {
+	
+	/**
+	 * From a.b.c.d ip address it gives a unique number 
+	 * @param strIp	a.b.c.d
+	 * @return	IP House Code
+	 */
 	public static final int computeHouse(String strIp) {
 		int ipHashed = 0;
 		String[] ipAddrDivided = StringUtils.getStrings(strIp, ".");

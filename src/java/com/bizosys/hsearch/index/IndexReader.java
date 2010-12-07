@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.outpipe.BuildTeaser;
 import com.bizosys.hsearch.outpipe.CheckMetaInfo;
@@ -33,7 +32,7 @@ import com.bizosys.hsearch.outpipe.ComputePreciousness;
 import com.bizosys.hsearch.outpipe.ComputeStaticRanking;
 import com.bizosys.hsearch.outpipe.ComputeTypeCodes;
 import com.bizosys.hsearch.outpipe.DictionaryEnrichment;
-import com.bizosys.hsearch.outpipe.LuceneQueryParser;
+import com.bizosys.hsearch.outpipe.HQueryParser;
 import com.bizosys.hsearch.outpipe.QuerySequencing;
 import com.bizosys.hsearch.outpipe.SequenceProcessor;
 import com.bizosys.hsearch.query.HQuery;
@@ -43,12 +42,11 @@ import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
-import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.oneline.pipes.PipeOut;
 import com.bizosys.oneline.util.StringUtils;
 
 /**
- * 
+ * Performs Reads Operation on HSearch Index
  * @author karan
  *
  */
@@ -77,7 +75,7 @@ public class IndexReader {
 		
 		this.readPipes = new HashMap<String, PipeOut>();
 		
-		LuceneQueryParser lqp = new LuceneQueryParser();
+		HQueryParser lqp = new HQueryParser();
 		this.readPipes.put(lqp.getName(), lqp);
 		
 		DictionaryEnrichment de = new DictionaryEnrichment();
@@ -119,37 +117,37 @@ public class IndexReader {
 	/**
 	 * Comma separates Steps
 	 * @param stepNames
-	 * @return
+	 * @return	Output pipes
 	 * @throws ApplicationFault
 	 */
-	public List<PipeOut> getPipes(String stepNames) throws ApplicationFault {
-		L.l.debug("IndexReader: getPipes =  " + stepNames);
+	public List<PipeOut> getPipes(String stepNames) throws SystemFault {
+		IndexLog.l.debug("IndexReader: getPipes =  " + stepNames);
 		if ( null == this.readPipes) createPipes();
 		String[] steps = StringUtils.getStrings(stepNames, ",");
 		List<PipeOut> anvils = new ArrayList<PipeOut>(steps.length);
 		for (String step : steps) {
 			PipeOut aPipe = readPipes.get(step).getInstance();
 			if ( null == aPipe) {
-				L.l.error("IndexReader: getPipes Pipe not found =  " + step);
-				throw new ApplicationFault("Pipe Not Found: " + step);
+				IndexLog.l.error("IndexReader: getPipes Pipe not found =  " + step);
+				throw new SystemFault("Pipe Not Found: " + step);
 			}
 			anvils.add(aPipe);
 		}
 		return anvils;
 	}	
 	
-	public List<PipeOut> getStandardPipes() throws ApplicationFault {
+	public List<PipeOut> getStandardPipes() throws SystemFault {
 		if ( null == this.readPipes) createPipes();
 		return getPipes(
-			"LuceneQueryParser,DictionaryEnrichment,ComputePreciousness,"+
+			"HQueryParser,DictionaryEnrichment,ComputePreciousness,"+
 			"ComputeTypeCodes,QuerySequencing,SequenceProcessor," +
 			"ComputeStaticRanking,CheckMetaInfo,ComputeDynamicRanking,BuildTeaser");
 	}
 
 	/**
 	 * Get the document detail based on supplied document ID.
-	 * @param origId
-	 * @return
+	 * @param origId	the Original document Id
+	 * @return	Document Object
 	 * @throws ApplicationFault
 	 * @throws SystemFault
 	 */
@@ -159,8 +157,8 @@ public class IndexReader {
 	
 	/**
 	 * Read the index and allows the processing to go through steps 
-	 * @param ctx
-	 * @return
+	 * @param ctx	User Input Query Context
+	 * @return	Query Result
 	 * @throws ApplicationFault
 	 * @throws SystemFault
 	 */
@@ -168,20 +166,18 @@ public class IndexReader {
 		return search(ctx, getStandardPipes());		
 	}
 	
-	public QueryResult search(QueryContext ctx, List<PipeOut> pipes) throws ApplicationFault, SystemFault{
+	public QueryResult search(QueryContext ctx, List<PipeOut> pipes) 
+	throws ApplicationFault, SystemFault{
+		
 		QueryPlanner planner = new QueryPlanner();
 		HQuery query = new HQuery(ctx, planner);
 		
 		for (PipeOut outPipe : pipes) {
 			if ( ! outPipe.visit(query) ) { 
-				throw new ApplicationFault("Pipe processing failed :" + outPipe.getClass().getName());
+				throw new SystemFault("Pipe processing failed :" + outPipe.getClass().getName());
 			}
 		}
 		return query.result;
-	}
-	
-	
-	public void insert(HDocument hdoc, List<PipeIn> localPipes) throws ApplicationFault, SystemFault{
 	}
 	
 	public List<InvertedIndex> getInvertedIndex(long bucketId) throws ApplicationFault, SystemFault{

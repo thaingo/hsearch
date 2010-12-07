@@ -38,17 +38,25 @@ import com.bizosys.hsearch.index.TermType;
 import com.bizosys.hsearch.inpipe.util.ReaderType;
 import com.bizosys.hsearch.lang.Stemmer;
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.util.StringUtils;
 
+/**
+ * This is an abstract class which reads the various dimensions of 
+ * the document and tokenizes them including ID, URL, Fields, Title. 
+ * @author karan
+ *
+ */
 public abstract class TokenizeBase {
 	
 	/**
 	 * Pack different sections with different readers.
 	 * This potentially helps on weight assignment.
-	 * @param aDocument
-	 * @return
+	 * @param aDocument	A document
+	 * @return	Reader types
 	 */
-	protected List<ReaderType> getReaders(Doc aDocument) throws ApplicationFault {
+	protected List<ReaderType> getReaders(Doc aDocument) 
+	throws SystemFault, ApplicationFault {
 		
 		List<ReaderType> readers = new ArrayList<ReaderType>();
 		DocTeaser teaser = aDocument.teaser;
@@ -128,7 +136,8 @@ public abstract class TokenizeBase {
 	}
 
 	private void addReader(List<ByteField> fields, DocTerms terms,  
-		List<ReaderType> readers, Character termLoc, boolean analyze) throws ApplicationFault {
+		List<ReaderType> readers, Character termLoc, boolean analyze) 
+	throws SystemFault, ApplicationFault  {
 		
 		for (ByteField fld: fields) {
 			addReader(fld, terms, readers, termLoc, analyze);
@@ -136,7 +145,8 @@ public abstract class TokenizeBase {
 	}
 	
 	private void addReader(ByteField fld, DocTerms terms,
-		List<ReaderType> readers, Character termLoc, boolean analyze) throws ApplicationFault {
+		List<ReaderType> readers, Character termLoc, boolean analyze)
+		throws SystemFault, ApplicationFault {
 		
 		String text = null;
 		if (fld.type == Storable.BYTE_STRING) {
@@ -148,7 +158,7 @@ public abstract class TokenizeBase {
 		}
 
 		if ( null == text) throw 
-			new ApplicationFault("TokenizerBase: Unknow data type :" + fld.toString());
+			new SystemFault("TokenizerBase: Unknow data type :" + fld.toString());
 		
 		text = text.toLowerCase();
 		boolean oneWord = text.indexOf(' ') < 0 ;

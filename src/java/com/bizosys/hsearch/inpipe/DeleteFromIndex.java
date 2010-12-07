@@ -36,6 +36,11 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 
+/**
+ * Delete terms from the inverted index.
+ * @author karan
+ *
+ */
 public class DeleteFromIndex implements PipeIn {
 
 	List<Doc> documents = new ArrayList<Doc>();
@@ -92,8 +97,8 @@ public class DeleteFromIndex implements PipeIn {
 					for ( int i=0; i<charFamilies.length; i++) {
 						families[i] = new byte[] { (byte) charFamilies[i]};
 					}
-					if ( L.l.isDebugEnabled() ) 
-						L.l.debug("Deleting table " + t + " families " + strFamilies);
+					if ( InpipeLog.l.isDebugEnabled() ) 
+						InpipeLog.l.debug("Deleting table " + t + " families " + strFamilies);
 					HWriter.update(t, pk, pipe, families);
 					
 					//Delete the mapping too..
@@ -108,7 +113,7 @@ public class DeleteFromIndex implements PipeIn {
 		}
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
+	public boolean init(Configuration conf){
 		return true;
 	}
 

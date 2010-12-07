@@ -19,6 +19,14 @@
 */
 package com.bizosys.hsearch.common;
 
+/**
+ * The interface implemented to serialize the object to byte array 
+ */
 public interface IStorable {
+
+	/**
+	 * Serialize to byte array
+	 * @return	byte-array
+	 */
 	byte[] toBytes();
 }

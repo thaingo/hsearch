@@ -28,11 +28,13 @@ import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.UrlMapper;
+import com.bizosys.hsearch.util.UrlShortner;
 import com.bizosys.oneline.ApplicationFault;
 
 /**
- * Documents could be coming as structured or unstructured.
+ * Documents could be coming as structured or unstructured in a unified platform.
+ * So showing multiple document format results requires a standard way of accessing
+ * the result display section. Teaser fields standardizes this. 
  * @author bizosys
  *
  */
@@ -84,7 +86,7 @@ public class DocTeaser {
 		if ( null != aDoc.cacheText ) this.cacheText = new Storable(aDoc.cacheText);
 	}
 	
-	public DocTeaser (byte[] id, List<NVBytes> inputBytes) throws ApplicationFault {
+	public DocTeaser (byte[] id, List<NVBytes> inputBytes) {
 		
 		this.mappedId = Storable.getString(id);
 		if ( null == inputBytes) return;
@@ -96,7 +98,7 @@ public class DocTeaser {
 					break;
 				case IOConstants.TEASER_URL:
 					String codedUrl = Storable.getString(fld.data);
-					setUrl(UrlMapper.getInstance().decoding(codedUrl));
+					setUrl(UrlShortner.getInstance().decoding(codedUrl));
 					break;
 				case IOConstants.TEASER_TITLE:
 					setTitle(Storable.getString(fld.data));
@@ -111,13 +113,13 @@ public class DocTeaser {
 		}
 	}
 
-	public void toNVs(List<NV> nvs) throws ApplicationFault {
+	public void toNVs(List<NV> nvs) {
 
 		if ( null != this.id ) nvs.add( new NV(
 				IOConstants.TEASER_BYTES,IOConstants.TEASER_ID_BYTES, this.id ) );
 		
 		if ( null != this.url) {
-			String encodedUrl = UrlMapper.getInstance().encoding(
+			String encodedUrl = UrlShortner.getInstance().encoding(
 				(String) this.url.getValue());
 			nvs.add( new NV(IOConstants.TEASER_BYTES,IOConstants.TEASER_URL_BYTES, new Storable(encodedUrl)));
 		}
@@ -219,6 +221,11 @@ public class DocTeaser {
 		}
 		
 		pw.append("</").append(IOConstants.TEASER).append(">");
+	}
+	
+	public String getId() {
+		if ( null == id ) return "";
+		return new String(this.id.toBytes());
 	}
 	
 	

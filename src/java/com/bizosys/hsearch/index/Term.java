@@ -20,9 +20,11 @@
 package com.bizosys.hsearch.index;
 
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.util.StringUtils;
 
 /**
+ * Each word stores as a term inside the index.
  * @author karan
  */
 public class Term {
@@ -118,20 +120,20 @@ public class Term {
 		this.termTypeCode = termTypeCode;
 		this.weight = weight;
 		this.termPos = setTermPos(termPos);
-;
 		this.termFreq = termFreq;
-	}	
+	}
 	
 	/**
-	 * These fields are
-	 * @param term
-	 * @param sightting
-	 * @param typeInput
-	 * @param termPos
+	 * 
+	 * @param term	Text term
+	 * @param sightting	Sightting location
+	 * @param termType	Term type
+	 * @param termPos	term position
 	 * @throws ApplicationFault
+	 * @throws SystemFault
 	 */
 	public Term(String term, Character sightting, 
-		String termType, Integer termPos ) throws ApplicationFault {
+		String termType, Integer termPos ) throws ApplicationFault, SystemFault {
 		
 		if ( StringUtils.isEmpty(term) ) return;
 		
@@ -176,8 +178,8 @@ public class Term {
 	/**
 	 * This will be from -1 till 65530
 	 * 32232 + Increment 1 for each 100000 (This is After 65000)  
-	 * @param termPos
-	 * @return
+	 * @param termPos	actural term position
+	 * @return	Loss approximate term position (short)
 	 */
 	public short setTermPos(int termPos) {
 		

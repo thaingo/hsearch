@@ -30,24 +30,108 @@ import com.bizosys.oneline.util.StringUtils;
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
 
+/**
+ * Represents an entry in the dictionary
+ * @author Abinasha karana
+ */
 public class DictEntry implements IStorable{
 		
-	public static final String TYPE_SEPARATOR = "\t";
+	private static final String TYPE_SEPARATOR = "\t";
 	
+	/**
+	 * The stemmed word
+	 */
 	public String fldWord = null;
+	
+	/**
+	 * The word type
+	 */
 	public String fldType = null;
+	
+	/**
+	 * Number of documents in which this word is sighted
+	 */
 	public int fldFreq = 1;
+	
+	/**
+	 * Synonums of this word
+	 */
 	public String fldRelated = null;
+	
+	/**
+	 * The original unstemmed word
+	 */
 	public String fldDetailXml = null;
 	
-
+	/**
+	 * Private Default Constructor 
+	 */
 	private DictEntry(){}
 	
+	/**
+	 * Constructor, Initialize by deserializing the stored bytes
+	 * @param value
+	 */
+	public DictEntry ( byte[] value) {
+		int pos = 0;
+
+		short fldWordLen = Storable.getShort(pos, value);
+		pos = pos + 2;
+		if ( 0 != fldWordLen) {
+			byte[] fldWordB = new byte[fldWordLen];
+			System.arraycopy(value, pos, fldWordB, 0, fldWordLen);			
+			this.fldWord = Storable.getString(fldWordB);
+			pos = pos + fldWordLen;
+		}
+		
+		short fldTypeLen = Storable.getShort(pos, value);
+		pos = pos + 2;
+		if ( 0 != fldTypeLen) {
+			byte[] fldTypeB = new byte[fldTypeLen];
+			System.arraycopy(value, pos, fldTypeB, 0, fldTypeLen);
+			this.fldType = Storable.getString(fldTypeB);
+			pos = pos + fldTypeLen;
+		}
+		
+		this.fldFreq = Storable.getInt(pos, value);
+		pos = pos + 4;
+		
+		short fldRelatedLen = Storable.getShort(pos, value);
+		pos = pos + 2;
+		if ( 0 != fldRelatedLen) {
+			byte[] fldRelatedB = new byte[fldRelatedLen];
+			System.arraycopy(value, pos, fldRelatedB, 0, fldRelatedLen);			
+			this.fldRelated = Storable.getString(fldRelatedB);
+			pos = pos + fldRelatedLen;
+		}
+
+		short fldDetailXmlLen = Storable.getShort(pos, value);
+		pos = pos + 2;
+		if ( 0 != fldDetailXmlLen) {
+			byte[] fldDetailXmlB = new byte[fldDetailXmlLen];
+			System.arraycopy(value, pos, fldDetailXmlB, 0, fldDetailXmlLen);			
+			this.fldDetailXml = Storable.getString(fldDetailXmlB);
+			pos = pos + fldDetailXmlLen;
+			
+		}
+	}
+		
+	/**
+	 * Constructor
+	 * @param fldWord	The stemmed word
+	 */
 	public DictEntry(String fldWord) {
 		this.fldWord = fldWord;
 	}
 	
-	
+	/**
+	 * Constructor
+	 * @param fldWord	The stemmed word
+	 * @param fldType	The word type
+	 * @param fldFreq	No. of documents containing this word 
+	 * @param related	Synonums of this word
+	 * @param fldDetailXml	Detail about this word like the thesaurus heirarchy
+	 */
 	public DictEntry(String fldWord, String fldType, 
 		int fldFreq, String related, String fldDetailXml) {
 		
@@ -58,21 +142,29 @@ public class DictEntry implements IStorable{
 		this.fldDetailXml = fldDetailXml;
 	}
 
+	/**
+	 * Constructor
+	 * @param fldWord	The stemmed word
+	 * @param fldType	The word type
+	 * @param fldFreq	No. of documents containing this word 
+	 */
 	public DictEntry(String fldWord, String fldType, Integer fldFreq ) {
 		this.fldWord = fldWord;
 		this.fldType = fldType;
 		this.fldFreq = fldFreq;
 	}
 	
-	//Can only add once
+	/**
+	 * Add synonums word. Add all synonums in a comma separated way.
+	 * @param related	Related words
+	 */
 	public void addRelatedWord(String related) {
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug(" Related " + related);
+		if  (DictionaryLog.l.isDebugEnabled()) DictionaryLog.l.debug(" Related " + related);
 		this.fldRelated = related;
 	}
 	
 	/**
-	 * Serialize the elements
+	 * Serialize the document entry
 	 */
 	public byte[] toBytes() {
 		
@@ -131,50 +223,10 @@ public class DictEntry implements IStorable{
 		return value;
 	}
 	
-	public DictEntry ( byte[] value) {
-		int pos = 0;
-
-		short fldWordLen = Storable.getShort(pos, value);
-		pos = pos + 2;
-		if ( 0 != fldWordLen) {
-			byte[] fldWordB = new byte[fldWordLen];
-			System.arraycopy(value, pos, fldWordB, 0, fldWordLen);			
-			this.fldWord = Storable.getString(fldWordB);
-			pos = pos + fldWordLen;
-		}
-		
-		short fldTypeLen = Storable.getShort(pos, value);
-		pos = pos + 2;
-		if ( 0 != fldTypeLen) {
-			byte[] fldTypeB = new byte[fldTypeLen];
-			System.arraycopy(value, pos, fldTypeB, 0, fldTypeLen);
-			this.fldType = Storable.getString(fldTypeB);
-			pos = pos + fldTypeLen;
-		}
-		
-		this.fldFreq = Storable.getInt(pos, value);
-		pos = pos + 4;
-		
-		short fldRelatedLen = Storable.getShort(pos, value);
-		pos = pos + 2;
-		if ( 0 != fldRelatedLen) {
-			byte[] fldRelatedB = new byte[fldRelatedLen];
-			System.arraycopy(value, pos, fldRelatedB, 0, fldRelatedLen);			
-			this.fldRelated = Storable.getString(fldRelatedB);
-			pos = pos + fldRelatedLen;
-		}
-
-		short fldDetailXmlLen = Storable.getShort(pos, value);
-		pos = pos + 2;
-		if ( 0 != fldDetailXmlLen) {
-			byte[] fldDetailXmlB = new byte[fldDetailXmlLen];
-			System.arraycopy(value, pos, fldDetailXmlB, 0, fldDetailXmlLen);			
-			this.fldDetailXml = Storable.getString(fldDetailXmlB);
-			pos = pos + fldDetailXmlLen;
-			
-		}
-	}
-	
+	/**
+	 *	Add a type to the word. Example "Bangalore" is a "City" 
+	 * @param type	The word type
+	 */
 	public void addType(String type) {
 		if ( null == type) return;
 		if ( TYPE_SEPARATOR.equals(type) ) type = "    ";
@@ -189,8 +241,9 @@ public class DictEntry implements IStorable{
 	}
 	
 	/**
-	 * Check all the types available
-	 * @return
+	 * Get all types associated to this word.
+	 * Ex. Hydrogen is a "Molecule" as well as a "Fuel" 
+	 * @return	All types
 	 */
 	public List<String> getTypes() {
 	    if (StringUtils.isEmpty(this.fldType)) return null;
@@ -204,13 +257,18 @@ public class DictEntry implements IStorable{
 	    return values;
 	}
 	
+	/**
+	 * Forms a XML representation of this entry
+	 * @param writer	Writer
+	 * @throws IOException	Write exception
+	 */
 	public void toXml(Writer writer) throws IOException {
 		writer.append("<e>");
-		writer.append("<w>").append(this.fldWord).append("</w>");
-		writer.append("<t>").append(this.fldType).append("</t>");
+		if ( null != this.fldWord ) writer.append("<w>").append(this.fldWord).append("</w>");
+		if ( null != this.fldType ) writer.append("<t>").append(this.fldType).append("</t>");
 		writer.append("<f>").append(new Integer(this.fldFreq).toString()).append("</f>");
-		writer.append("<r>").append(this.fldRelated).append("</r>");
-		writer.append("<d>").append(this.fldDetailXml).append("</d>");
+		if ( null != this.fldRelated ) writer.append("<r>").append(this.fldRelated).append("</r>");
+		if ( null != this.fldDetailXml ) writer.append("<d>").append(this.fldDetailXml).append("</d>");
 		writer.append("</e>");
 	}
 	

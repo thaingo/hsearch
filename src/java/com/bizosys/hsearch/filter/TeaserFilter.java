@@ -28,14 +28,37 @@ import java.util.List;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
+/**
+ * Sending the complete document over the wire may Jam the network on a 
+ * heavy concurrent user base. This filter ensures sending the most
+ * relevant section only. It also uses multiple Region servers to create
+ * the teasers to serve a search request.
+ * @author karan
+ */
 public class TeaserFilter implements Filter {
 	private static final byte TEASER_BYTE = "c".getBytes()[0];
 	
+	/**
+	 * Default teaser section length
+	 */
 	short cutLength = 360;
+	
+	/**
+	 * Searched words
+	 */
 	byte[][] bWords = null;
 
+	/**
+	 * Default constructor
+	 *
+	 */
 	public TeaserFilter(){}
 	
+	/**
+	 * Constructor
+	 * @param bWords	Searched words
+	 * @param cutLength	Teaser section length
+	 */
 	public TeaserFilter(byte[][] bWords, short cutLength){
 		this.bWords = bWords;
 		this.cutLength = cutLength; 

@@ -21,6 +21,13 @@ package com.bizosys.hsearch.query;
 
 import com.bizosys.oneline.SystemFault;
 
+/**
+ * Overall Term weights for a document. Top ranked term weighted 
+ * documents enter for meta fetching and further refined 
+ * meta and teaser ranking process.
+ * @author karan
+ *
+ */
 public class DocWeight {
 
 	/**

@@ -25,22 +25,46 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * A serializable list. The list can hold and IStorable data types
+ * @see Storable 
+ */
 public class StorableList implements List, IStorable {
 
+	/**
+	 * Container of Array of bytes
+	 */
 	List<byte[]> container = null;
 	
+	/**
+	 * Default constructor
+	 */
 	public StorableList() {
 		container = new ArrayList<byte[]>();
 	}
 	
+	/**
+	 * Initialize with the size
+	 * @param size
+	 */
 	public StorableList(int size) {
 		container =  new ArrayList<byte[]>(size);
 	}
 	
+	/**
+	 * Initialize with the stored serialized bytes
+	 * @param inputBytes
+	 */
 	public StorableList(byte[] inputBytes) {
 		this(inputBytes, 0, inputBytes.length);
 	}
 	
+	/**
+	 * Initialize by deserializing the stored serialized bytes 
+	 * @param inputBytes	Input bytes
+	 * @param offset	Read start position
+	 * @param length	Number of bytes to read
+	 */
 	public StorableList(byte[] inputBytes, int offset, int length) {
 		if ( null == inputBytes) return;
 		this.container = new ArrayList<byte[]>();
@@ -57,7 +81,9 @@ public class StorableList implements List, IStorable {
 		}
 	}		
 		
-
+	/**
+	 * Add an IStorable object
+	 */
 	public boolean add(Object storable) {
 		byte[] bytes = ((IStorable)storable).toBytes(); 
 		container.add(bytes); 

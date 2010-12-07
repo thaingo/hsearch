@@ -27,14 +27,19 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 
+import com.bizosys.hsearch.common.Record;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.IdMapping;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.Record;
 
+/**
+ * Persists to detail table
+ * @author karan
+ *
+ */
 public class SaveToDetail implements PipeIn {
 
 	List<Doc> details = new ArrayList<Doc>();
@@ -76,7 +81,7 @@ public class SaveToDetail implements PipeIn {
 			if ( 0 == contentRecords.size()) return true;
 			HWriter.insert(IOConstants.TABLE_CONTENT, contentRecords);
 		} catch (Exception ex) {
-			throw new ApplicationFault("SaveToDetail : Failed", ex);
+			throw new SystemFault("SaveToDetail : Failed", ex);
 		}
 		return true;
 	}

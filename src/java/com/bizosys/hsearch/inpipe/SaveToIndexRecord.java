@@ -1,17 +1,21 @@
 package com.bizosys.hsearch.inpipe;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.Record;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.index.TermColumns;
 import com.bizosys.hsearch.index.TermFamilies;
 import com.bizosys.hsearch.index.TermList;
-import com.bizosys.hsearch.util.Record;
-import com.bizosys.oneline.ApplicationFault;
 
+/**
+ * This is a Row from Index table which has the 
+ * ability to merge and store with previous values.
+ * @author karan
+ *
+ */
 public class SaveToIndexRecord extends Record {
 	
 	TermFamilies termFamilies;
@@ -33,14 +37,10 @@ public class SaveToIndexRecord extends Record {
 	}
 	
 	@Override
-	public List<NV> getNVs() throws IOException {
-		try {
-			List<NV> nvs = new Vector<NV>(200);
-			termFamilies.toNVs(nvs);
-			return nvs;
-		} catch (ApplicationFault ex) {
-			throw new IOException(ex);
-		}
+	public List<NV> getNVs() {
+		List<NV> nvs = new Vector<NV>(200);
+		termFamilies.toNVs(nvs);
+		return nvs;
 	}	
 	
 	@Override

@@ -19,23 +19,52 @@
 */
 package com.bizosys.hsearch.hbase;
 
+/**
+ * bytes name value object. This helps working with raw byte arrays
+ * and hence avoiding any intermediate objects and the data conversion process.
+ * @author karan
+ *
+ */
 public class NVBytes {
 
+	/**
+	 * Column Family
+	 */
 	public byte[] family = null;
+
+	/**
+	 * Column name
+	 */
 	public byte[] name = null;
+
+	/**
+	 * Column data
+	 */
 	public byte[] data = null;
 
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 */
 	public NVBytes(byte[] family, byte[] name) {
 		this.family = family;
 		this.name = name;
 	}
 	
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 * @param data	Column Value
+	 */
 	public NVBytes(byte[] family, byte[] name, byte[] data) {
 		this.family = family;
 		this.name = name;
 		this.data = data;
 	}
 
+	@Override
 	public String toString() {
 		return new String(family) + ":" + new String(name) +  ":" + new String(data);
 	}

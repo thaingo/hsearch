@@ -37,6 +37,11 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
 
+/**
+ * Builds teaser information
+ * @author karan
+ *
+ */
 public class BuildTeaser implements PipeOut{
 	
 	int DEFAULT_PAGE_SIZE = 10;
@@ -53,7 +58,6 @@ public class BuildTeaser implements PipeOut{
 		
 		int documentFetchLimit = (-1 == ctx.documentFetchLimit) ? 
 			DEFAULT_PAGE_SIZE : ctx.documentFetchLimit;
-		System.out.println("KK" + documentFetchLimit + ":" +ctx.documentFetchLimit );
 		
 		int teaserCutSection = (-1 == ctx.teaserSectionLen) ?
 			DEFAULT_TEASER_LENGTH : ctx.teaserSectionLen;

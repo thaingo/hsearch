@@ -23,16 +23,26 @@ import java.io.IOException;
 import java.util.List;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.RecordScalar;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 
+/**
+ * As multiple data format can be stored, an internal unique key is generated.
+ * This unique key is based on the stored "bucket Id" and 
+ * "Document Serial number" inside the bucket.  
+ * 
+ * This class defines the mapping relationship amoing the original key 
+ * and the created bucket + serial key.
+ * @author karan
+ *
+ */
 public class IdMapping {
 	
 	public IStorable originalId;

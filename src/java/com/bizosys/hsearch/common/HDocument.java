@@ -23,70 +23,81 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.bizosys.hsearch.filter.AccessDefn;
+import com.bizosys.hsearch.util.GeoId;
 
 
+/**
+ * This object carries all information necessary for indexing a document.
+ * This object is also serializable and client can provide it as a 
+ * XML document (REST API).
+ * @see GeoId
+ */
 public class HDocument {
 
 	/**
-	 * Mapped Bucket and Document Serial Numbers
+	 * Document Merged Storage(Bucket) Number  
 	 */
 	public Long bucketId = null;
+	
+	/**
+	 * Document Serial number inside the merged storage (Bucket)
+	 */
 	public Short docSerialId = null;
 	
 
 	/**
-	 * The Document ID, This is s a unique ID.
-	 * This ID could be later used 
-	 * 
-	 * get/update/delete the document
-	 * Mapping to original document
+	 * This is the original Id of the document.
+	 * This id usually flows from the original document source
+	 * e.g. Primary Key of a database table. The mapped bucket Id and
+	 * document serial number inside bucket represents uniqueness inside
+	 * the index. 
 	 */
 	public String originalId =  null;
 	
 	/**
-	 * Where is this document located
+	 * URL for accessing the document directly
 	 */
 	public String url =  null;
 
 	/**
-	 * The title of the document
+	 * Document title. This also shows in the search result record title
 	 */
 	public String title =  null; 
 	
 	/**
-	 * The Preview text on the document
+	 * The Preview text on the document. It can be URL to an image or inline
+	 * XML information.
 	 */
 	public String preview =  null;
 	
 	/**
-	 * The Preview text on the document
+	 * The matching section of the search word occurance is picked from
+	 * the cached text sections
 	 */
 	public String cacheText =  null;
 
 	/**
-	 * List all fields of this document
-	 */
+	 * Document content Fields
+	 */ 
 	public List<Field> fields = null;
 	
 	/**
-	 * To which the document has cited
+	 * Manually supplied list of citation mentioned in the document
 	 */
 	public List<String> citationTo =  null;
 
 	/**
-	 * From which the document has cited
+	 * Manually supplied list of citations from other documents
 	 */
 	public List<String> citationFrom =  null;
 	
-	
 	/**
-	 * Who has view access to the document
+	 * Who has view access to this document
 	 */
 	public AccessDefn viewPermission = null;
 	
 	/**
-	 * Who has edit access to the document
+	 * Who has edit access of this document
 	 */
 	public AccessDefn editPermission = null;
 
@@ -102,23 +113,33 @@ public class HDocument {
 	public String tenant = null;
 
 	/**
-	 * Northing of a place
-	 */
-	public Float northing = 0.0f;
-
-	/**
-	 * Eastering of a place
+	 * Easting refers to the eastward-measured distance (or the x-coordinate)
+	 * Use <code>GeoId.convertLatLng</code> method for getting nothing eastering
+	 * from a given latitude and longitude.
 	 */
 	public Float eastering = 0.0f;
 
 	/**
-	 * This weight is editor assigned weight
+	 * northing refers to the northward-measured distance (or the y-coordinate). 
+	 * Use <code>GeoId.convertLatLng</code> method for getting nothing eastering
+	 * from a given latitude and longitude.
+	 */
+	public Float northing = 0.0f;
+
+	/**
+	 * This Default weight of the document. Few examples for computing the weight are
+	 * <lu>
+	 * 	<li>Editor assigned</li>
+	 * 	<li>Default weight assigned to the document source e.g. pages from wikipedia.org</li>
+	 * 	<li>Default weight assigned to the document editor e.g. blogs from CEO</li>
+	 * </lu> 
+	 * 
 	 */
 	public int weight = 0;
 
 	/**
-	 * Document Type 
-	 * Table Name / XML record type
+	 * Document Type. It's the record type.
+	 * Use  <code>DocumentType</code> class to define default document types.
 	 */
 	public String docType = null;
 
@@ -132,14 +153,13 @@ public class HDocument {
 	 */
 	public List<String> socialText = null;
 
-	
 	/**
-	 * Which date the document is created. 
+	 * Document creation date 
 	 */
 	public Date createdOn = null;
 
 	/**
-	 * Which date the document is last updated. 
+	 * Document updation date 
 	 */
 	public Date modifiedOn = null;
 	
@@ -167,25 +187,16 @@ public class HDocument {
 	public boolean sentimentPositive = true;
 	
 	/**
-	 * Which language are these documents. Let this comes before hand
+	 * Document Language. Default is English 
 	 */
 	public Locale locale = Locale.ENGLISH;
-	
-	public StorableList getCitationTo() {
-		if ( null == this.citationTo) return null;
-		StorableList storable = new StorableList();
-		for (String strCitation : this.citationTo) {
-			storable.add(strCitation);
-		}
-		return storable;
+
+	public HDocument() {
+		
 	}
 	
-	public StorableList getCitationFrom() {
-		if ( null == this.citationFrom) return null;
-		StorableList storable = new StorableList();
-		for (String strCitation : this.citationFrom) {
-			storable.add(strCitation);
-		}
-		return storable;
+	public HDocument(String id, String title) {
+		this.originalId = id;
+		this.title = title;
 	}
 }

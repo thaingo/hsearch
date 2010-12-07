@@ -23,23 +23,63 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Exract relevant section of document for showing in the search result.
+ * @author karan
+ *
+ */
 public class BuildTeaserHighlighter {
-	private static final byte[] WORD_DELIMITERS = new String(" .,;\r\n").getBytes();
+	
+	/**
+	 * The special characters for cutting the document
+	 */
+	private static final byte[] WORD_DELIMITERS = new String(" .,;\r\n-").getBytes();
 	private static final int WORD_DELIMITERS_LENGTH = WORD_DELIMITERS.length;
 	
+	/**
+	 * Byte content 
+	 */
 	private byte[] bContent;
+	
+	/**
+	 * Found matching words in bytes
+	 */
 	private byte[][] bWords;
+	
+	/**
+	 * Input contnet size
+	 */
 	private int csize;
+	
+	/**
+	 * Matching words sizes
+	 */
 	private int wsize[];
 	
+	/**
+	 * Default Constructor
+	 *
+	 */
 	public BuildTeaserHighlighter() {
 	}
 	
+	/**
+	 * Constructor
+	 * @param content	Content bytes
+	 * @param words	Matching words sections
+	 */
 	public BuildTeaserHighlighter(byte[] content, String[] words) {
 		setContent(content);
 		setWords(words);
 	}
 	
+	/**
+	 * Extract the most suitable section of matching words 
+	 * @param content	The content
+	 * @param words	The words
+	 * @param sectionSize	The teaser section size (e.g. 300 words)
+	 * @return	The content section on bytes
+	 */
 	public byte[] find(byte[] content, byte[][] words, int sectionSize) {
 		setContent(content);
 		this.bWords = words;
@@ -52,11 +92,19 @@ public class BuildTeaserHighlighter {
 		return cutSection (wpL, sectionSize);
 	}
 
+	/**
+	 * Set the input content
+	 * @param content	Input content
+	 */
 	public void setContent(byte[] content) {
 		this.bContent = content;
 		this.csize = this.bContent.length;
 	}
 	
+	/**
+	 * Set the matching words
+	 * @param words	The matching words
+	 */
 	public void setWords(String[] words) {
 		this.bWords = new byte[words.length][];
 		this.wsize = new int[this.bWords.length];
@@ -68,6 +116,10 @@ public class BuildTeaserHighlighter {
 		}
 	}
 	
+	/**
+	 * Fins all position of occurances of the supplied words
+	 * @return	Found word positions
+	 */
 	public List<WordPosition> findTerms() {
 
 		int wordCount = this.wsize.length;
@@ -142,6 +194,12 @@ public class BuildTeaserHighlighter {
 		return posL;
 	}
 	
+	/**
+	 * Cut the most suitable sections
+	 * @param wpL	Multiple sighted word positions
+	 * @param sectionSize	The length of the teaser section
+	 * @return	The best found section
+	 */
 	public byte[] cutSection (List<WordPosition> wpL, int sectionSize) {
 		int start = 0;
 		int end = sectionSize;
@@ -191,18 +249,41 @@ public class BuildTeaserHighlighter {
 	}
 	
 
+	/**
+	 * Carries sighting information of a word inside the content
+	 * @author karan
+	 *
+	 */
 	public static class WordPosition {
 		
-		public int index; //Query keyword position (abinash karan hbase = 0,1,2
-		public int start; //start position of the word in the given corpus
-		public int end;   //End position start position + word length
+		/**
+		 * Query keyword position E.g. (abinash karan hbase = 0,1,2)
+		 */
+		public int index;
 		
+		/**
+		 * Start position of the word in the given corpus
+		 */
+		public int start;
+		
+		/**
+		 * End position start position + word length
+		 */
+		public int end;
+		
+		/**
+		 * Default constrctor
+		 * @param index	Query keyword position
+		 * @param start	Start position of the word
+		 * @param end	End position
+		 */
 		public WordPosition(int index, int start, int end) {
 			this.index = index;
 			this.start = start;
 			this.end = end;
 		}
 		
+		@Override
 		public String toString() {
 			return "index:" + index + ", start:" + start + ", end:" + end;
 		}

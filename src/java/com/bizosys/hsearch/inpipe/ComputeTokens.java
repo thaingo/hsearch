@@ -36,9 +36,14 @@ import com.bizosys.hsearch.index.DocumentType;
 import com.bizosys.hsearch.index.Term;
 import com.bizosys.hsearch.index.TermStream;
 
+/**
+ * Tokenize text content
+ * @author karan
+ *
+ */
 public class ComputeTokens implements PipeIn {
 
-	public boolean commit() throws ApplicationFault, SystemFault {
+	public boolean commit() {
 		return true;
 	}
 
@@ -50,11 +55,11 @@ public class ComputeTokens implements PipeIn {
 		return "ComputeTokens";
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
+	public boolean init(Configuration conf) {
 		return true;
 	}
 
-	public boolean visit(Object docObj) throws ApplicationFault, SystemFault {
+	public boolean visit(Object docObj) throws SystemFault, ApplicationFault {
 		if ( null == docObj) return false;
 		Doc doc = (Doc) docObj;
 		
@@ -77,7 +82,7 @@ public class ComputeTokens implements PipeIn {
 		return true;
 	}
 	
-	private void tokenize(Doc doc, TermStream ts) throws ApplicationFault {
+	private void tokenize(Doc doc, TermStream ts) throws SystemFault, ApplicationFault {
 		if ( null == ts) return;
 		TokenStream stream = ts.stream;
 		if ( null == stream) return;
@@ -103,7 +108,7 @@ public class ComputeTokens implements PipeIn {
 				terms.getTermList().add(term);
 			}
 		} catch (IOException ex) {
-			throw new ApplicationFault("ComputeTokens : Tokenize Failed for " + token + " at " + offset , ex);
+			throw new SystemFault ("ComputeTokens : Tokenize Failed for " + token + " at " + offset , ex);
 		} finally {
 			if ( null != stream ) try { stream.close(); } catch (IOException ex) {};			
 		}

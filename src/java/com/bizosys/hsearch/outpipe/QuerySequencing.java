@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//import org.apache.hadoop.hsearch.query.QueryContext;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;

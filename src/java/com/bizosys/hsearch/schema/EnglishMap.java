@@ -19,6 +19,12 @@
 */
 package com.bizosys.hsearch.schema;
 
+/**
+ * It maps HBase Table, Column Family and Column Qualifier 
+ * for a given english word.
+ * @author karan
+ *
+ */
 public class EnglishMap implements ILanguageMap {
 
 	public char getTableName(String word) {

@@ -29,6 +29,11 @@ import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.index.Doc;
 
+/**
+ * Remove non-ascii words from the content
+ * @author karan
+ *
+ */
 public class RemoveNonAscii implements PipeIn {
 
 	Pattern pattern = null;

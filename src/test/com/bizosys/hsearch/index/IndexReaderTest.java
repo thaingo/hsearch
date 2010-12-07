@@ -27,17 +27,17 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.bizosys.ferrari.TestFerrari;
+import com.bizosys.hsearch.common.AccessDefn;
 import com.bizosys.hsearch.common.Field;
 import com.bizosys.hsearch.common.HDocument;
 import com.bizosys.hsearch.common.HField;
+import com.bizosys.hsearch.common.WhoAmI;
 import com.bizosys.hsearch.filter.Access;
-import com.bizosys.hsearch.filter.AccessDefn;
 import com.bizosys.hsearch.inpipe.util.StopwordManager;
 import com.bizosys.hsearch.inpipe.util.StopwordRefresh;
 import com.bizosys.hsearch.query.DocTeaserWeight;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryResult;
-import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.ServiceFactory;
@@ -50,8 +50,7 @@ public class IndexReaderTest extends TestCase {
 		ServiceFactory.getInstance().init(conf, null);
 		
 		IndexReaderTest t = new IndexReaderTest();
-        TestFerrari.testAll(t);
-		//t.testDocumentFetchLimit();
+        TestFerrari.testRandom(t);
 	}
 
 	public void testGet(String title) throws Exception {

@@ -25,6 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * Store the accesses in a byte serializable list
+ * @author karan
+ *
+ */
 public class AccessStorable implements List {
 
 	List<byte[]> container = null;

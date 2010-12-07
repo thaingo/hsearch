@@ -19,30 +19,27 @@
 */
 package com.bizosys.hsearch.index;
 
+/**
+ * A backet has maximum capacity of 66534. More documents than 
+ * this throws this exception. 
+ * @author karan
+ *
+ */
 public class BucketIsFullException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Number of documents filled in the bucket.
+	 */
 	public long currentCount = 0;
 	
+	/**
+	 * Constructor
+	 * @param currentCount	Number of packed documents
+	 */
 	public BucketIsFullException(long currentCount) {
+		super("Allowed 66534. Packed :" + currentCount);
 		this.currentCount = currentCount;
-	}
-
-	public BucketIsFullException(String arg0) {
-		super(arg0);
-	}
-
-	public BucketIsFullException(Throwable arg0) {
-		super(arg0);
-	}
-
-	public BucketIsFullException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
-	}
-	
-	@Override
-	public String getMessage() {
-		return "Crossed limit till :" + currentCount;
 	}
 }

@@ -21,6 +21,11 @@ package com.bizosys.hsearch.inpipe.util;
 
 import java.io.Reader;
 
+/**
+ * Wrapped reader with document section and type information
+ * @author karan
+ *
+ */
 public class ReaderType {
 	public Reader reader = null;
 	public Character docSection = null;

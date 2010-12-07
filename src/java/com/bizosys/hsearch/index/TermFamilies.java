@@ -23,12 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bizosys.oneline.ApplicationFault;
-
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.ILanguageMap;
 
+/**
+ * This contain multiple term columns for a given term family.
+ * @author karan
+ *
+ */
 public class TermFamilies implements IDimension {
+	
 	/**
 	 * Family, Columns
 	 */
@@ -43,7 +47,7 @@ public class TermFamilies implements IDimension {
 		
 		char family = lang.getColumnFamily(aTerm.term);
 		char column = lang.getColumn(aTerm.term);
-		if ( L.l.isDebugEnabled() ) L.l.debug("TermFamilies.Add :" +
+		if ( IndexLog.l.isDebugEnabled() ) IndexLog.l.debug("TermFamilies.Add :" +
 				aTerm.term + " Family:" + family + " column:" + column );
 		
 		if ( null == families) {
@@ -82,7 +86,7 @@ public class TermFamilies implements IDimension {
 		}
 	}	
 
-	public void toNVs(List<NV> nvs) throws ApplicationFault {
+	public void toNVs(List<NV> nvs) {
 		for ( char fam: families.keySet() ) {
 			TermColumns tc = families.get(fam);
 			tc.toNVs(nvs);

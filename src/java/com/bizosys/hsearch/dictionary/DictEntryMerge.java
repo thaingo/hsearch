@@ -20,12 +20,29 @@
 package com.bizosys.hsearch.dictionary;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.hbase.NV;
-import com.bizosys.hsearch.util.RecordScalar;
 
+/**
+ * The sighting of a word in dictionary is 
+ * incremented on subsequent document additions containing the same word.
+ * @author karan
+ *
+ */
 public class DictEntryMerge extends RecordScalar {
 	
+	/**
+	 * A dictionary entry
+	 */
 	DictEntry entry;
+	
+	/**
+	 *  Default Constructor
+	 * @param pk	Primary Key
+	 * @param family	The Column Family
+	 * @param name	The column name
+	 * @param entry	Existing dictionary entry
+	 */
 	public DictEntryMerge (IStorable pk, byte[] family, 
 		byte[] name, DictEntry entry) {
 		super(pk);

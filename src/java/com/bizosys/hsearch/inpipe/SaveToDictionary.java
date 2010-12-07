@@ -33,6 +33,11 @@ import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.Term;
 
+/**
+ * Persist to dictionary
+ * @author karan
+ *
+ */
 public class SaveToDictionary implements PipeIn {
 
 	Hashtable<String, DictEntry> entries = null;
@@ -79,16 +84,16 @@ public class SaveToDictionary implements PipeIn {
 	 * Aggregate and commit all the records at one shot.
 	 */
 	public boolean commit() throws ApplicationFault, SystemFault {
-		L.l.info("SaveToDictonary:commit()");
+		InpipeLog.l.info("SaveToDictonary:commit()");
 		if ( null == entries) return true;
 		DictionaryManager s = DictionaryManager.getInstance();
-		if ( L.l.isDebugEnabled() ) {
+		if ( InpipeLog.l.isDebugEnabled() ) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("SaveToDictonary:commit() :");
 			for (DictEntry entry: entries.values()) {
 				sb.append('\n').append(entry);
 			}
-			L.l.debug( sb.toString());
+			InpipeLog.l.debug( sb.toString());
 			sb.delete(0, sb.capacity());
 		}
 		

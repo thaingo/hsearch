@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 
 public class QueryResult {
@@ -32,7 +32,7 @@ public class QueryResult {
 	public Object[] sortedDynamicWeights = null; //DocMetaWeight + weight is adjusted
 	public Object[] teasers = null; //DocTeaserWeight + weight is adjusted
 	
-	public void toXml(Writer writer) throws ApplicationFault{
+	public void toXml(Writer writer) throws SystemFault {
 		if ( null == teasers) return;
 		
 		try {
@@ -47,8 +47,8 @@ public class QueryResult {
 			}
 			writer.append("</list>");
 		} catch (IOException e) {
-			L.l.error("Error in preparing result output.", e);
-			throw new ApplicationFault("QueryResult::toXml", e);
+			QueryLog.l.error("Error in preparing result output.", e);
+			throw new SystemFault("QueryResult::toXml", e);
 		}
 
 	}

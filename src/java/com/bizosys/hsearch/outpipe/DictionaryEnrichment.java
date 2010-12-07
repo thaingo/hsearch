@@ -32,6 +32,13 @@ import com.bizosys.hsearch.query.HQuery;
 import com.bizosys.hsearch.query.QueryPlanner;
 import com.bizosys.hsearch.query.QueryTerm;
 
+/**
+ * Consult the <code>DictionaryManager</code> to find details 
+ * about the word.
+ * @see DictionaryManager
+ * @author karan
+ *
+ */
 public class DictionaryEnrichment implements PipeOut{
 	
 	public DictionaryEnrichment() {
@@ -47,10 +54,12 @@ public class DictionaryEnrichment implements PipeOut{
 		return true;
 	}
 
-	private void loadFromDictionary(List<QueryTerm> queryWordL) throws ApplicationFault {
+	private void loadFromDictionary(List<QueryTerm> queryWordL) 
+	throws ApplicationFault, SystemFault {
+		
 		if ( null == queryWordL) return;
 		for (QueryTerm term : queryWordL) {
-			L.l.debug("DictionaryEnrichment > " + term.wordStemmed);
+			OutpipeLog.l.debug("DictionaryEnrichment > " + term.wordStemmed);
 			DictEntry entry = 
 				DictionaryManager.getInstance().get(term.wordStemmed);
 			term.foundTerm = entry;

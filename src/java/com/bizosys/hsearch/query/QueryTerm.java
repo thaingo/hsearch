@@ -31,6 +31,11 @@ import com.bizosys.hsearch.lang.Stemmer;
 import com.bizosys.hsearch.schema.EnglishMap;
 import com.bizosys.hsearch.schema.ILanguageMap;
 
+/**
+ * Extracted QueryTerm from the user search phrase.
+ * @author karan
+ *
+ */
 public class QueryTerm implements Comparator<QueryTerm> {
 	
 	public String wordOrig = null;

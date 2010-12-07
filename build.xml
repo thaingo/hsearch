@@ -131,12 +131,13 @@
 	<!-- ================================================================== -->
 	<target name="jar-launcher" depends="compile-core">
 		<jar jarfile="${build.dir}/${final.name}-launcher.jar" basedir="${build.classes}" includes="">
-			<include name="com/bizosys/hsearch/hbase/HBaseLauncher*.class"/>
+			<include name="com/bizosys/hsearch/hbase/HSearchLauncher*.class"/>
 			<manifest>
 				<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="Version" value="${version}"/>
-			</manifest>			
+			</manifest>		
 		</jar>
+		<copy file="${build.dir}/${final.name}-launcher.jar" todir="bin" overwrite="true"/>
 	</target>	
 	
 	<!-- ================================================================== -->
@@ -163,7 +164,7 @@
 			</manifest>			
 		</jar>
 	</target>
-
+	
 	<!-- ================================================================== -->
 	<!-- Make war  -->
 	<!-- ================================================================== -->
@@ -212,10 +213,20 @@
 	<!-- ================================================================== -->
 	<!-- D I S T R I B U T I O N  Targets                                   -->
 	<!-- ================================================================== -->
-	<target name="release" depends="clean.all, init, jar-src, jar-examples, jar-core, jar-termfilter, jar-test, compile-plugins">
+	<target name="release" depends="clean.all, init, jar-src, jar-examples, jar-core, jar-termfilter, jar-test, compile-plugins, javadoc">
 		<makewardef sitexml="site.xml" warfilename="${warfilename}" jarfilestoinclude="*.jar"/>
 	</target>
 	
+
+	<target name="javadoc" depends="jar-core" description="Create Javadoc API documentation">
+    	<mkdir  dir="${basedir}/docs/api"/>
+		<javadoc sourcepath="${basedir}/src/java" destdir="${basedir}/docs/api" packagenames="*">
+			<classpath refid="classpath" />
+    	</javadoc>
+		<copy file="${basedir}/src/java/overview-summary.html" todir="${basedir}/docs/api" overwrite="true"/>
+		<copy file="${basedir}/src/java/rest.html" todir="${basedir}/docs/api" overwrite="true"/>
+	</target>
+
 	<!-- ================================================================== -->
 	<!-- Clean.  Delete the build files, and their directories              -->
 	<!-- ================================================================== -->

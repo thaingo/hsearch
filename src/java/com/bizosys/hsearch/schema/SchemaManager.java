@@ -29,7 +29,6 @@ import org.apache.hadoop.hbase.io.hfile.Compression;
 import org.apache.hadoop.hbase.regionserver.StoreFile;
 
 import com.bizosys.hsearch.hbase.HDML;
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.Request;
@@ -38,6 +37,7 @@ import com.bizosys.oneline.services.Service;
 import com.bizosys.oneline.services.ServiceMetaData;
 
 /**
+ * It is a facade for schema related opeations.
  * This schema creates in pristine mode 154 directories and 378 files.
  * @author karan
  *
@@ -55,8 +55,11 @@ public class SchemaManager  implements Service {
 		return instance;
 	}
 	
+	/**
+	 * Default constructor
+	 *
+	 */
 	public SchemaManager(){
-		instance = this;
 	}
 	
 	private static final String NO_COMPRESSION = Compression.Algorithm.NONE.getName();
@@ -91,25 +94,28 @@ public class SchemaManager  implements Service {
 	private String invertBloomFilter = StoreFile.BloomType.NONE.toString();	
 	private int invertRepMode = HConstants.REPLICATION_SCOPE_GLOBAL;	
 
+	/**
+	 * Checks and Creates all necessary tables required for HSearch index.
+	 */
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		try {
-			HLog.l.info("Creating Preview Table");
+			SchemaLog.l.info("Creating Preview Table");
 			createPreview(conf);
-			HLog.l.info("Creating Content Table");
+			SchemaLog.l.info("Creating Content Table");
 			createContent(conf);
-			HLog.l.info("Creating IdMapping Table");
+			SchemaLog.l.info("Creating IdMapping Table");
 			createIdMap(conf);
-			HLog.l.info("Creating Invert Table");
+			SchemaLog.l.info("Creating Invert Table");
 			createInvert(conf);
-			HLog.l.info("Creating Config Table");
+			SchemaLog.l.info("Creating Config Table");
 			createConfigs(conf);
-			HLog.l.info("Creating Dictionary Table");
+			SchemaLog.l.info("Creating Dictionary Table");
 			createDictionary(conf);
 			return true;
 			
 		} catch (Exception sf) {
 			sf.printStackTrace(System.err);
-			HLog.l.fatal(sf);
+			SchemaLog.l.fatal(sf);
 			return false;
 		} 
 	}
@@ -118,7 +124,7 @@ public class SchemaManager  implements Service {
 	 * Column Family : Search (META, SOCIAL, BUCKET)
 	 * 				 : Teaser (ID, URL, TITLE, CACHE, PREVIEW)
   	 */
-	public void createPreview(Configuration conf) throws SystemFault, ApplicationFault{
+	private void createPreview(Configuration conf) throws SystemFault{
 		
 		int rev = conf.getInt("record.revision",1);
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
@@ -152,7 +158,7 @@ public class SchemaManager  implements Service {
 	 * Column Family : Body (FIELDS)
 	 * 				 : CITATION ( CITATION_FROM, CITATION_TO ) 
   	 */
-	public void createContent(Configuration conf) throws SystemFault, ApplicationFault{
+	private void createContent(Configuration conf) throws SystemFault{
 		
 		int rev = conf.getInt("record.revision",1);
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
@@ -185,9 +191,8 @@ public class SchemaManager  implements Service {
 	 * emp123(ori document id) = b1 (bucket id), 2343(Bucket doc Serial No)
 	 * The mapped document id =   b1_2343 (This is Unique ID)
 	 * @throws SystemFault
-	 * @throws ApplicationFault
 	 */
-	private void createIdMap(Configuration conf) throws SystemFault, ApplicationFault{
+	private void createIdMap(Configuration conf) throws SystemFault{
 		
 		HColumnDescriptor mapping = 
 			new HColumnDescriptor( IOConstants.NAME_VALUE_BYTES,
@@ -219,7 +224,7 @@ public class SchemaManager  implements Service {
 	 *   [term first pos 1, term first pos 2, …, term pos n]*
 	 *   [Bucket doc Serial ID 1, Bucket doc Serial ID 2, …, n]*
 	 */
-	private void createInvert(Configuration conf) throws SystemFault, ApplicationFault{
+	private void createInvert(Configuration conf) throws SystemFault{
 		List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 		
 		for ( char t : ILanguageMap.ALL_COLS) {
@@ -243,7 +248,7 @@ public class SchemaManager  implements Service {
 		
 	}
 	
-	public void createConfigs(Configuration conf)throws SystemFault, ApplicationFault{
+	private void createConfigs(Configuration conf)throws SystemFault{
 		HColumnDescriptor config = 
 			new HColumnDescriptor( IOConstants.NAME_VALUE_BYTES,
 				1, NO_COMPRESSION, 
@@ -258,7 +263,7 @@ public class SchemaManager  implements Service {
 		HDML.create(IOConstants.TABLE_CONFIG, colFamilies);
 	}
 	
-	public void createDictionary(Configuration conf)throws SystemFault, ApplicationFault{
+	private void createDictionary(Configuration conf)throws SystemFault{
 		HColumnDescriptor dict = 
 			new HColumnDescriptor( IOConstants.DICTIONARY_BYTES,
 				1, NO_COMPRESSION, 
@@ -273,11 +278,16 @@ public class SchemaManager  implements Service {
 		HDML.create(IOConstants.TABLE_DICTIONARY, colFamilies);
 	}
 	
-	
-	public ILanguageMap getLanguageMap(Locale l) throws ApplicationFault {
+	/**
+	 * Initializes a language mapping class for a given locale.
+	 * @param l
+	 * @return	Language specific schema mapping for a given Locale
+	 * @throws SystemFault
+	 */
+	public ILanguageMap getLanguageMap(Locale l) throws SystemFault {
 		if ( Locale.ENGLISH.getDisplayLanguage().equals(
 			l.getDisplayLanguage()) ) return new EnglishMap();
-		throw new ApplicationFault(l.toString() + " is not supported yet.");
+		throw new SystemFault(l.toString() + " is not supported yet.");
 	}
 	
 	public String getName() {

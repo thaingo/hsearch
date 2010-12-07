@@ -29,6 +29,11 @@ import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.DocTeaser;
 
+/**
+ * Normalize accent from the content
+ * @author karan
+ *
+ */
 public class NormalizeAccents implements PipeIn {
 
 	public boolean commit() throws ApplicationFault, SystemFault {

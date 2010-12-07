@@ -90,11 +90,11 @@ public class SequenceProcessor implements PipeOut{
 			
 		} catch (InterruptedException ex) {
 			String msg = ( null == planner) ? "Empty Planner" : planner.toString(); 
-			L.l.fatal("Interrupted @ SequenceProcessor > " + msg, ex);
+			OutpipeLog.l.fatal("Interrupted @ SequenceProcessor > " + msg, ex);
 			return false;
 		} catch (Exception ex) {
 			String msg = ( null == planner) ? "Empty Planner" : planner.toString(); 
-			L.l.fatal("Failed @ SequenceProcessor > " + msg, ex);
+			OutpipeLog.l.fatal("Failed @ SequenceProcessor > " + msg, ex);
 			return false;
 		}
 		

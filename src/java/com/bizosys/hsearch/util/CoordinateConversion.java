@@ -19,6 +19,12 @@
 */
 package com.bizosys.hsearch.util;
 
+/**
+ * It supports Nothing-Eastering and Latitude-Longitude coordinate systems. 
+ * It provides machanism to convert values from one system to another.
+ * @author karan
+ *
+ */
 public class CoordinateConversion {
 
 	public CoordinateConversion() {

@@ -46,11 +46,7 @@ public class IndexWriterTest extends TestCase {
 		ServiceFactory.getInstance().init(conf, null);
 		DictionaryManager.getInstance().deleteAll();
 		
-        //TestFerrari.testRandom(t);
-		for ( int i=13; i<5000; i++) {
-			IndexWriter.getInstance().delete("ORIG_ID:" + i);
-		}
-		
+        TestFerrari.testRandom(t);
 	}
 	
 	public void testIndexSingleDoc(String id, String name, String location) throws Exception {
@@ -188,7 +184,7 @@ public class IndexWriterTest extends TestCase {
 		
 		//Step 6 - Check in Index
 		QueryContext ctx2 = new QueryContext("Vivenkananda");
-		String pipes = "LuceneQueryParser,"+
+		String pipes = "HQueryParser,"+
 		"ComputeTypeCodes,QuerySequencing,SequenceProcessor," +
 		"ComputeStaticRanking,CheckMetaInfo,ComputeDynamicRanking,BuildTeaser";
 		res = IndexReader.getInstance().search(

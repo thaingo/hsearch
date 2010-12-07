@@ -33,6 +33,11 @@ import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.Term;
 
+/**
+ * Delete terms from dictionary
+ * @author karan
+ *
+ */
 public class DeleteFromDictionary implements PipeIn {
 
 	Hashtable<String, DictEntry> entries = null;
@@ -81,7 +86,7 @@ public class DeleteFromDictionary implements PipeIn {
 		return true;
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
+	public boolean init(Configuration conf){
 		return true;
 	}
 

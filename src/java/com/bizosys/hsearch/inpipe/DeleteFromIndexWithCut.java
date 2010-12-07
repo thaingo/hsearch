@@ -22,6 +22,11 @@ package com.bizosys.hsearch.inpipe;
 import com.bizosys.hsearch.hbase.IUpdatePipe;
 import com.bizosys.hsearch.index.InvertedIndex;
 
+/**
+ * In a merged index, delete only relevant document keywords
+ * @author karan
+ *
+ */
 public class DeleteFromIndexWithCut implements IUpdatePipe {
 	short docSerialId = -1;
 	public DeleteFromIndexWithCut(short docSerialId) {

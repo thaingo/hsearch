@@ -22,6 +22,28 @@ package com.bizosys.hsearch.query;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Various reserve words for HSearch query 
+ * <table>
+ * <tr><td>page</td><td>page size</td></tr>
+ * <tr><td>scroll</td><td>Scroll to record</td></tr>
+ * <tr><td>typ</td><td>Find matching document type</td></tr>
+ * <tr><td>ste</td><td>Find matching document State</td></tr>
+ * <tr><td>tenant</td><td>Find matching document Tenant</td></tr>
+ * <tr><td>createdb</td><td>Find document created before date</td></tr>
+ * <tr><td>createda</td><td>Find document created after date</td></tr>
+ * <tr><td>modifieda</td><td>Find document modified before date</td></tr>
+ * <tr><td>modifiedb</td><td>Find document odified after date</td></tr>
+ * <tr><td>aikr</td><td>Scope to are in km radius</td></tr>
+ * <tr><td>latlng</td><td>Provide the anchor Latitude and Longitude for finding</td></tr>
+
+ * <tr><td>mfl</td><td>Number of documents on which meta ranking will be allowed</td></tr>
+ * <tr><td>dfl</td><td>Number of documents to be fetched</td></tr>
+ * <tr><td>tsl</td><td>Teaser section length of the record result</td></tr>
+ * </table>
+ * @author karan
+ *
+ */
 public class ReserveQueryWord {
 	private static ReserveQueryWord instance = null; 
 	public static ReserveQueryWord getInstance() {
@@ -103,7 +125,7 @@ public class ReserveQueryWord {
 	 * Returns -1 is the word is not a reserved one.
 	 * else returns the corresponding reserve word.
 	 * @param word
-	 * @return
+	 * @return	Integer code (Helpful for avoiding if loops)
 	 */
 	public int mapReserveWord(String word) {
 		if ( reserveWord.containsKey(word)) {

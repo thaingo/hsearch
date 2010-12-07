@@ -30,6 +30,14 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
 
+/**
+ * Preciousness is computed after finding detail about the word from
+ * the dictionary. Dictionary maintains number of documents who have 
+ * the word in their term vector. More documents containing a word, 
+ * the lesser precious it it.
+ * @author karan
+ *
+ */
 public class ComputePreciousness implements PipeOut{
 	
 	public ComputePreciousness() {
@@ -49,7 +57,7 @@ public class ComputePreciousness implements PipeOut{
 		int maxOccurance2 = computeMaximimOccurance(planner.optionalTerms);
 		int maxOccurance = ( maxOccurance1 > maxOccurance2) ? maxOccurance1 : maxOccurance2;
 		if ( 0 == maxOccurance) {
-			L.l.info("Word not recognized " + ctx.queryString);
+			OutpipeLog.l.info("Word not recognized " + ctx.queryString);
 			throw new ApplicationFault("Word not Recognized : " +  ctx.queryString);
 		}
 		computePreciousness(planner.mustTerms, maxOccurance);

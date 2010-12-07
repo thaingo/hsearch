@@ -22,14 +22,35 @@ package com.bizosys.hsearch.query;
 import com.bizosys.hsearch.index.DocMeta;
 import com.bizosys.oneline.SystemFault;
 
+/**
+ * Weighted document meta information.
+ * 
+ * @see DocMeta
+ * @author karan
+ *
+ */
 public class DocMetaWeight extends DocMeta {
+	
+	/**
+	 * Document Id 
+	 */
 	public String id;
 	
+	/**
+	 * 
+	 * @param id	Document Id
+	 * @param metaBytes	meta byte array
+	 */
 	public DocMetaWeight(String id, byte[] metaBytes) {
 		super(metaBytes);
 		this.id = id;
 	}
 	
+	/**
+	 * Compare for sorting
+	 * @param a Another <code>DocMetaWeight</code> object
+	 * @return Equal = 0, Greater = -1 and Lesser = 1
+	 */
 	public int compare(DocMetaWeight a)  {
 		if ( this.weight > a.weight) return -1;
 		else if ( this.weight < a.weight) return 1;

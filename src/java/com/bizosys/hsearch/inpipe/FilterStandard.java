@@ -23,18 +23,21 @@ import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardFilter;
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.SystemFault;
-import com.bizosys.oneline.conf.Configuration;
-import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.DocTerms;
 import com.bizosys.hsearch.index.TermStream;
+import com.bizosys.oneline.conf.Configuration;
+import com.bizosys.oneline.pipes.PipeIn;
 
+/**
+ * Applies standard set of filters
+ * @author karan
+ *
+ */
 public class FilterStandard implements PipeIn {
 
-	public boolean commit() throws ApplicationFault, SystemFault {
+	public boolean commit() {
 		return true;
 	}
 
@@ -46,11 +49,11 @@ public class FilterStandard implements PipeIn {
 		return "FilterStandard";
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
+	public boolean init(Configuration conf)  {
 		return true;
 	}
 
-	public boolean visit(Object docObj) throws ApplicationFault, SystemFault {
+	public boolean visit(Object docObj) {
 		if ( null == docObj) return false;
 		Doc doc = (Doc) docObj;
 		DocTerms terms = doc.terms;

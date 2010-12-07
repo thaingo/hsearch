@@ -23,12 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bizosys.oneline.ApplicationFault;
-
 import com.bizosys.hsearch.hbase.NV;
 
 /**
- * Term Columns keep the term and list of documents containing that term
+ * Term Columns keep multiple terms belonging to the column 
+ * containing that term.
  * @author karan
  *
  */
@@ -98,7 +97,7 @@ public class TermColumns implements IDimension {
 	/**
 	 * Serialize this
 	 */
-	public void toNVs(List<NV> nvs) throws ApplicationFault {
+	public void toNVs(List<NV> nvs) {
 		if ( null == columns) return;
 		String strFamily = new String(new char[]{this.family});
 		for (char col: columns.keySet()) {

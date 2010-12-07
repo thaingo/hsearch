@@ -32,7 +32,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 
 public class HDML {
@@ -43,29 +42,29 @@ public class HDML {
 	 * @throws IOException
 	 */
     public static final void create(String tableName, List<HColumnDescriptor> cols) 
-    throws SystemFault, ApplicationFault {
+    throws SystemFault {
     	
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("Creating HBase Table - " + tableName);
+		if  (HbaseLog.l.isDebugEnabled()) 
+			HbaseLog.l.debug("Creating HBase Table - " + tableName);
 		
 		try {
-			if  (HLog.l.isDebugEnabled()) 
-				HLog.l.debug("Checking for table existance : " + tableName);
+			if  (HbaseLog.l.isDebugEnabled()) 
+				HbaseLog.l.debug("Checking for table existance : " + tableName);
 			HBaseAdmin admin =  HBaseFacade.getInstance().getAdmin();
         	if ( admin.tableExists(tableName)) {
 
-        		if  (HLog.l.isInfoEnabled()) 
-	        		HLog.l.info("Ignoring creation. Table already exists - " + tableName);
+        		if  (HbaseLog.l.isInfoEnabled()) 
+	        		HbaseLog.l.info("Ignoring creation. Table already exists - " + tableName);
         	} else {
         		HTableDescriptor tableMeta = new HTableDescriptor(tableName);
         		for (HColumnDescriptor col : cols) tableMeta.addFamily(col);
         		admin.createTable(tableMeta);
-        		if  (HLog.l.isInfoEnabled() ) HLog.l.info("Table Created - " + tableName);
+        		if  (HbaseLog.l.isInfoEnabled() ) HbaseLog.l.info("Table Created - " + tableName);
         	}
 
 		} catch (TableExistsException ex) {
-			HLog.l.warn("Ignoring creation. Table already exists - " + tableName, ex);
-			throw new ApplicationFault("Failed Table Creation : " + tableName, ex);
+			HbaseLog.l.warn("Ignoring creation. Table already exists - " + tableName, ex);
+			throw new SystemFault("Failed Table Creation : " + tableName, ex);
 		} catch (MasterNotRunningException mnre) {
 			throw new SystemFault("Failed Table Creation : " + tableName, mnre);
 		} catch (IOException ioex) {
@@ -80,10 +79,10 @@ public class HDML {
 	 * @param tableName
 	 * @throws IOException
 	 */
-	public static void drop(String tableName) throws SystemFault, ApplicationFault {
+	public static void drop(String tableName) throws SystemFault{
 
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("Checking for table existance");
+		if  (HbaseLog.l.isDebugEnabled()) 
+			HbaseLog.l.debug("Checking for table existance");
 		
 		try {
 			HBaseAdmin admin =  HBaseFacade.getInstance().getAdmin();
@@ -93,10 +92,10 @@ public class HDML {
 	    			admin.disableTable(bytesTableName);
 	    		if ( admin.isTableDisabled(bytesTableName) ) 
 	    				admin.deleteTable(bytesTableName);
-				if  (HLog.l.isInfoEnabled() ) HLog.l.info (tableName + " Table is deleted.");
+				if  (HbaseLog.l.isInfoEnabled() ) HbaseLog.l.info (tableName + " Table is deleted.");
 	    	} else {
-	    		HLog.l.warn( tableName + " table is not found during drop operation.");
-	    		throw new ApplicationFault("Table does not exist");
+	    		HbaseLog.l.warn( tableName + " table is not found during drop operation.");
+	    		throw new SystemFault("Table does not exist");
 	    	}
 		} catch (IOException ioex) {
 			throw new SystemFault("Table Drop Failed : " + tableName, ioex);

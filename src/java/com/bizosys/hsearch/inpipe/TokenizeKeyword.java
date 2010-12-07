@@ -69,7 +69,7 @@ public class TokenizeKeyword extends TokenizeBase implements PipeIn {
 			}
 	    	return true;
     	} catch (Exception ex) {
-    		throw new ApplicationFault(ex);
+    		throw new SystemFault(ex);
     	}
 	}
 

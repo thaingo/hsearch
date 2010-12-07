@@ -29,7 +29,6 @@ import java.util.Map;
 
 import junit.framework.Test;
 
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.util.StringUtils;
 
 public class TestRandomValue  {

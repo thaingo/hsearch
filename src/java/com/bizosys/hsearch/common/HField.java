@@ -21,16 +21,40 @@ package com.bizosys.hsearch.common;
 
 import java.util.Date;
 
-import com.bizosys.oneline.ApplicationFault;
-
+/**
+ * The field can carry any value
+ * Java basic data types and other List, Complex Objects which has 
+ * implemented <code>IStorable</code> interface for extracting the byte array.
+ * @see IStorable
+ */
 public class HField implements Field {
 	
-	public boolean isIndexable = true;
-	public boolean isAnalyzed = true;
-	public boolean isStored = true;
+	/**
+	 *	Indexable field 
+	 */
+	private boolean isIndexable = true;
 	
-	public ByteField bfl = null;
+	/**
+	 * Is analyzable.
+	 */
+	private boolean isAnalyzed = true;
 	
+	/**
+	 * Requires storing
+	 */
+	private boolean isStored = true;
+	
+	/**
+	 * The Name-Value
+	 */
+	private ByteField bfl = null;
+	
+	/**
+	 * Constructor. Set Name-Value later. 
+	 * @param isIndexable	Should Index
+	 * @param isAnalyzed	Should Analyze
+	 * @param isStored	Shoud Store
+	 */
 	public HField(boolean isIndexable,
 		boolean isAnalyzed,boolean isStored ) {
 		
@@ -39,68 +63,133 @@ public class HField implements Field {
 		this.isStored = isStored;
 	}
 	
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, String value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, long value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 	
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, byte value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, boolean value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, short value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 	
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, int value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, float value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, double value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, Date value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
+	/**
+	 * Set field Name and Value turning on indexing, analysis and storage.
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public HField(String name, byte[] value) {
 		this.bfl = new ByteField(name, value);
 		bfl.enableTypeOnToBytes(true);
 	}
 
-	public ByteField getByteField() throws ApplicationFault {
+	/**
+	 * Get the ByteField
+	 */
+	public ByteField getByteField() {
 		return this.bfl;
 	}
 
+	/**
+	 * Specifies whether a field should be analyzed for extracting words.
+	 * @return	True if requires analysis
+	 */
 	public boolean isAnalyze() {
 		return this.isAnalyzed;
 	}
 
+	/**
+	 * Specifies whether a field should be indexed.
+	 * @return	True is Indexable
+	 */
 	public boolean isIndexable() {
 		return this.isIndexable;
 	}
 
+	/**
+	 * Specifies whether a field should be stored.
+	 * @return	True if storing
+	 */
 	public boolean isStore() {
 		return this.isStored;
 	}

@@ -19,6 +19,14 @@
 */
 package com.bizosys.hsearch.schema;
 
+/**
+ * Multiple languages will implement the language map.
+ * The language map will enable mapping of the word of
+ * various languages to the respective schema inverted index
+ * table, column family and column qualifier.
+ * @author karan
+ *
+ */
 public interface ILanguageMap {
 
 	final char COL_A = 'a';

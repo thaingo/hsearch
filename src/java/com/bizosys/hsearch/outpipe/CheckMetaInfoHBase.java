@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 
+import com.bizosys.hsearch.common.AccessControl;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.filter.Access;
 import com.bizosys.hsearch.filter.AccessStorable;
@@ -35,11 +36,10 @@ import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.query.DocMetaWeight;
 import com.bizosys.hsearch.query.DocWeight;
-import com.bizosys.hsearch.query.L;
+import com.bizosys.hsearch.query.QueryLog;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.security.AccessControl;
-import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 /**
  * This implements callable interface for execution in parallel
@@ -76,9 +76,9 @@ class CheckMetaInfoHBase {
 	}
 	
 	protected List<DocMetaWeight> filter(Object[] staticL, 
-		int  scroll, int pageSize ) throws ApplicationFault {
+		int  scroll, int pageSize ) throws SystemFault {
 		
-		L.l.debug("CheckMetaInfoHBase > Call START");
+		QueryLog.l.debug("CheckMetaInfoHBase > Call START");
 		if ( null == this.pf) return null;
 		
 		/**
@@ -124,8 +124,8 @@ class CheckMetaInfoHBase {
 			return foundDocs;
 			
 		} catch ( IOException ex) {
-			L.l.fatal("CheckMetaInfoHBase:", ex);
-			throw new ApplicationFault(ex);
+			QueryLog.l.fatal("CheckMetaInfoHBase:", ex);
+			throw new SystemFault(ex);
 		} finally {
 			if ( null != table ) facade.putTable(table);
 		}	

@@ -19,6 +19,17 @@
 */
 package com.bizosys.hsearch.hbase;
 
+/**
+ * Function callback mechanism during continuous table scanning process.
+ * This helps to avoid big memory aquisition of further processing steps.
+ * However, it prolongs the connection with HBase server. 
+ * @author karan
+ *
+ */
 public interface IScanCallBack {
+	/**
+	 * Process the found row
+	 * @param storedBytes
+	 */
 	void process(byte[] storedBytes);
 }

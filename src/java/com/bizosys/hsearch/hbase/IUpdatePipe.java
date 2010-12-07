@@ -19,14 +19,20 @@
 */
 package com.bizosys.hsearch.hbase;
 
+/**
+ * Callback function during a update process. 
+ * It helps in merging with already stored bytes in a locked environment. 
+ * @author karan
+ *
+ */
 public interface IUpdatePipe {
 
 	/**
-	 * This pipe process and provide the new updated records
+	 * Calls back after reading existing data
 	 * @param family Existing Family
 	 * @param name  Existing column Qualifier
 	 * @param existingB Existing value
-	 * @return
+	 * @return	New column value as byte array
 	 */
 	byte[] process(byte[] family, byte[] name, byte[] existingB);
 }

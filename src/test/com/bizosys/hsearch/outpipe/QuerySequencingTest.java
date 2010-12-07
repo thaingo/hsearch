@@ -181,7 +181,7 @@ public class QuerySequencingTest extends TestCase {
 		QueryPlanner planner = new QueryPlanner();
 		HQuery query = new HQuery(ctx, planner);
 		
-		new LuceneQueryParser().visit(query);
+		new HQueryParser().visit(query);
 		new QuerySequencing().visit(query);
 		//System.out.println( "Query Planner \n" + planner);
 		//System.out.println( "Query Context \n" + ctx);

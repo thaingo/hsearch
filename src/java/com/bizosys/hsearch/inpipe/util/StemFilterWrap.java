@@ -27,6 +27,11 @@ import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 
 import com.bizosys.hsearch.lang.Stemmer;
 
+/**
+ * Wrapped stemmed filter
+ * @author karan
+ *
+ */
 public class StemFilterWrap extends TokenFilter {
 
 	private Stemmer stemmer;

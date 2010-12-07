@@ -32,29 +32,28 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.RowLock;
 
 import com.bizosys.hsearch.common.IStorable;
-import com.bizosys.hsearch.util.Record;
-import com.bizosys.hsearch.util.RecordScalar;
+import com.bizosys.hsearch.common.Record;
+import com.bizosys.hsearch.common.RecordScalar;
 
 /**
  * All HBase write calls goes from here.
  * It supports Insert, Delete, Update and Merge operations. 
  * Merge is a operation, where read and write happens inside 
- * a lock. This lock is never exposed to developer.
+ * a lock. This lock is never exposed to caller function.
  * @author karan
  *
  */
 public class HWriter {
 
 	/**
-	 * Insert just a single scalar record
-	 * It goes through transaction in a non batch mode.
-	 * @param tableName
-	 * @param record
-	 * @param nonBatch
+	 * Insert just a single scalar record. If the record is already existing, it overrides.
+	 * A scalar record contains just one column.
+	 * @param tableName	Table name
+	 * @param record	A Table record
 	 * @throws IOException
 	 */
 	public static void insertScalar(String tableName, RecordScalar record) throws IOException {
-		if  (HLog.l.isDebugEnabled())  HLog.l.debug("insertScalar 1 : " + tableName);
+		if  (HbaseLog.l.isDebugEnabled())  HbaseLog.l.debug("insertScalar 1 : " + tableName);
 		
 		byte[] pk = record.pk.toBytes();
 		Put update = new Put(pk);
@@ -77,14 +76,15 @@ public class HWriter {
 	}	
 	
 	/**
-	 * Insert multiple scalar records
-	 * @param tableName
-	 * @param records
+	 * Insert multiple scalar records. If records exist, it overrides
+	 * A scalar record contains just one column.
+	 * @param tableName	Table name
+	 * @param records	Table records
 	 * @throws IOException
 	 */
 	public static void insertScalar(String tableName, List<RecordScalar> records) throws IOException {
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("Updating the table " + tableName);
+		if  (HbaseLog.l.isDebugEnabled()) 
+			HbaseLog.l.debug("Updating the table " + tableName);
 		
 		List<Put> updates = null;
 		int recordsT = records.size();
@@ -111,79 +111,16 @@ public class HWriter {
 		}
 	}
 	
-	
 	/**
-	 * Inserting just a single record, Single column.
-	 * As we are inserting there is no need for an check of any modification
-	 * from the time we have read..
-	 * @param tableName
-	 * @param pk
-	 * @param nonPkCols
-	 * @throws IOException
-	 */
-	public static void insert(String tableName, Record record) throws IOException {
-		byte[] pk = record.pk.toBytes();
-		
-   		HTableWrapper table = null;
-		HBaseFacade facade = null;
-		try {
-			facade = HBaseFacade.getInstance();
-			table = facade.getTable(tableName);
-			
-			Put update = new Put(pk);
-	   		for (NV param : record.getNVs()) {
-				update.add(param.family.toBytes(), 
-						param.name.toBytes(), param.data.toBytes());
-			}	   			
-			update.setWriteToWAL(true);				
-			table.put(update);
-			table.flushCommits();
-		} finally {
-			if ( null != facade && null != table) {
-				facade.putTable(table);
-			}
-		}
-	}
-	
-	/**
-	 * This creates an record in the table
-	 * @param tableName
-	 * @param record
-	 * @throws IOException
-	 */
-	public static void insert(String tableName, RecordScalar record ) throws IOException {
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("Inserting the table " + tableName);
-		
-		byte[] pk = record.pk.toBytes();
-		Put update = new Put(pk);
-		update.add(record.kv.family.toBytes(), 
-				record.kv.name.toBytes(), record.kv.data.toBytes());
-
-   		HTableWrapper table = null;
-		HBaseFacade facade = null;
-		try {
-			facade = HBaseFacade.getInstance();
-			table = facade.getTable(tableName);
-			update.setWriteToWAL(true);
-			table.put(update);
-			table.flushCommits();
-		} finally {
-			if ( null != facade && null != table) facade.putTable(table);
-		}
-	}
-
-	/**
-	 * Inserting in batch.
-	 * As we are inserting there is no need for an check of any modification
+	 * Inserting multiple records. It overrides the values of existing records.
 	 * from the time we have read..
 	 * @param tableName
 	 * @param records
 	 * @throws IOException
 	 */
 	public static void insert(String tableName, List<Record> records) throws IOException {
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("Updating the table " + tableName);
+		if  (HbaseLog.l.isDebugEnabled()) 
+			HbaseLog.l.debug("Updating the table " + tableName);
 		
 		List<Put> updates = null;
 		int recordsT = records.size();
@@ -285,40 +222,9 @@ public class HWriter {
 	}
 	
 	/**
-	 * Just updates the record. It overrides all previous changes.
-	 * @param table
-	 * @throws IOException
-	 */
-	public static void update(String tableName, Record record) throws IOException {
-		
-		if  (HLog.l.isInfoEnabled()) 
-			HLog.l.info("HWriter: update (" + tableName + ") , PK=" + record.pk.toString());
-		
-		Put update = new Put(record.pk.toBytes());
-   		for (NV packet : record.getNVs()) {
-			update.add(packet.family.toBytes(), packet.name.toBytes(), packet.data.toBytes());
-		}	    
-
-   		HTableWrapper table = null;
-		HBaseFacade facade = null;
-		try {
-			facade = HBaseFacade.getInstance();
-			table = facade.getTable(tableName);
-			update.setWriteToWAL(true);
-			table.put(update);
-			table.flushCommits();
-		} finally {
-			if ( null != facade && null != table) {
-				facade.putTable(table);
-			}
-		}
-	}
-	
-	
-	/**
 	 * Delete the complete row based on the key
-	 * @param tableName
-	 * @param pk
+	 * @param tableName	Table name
+	 * @param pk	Serialized primary Key
 	 * @throws IOException
 	 */
 	public static void delete(String tableName, IStorable pk) throws IOException {
@@ -339,8 +245,8 @@ public class HWriter {
 	
 	/**
 	 * Delete the complete row based on the key
-	 * @param tableName
-	 * @param pk
+	 * @param tableName	Table name
+	 * @param pks	Multiple primary keys as bytes	
 	 * @throws IOException
 	 */
 	public static void delete(String tableName, List<byte[]> pks) throws IOException {
@@ -369,11 +275,10 @@ public class HWriter {
 	}	
 	
 	/**
-	 * Deletes the row and flushes the coomit.
-	 * The packet field values can be null.
-	 * @param tableName
-	 * @param pk
-	 * @param packet
+	 * Deletes the supplied columns for the row. 
+	 * @param tableName	Table name
+	 * @param pk	Storable Primary Key
+	 * @param packet	ColumnFamily and ColumnName necessary
 	 * @throws IOException
 	 */
 	public static void delete(String tableName, IStorable pk, NV packet) throws IOException {
@@ -396,18 +301,17 @@ public class HWriter {
 	
 	
 	/**
-	 * Before putting the record, it merges the record
-	 * It happens without the locking mechanism
-	 * @param tableName
-	 * @param records
+	 * Before putting the record, it merges the record.
+	 * @param tableName	Table name
+	 * @param records	Records
 	 * @throws IOException
 	 */
 	public static void mergeScalar(String tableName, List<RecordScalar> records) 
 	throws IOException {
 			
 		if ( null == tableName  || null == records) return;
-		if  (HLog.l.isInfoEnabled()) 
-			HLog.l.info("HWriter: mergeScalar (" + tableName + ") , Count =" + records.size());
+		if  (HbaseLog.l.isDebugEnabled()) 
+			HbaseLog.l.debug("HWriter: mergeScalar (" + tableName + ") , Count =" + records.size());
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -447,7 +351,7 @@ public class HWriter {
 
 		} finally {
 			for (RowLock lock: locks) {
-				try { table.unlockRow(lock); } catch (Exception ex) {HLog.l.warn("Ignore Unlock exp :" , ex);}
+				try { table.unlockRow(lock); } catch (Exception ex) {HbaseLog.l.warn("Ignore Unlock exp :" , ex);}
 			}
 			if ( null != facade && null != table) {
 				facade.putTable(table);
@@ -459,16 +363,16 @@ public class HWriter {
 	/**
 	 * Merge a record accessing the existing value
 	 * It happens with the locking mechanism
-	 * @param tableName
-	 * @param records
+	 * @param tableName		Table name
+	 * @param record	A record
 	 * @throws IOException
 	 */
 	public static void merge(String tableName, Record record) 
 	throws IOException {
 			
 		if ( null == tableName  || null == record) return;
-		if  (HLog.l.isDebugEnabled()) 
-			HLog.l.debug("HWriter: merge Record (" + tableName + ")") ;
+		if  (HbaseLog.l.isDebugEnabled()) 
+			HbaseLog.l.debug("HWriter: merge Record (" + tableName + ")") ;
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -501,7 +405,7 @@ public class HWriter {
 
 		} finally {
 			if ( null != lock ) {
-				try { table.unlockRow(lock); } catch (Exception ex) {HLog.l.warn("Ignore Unlock exp :" , ex);}
+				try { table.unlockRow(lock); } catch (Exception ex) {HbaseLog.l.warn("Ignore Unlock exp :" , ex);}
 			}
 			if ( null != facade && null != table) {
 				facade.putTable(table);

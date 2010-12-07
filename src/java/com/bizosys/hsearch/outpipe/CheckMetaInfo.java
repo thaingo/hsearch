@@ -30,6 +30,11 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
 
+/**
+ * Filters and Ranks on Meta information
+ * @author karan
+ *
+ */
 public class CheckMetaInfo implements PipeOut{
 	
 	int DEFAULT_RETRIEVAL_SIZE = 100;

@@ -22,7 +22,7 @@ package com.bizosys.hsearch.index;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bizosys.hsearch.inpipe.L;
+import com.bizosys.hsearch.inpipe.InpipeLog;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.oneline.services.Request;
@@ -30,6 +30,11 @@ import com.bizosys.oneline.services.Response;
 import com.bizosys.oneline.services.Service;
 import com.bizosys.oneline.services.ServiceMetaData;
 
+/**
+ * Initializes both the read and write index services.
+ * @author karan
+ *
+ */
 public class IndexService implements Service {
 	
 	private static IndexService instance = null;
@@ -50,12 +55,12 @@ public class IndexService implements Service {
 	
 	public boolean init(Configuration conf, ServiceMetaData meta) {
 		try {
-			L.l.info("Initializing Index Service:");
+			InpipeLog.l.info("Initializing Index Service:");
 			IndexWriter.getInstance().init(conf);
 			IndexReader.getInstance().init(conf);
 			return true;
 		} catch (Exception e) {
-			L.l.fatal("Pipe Initialization Failure :" , e );
+			InpipeLog.l.fatal("Pipe Initialization Failure :" , e );
 			return false;
 		}		
 	}

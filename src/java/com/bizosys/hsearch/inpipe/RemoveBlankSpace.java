@@ -30,6 +30,12 @@ import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.DocTeaser;
 
+/**
+ * Condense multiple blanks to a single blank. This helps in 
+ * forming cache text and eventually result display.
+ * @author karan
+ *
+ */
 public class RemoveBlankSpace implements PipeIn {
 
 	Pattern pattern = null;

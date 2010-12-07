@@ -27,14 +27,19 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 
+import com.bizosys.hsearch.common.Record;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.IdMapping;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.Record;
 
+/**
+ * Persist to preview table
+ * @author karan
+ *
+ */
 public class SaveToPreview implements PipeIn {
 
 	List<Doc> previews = new ArrayList<Doc>();
@@ -77,7 +82,7 @@ public class SaveToPreview implements PipeIn {
 			}
 			HWriter.insert(IOConstants.TABLE_PREVIEW, previewRecords);
 		} catch (Exception ex) {
-			throw new ApplicationFault("SaveToPreview : Failed.", ex);
+			throw new SystemFault("SaveToPreview : Failed.", ex);
 		}
 		return true;
 	}

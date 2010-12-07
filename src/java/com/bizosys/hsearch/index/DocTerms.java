@@ -22,6 +22,10 @@ package com.bizosys.hsearch.index;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This is the term vector specific to a document.
+ * @author karan
+ */
 public class DocTerms {
 
 	private List<TermStream> tokenStreams = null;
@@ -46,12 +50,11 @@ public class DocTerms {
 
 	/**
 	 * At which location this stream was found..
-	 * @param name
-	 * @param modifiedStream
+	 * @param stream	The token stream
 	 */
 	public void addTokenStream(TermStream stream) {
-		if ( L.l.isDebugEnabled())
-			L.l.debug("DocTerms > Adding token stream - " + stream.sighting + " - " + stream.type);
+		if ( IndexLog.l.isDebugEnabled())
+			IndexLog.l.debug("DocTerms > Adding token stream - " + stream.sighting + " - " + stream.type);
 		if ( null == tokenStreams) 
 			tokenStreams = new ArrayList<TermStream>();
 		
@@ -71,7 +74,7 @@ public class DocTerms {
 				this.tokenStreams.clear();
 			}
 		} catch (Exception ex) {
-			L.l.warn("DocTerms:cleanup: ", ex);
+			IndexLog.l.warn("DocTerms:cleanup: ", ex);
 		}
 	}
 }

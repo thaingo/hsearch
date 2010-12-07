@@ -21,7 +21,11 @@ package com.bizosys.hsearch.util;
 
 import com.bizosys.oneline.util.StringUtils;
 
-
+/**
+ * Geological location. It supports Nothing-Eastering representation. 
+ * @author karan
+ *
+ */
 public class GeoId {
 	private float northing; //In Kms
 	private float easting;  //In Kms
@@ -47,7 +51,6 @@ public class GeoId {
 		this.northing = northing / 1000;
 	}	
 	
-	//////////////
 	public int getEasteringInMeters() {
 		return (int) easting * 1000;
 	}
@@ -69,7 +72,7 @@ public class GeoId {
      * @param house
      * @param northing (Kms)
      * @param easting (Kms)
-     */
+	 */
 	public GeoId (String house, float northing, float easting) {
     	this.northing = northing;
     	this.easting = easting;
@@ -123,7 +126,7 @@ public class GeoId {
      * Converts for a given LatLng to Mercator Northing and Easting
      * @param lat
      * @param lng
-     * @return
+     * @return	Geo ID
      */
     public static GeoId convertLatLng (double lat, double lng) {
     	CoordinateConversion x = new CoordinateConversion();
@@ -134,7 +137,7 @@ public class GeoId {
      * Converts for a given LatLng to Mercator Northing and Easting
      * @param lat
      * @param lng
-     * @return
+     * @return	Geo ID
      */
     public static GeoId convertLatLng (float lat, float lng) {
     	CoordinateConversion x = new CoordinateConversion();
@@ -147,11 +150,11 @@ public class GeoId {
     }
     
     /**
-     * 
+     * Computes the proximity
      * @param easteringInKms (In Kms)
      * @param northingInKms (In Kms)
      * @param radiusInKm 
-     * @return
+     * @return	True if in proximity
      */
     public boolean isInProximity(float easteringInKms, float northingInKms, float radiusInKm) {
     	
@@ -180,14 +183,15 @@ public class GeoId {
     }
     
     /**
-     * 
-     * @return
+     * Gives lat-lng
+     * @return Latitude and Longitude
      */
     public float[] getLatLng() {
     	CoordinateConversion x = new CoordinateConversion();
     	return x.utm2LatLon(this);
     }
 
+    @Override
     public String toString() {
     	StringBuilder sb = new StringBuilder(40);
     	sb.append(this.longZone ).append(' ')

@@ -33,9 +33,11 @@ import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 /**
- * The content of the original document
+ * Stores the fields of the document. This also stores additional
+ * citation information about the document.
  * @author bizosys
  *
  */
@@ -59,11 +61,11 @@ public class DocContent implements IDimension {
 	public StorableList citationFrom =  null;
 	
 	
-	public DocContent(HDocument aDoc) throws ApplicationFault{
+	public DocContent(HDocument aDoc) throws SystemFault{
 		if(null == aDoc) return;
 		
-		this.citationTo = aDoc.getCitationTo();
-		this.citationFrom = aDoc.getCitationFrom();
+		this.citationTo = getCitationTo(aDoc);
+		this.citationFrom = getCitationFrom(aDoc);
 
 		if(null == aDoc.fields) return;
 		for (Field fld: aDoc.fields) {
@@ -113,7 +115,7 @@ public class DocContent implements IDimension {
 		}
 	}	
 
-	public void toNVs(List<NV> nvs) throws ApplicationFault {
+	public void toNVs(List<NV> nvs) {
 		if ( null != this.stored ) {
 			for (ByteField bf : this.stored) {
 				bf.enableTypeOnToBytes(true);
@@ -132,6 +134,24 @@ public class DocContent implements IDimension {
 			IOConstants.CONTENT_CITATION_BYTES,
 			IOConstants.CONTENT_CITATION_TO_BYTES, this.citationFrom ) );		
 	}
+	
+	private StorableList getCitationTo(HDocument aDoc) {
+		if ( null == this.citationTo) return null;
+		StorableList storable = new StorableList();
+		for (String strCitation : aDoc.citationTo) {
+			storable.add(strCitation);
+		}
+		return storable;
+	}
+	
+	private StorableList getCitationFrom(HDocument aDoc) {
+		if ( null == this.citationFrom) return null;
+		StorableList storable = new StorableList();
+		for (String strCitation : aDoc.citationFrom) {
+			storable.add(strCitation);
+		}
+		return storable;
+	}	
 	
 	/**
 	 * Clean up the entire set.

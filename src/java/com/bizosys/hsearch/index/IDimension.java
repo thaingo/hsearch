@@ -22,11 +22,16 @@ package com.bizosys.hsearch.index;
 import java.util.List;
 
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
 import com.bizosys.hsearch.hbase.NV;
 
+/**
+ * One document has multiple dimension. Each dimension are serializable for storage purposes.
+ * @author karan
+ */
 public interface IDimension {
 	
-	void toNVs(List<NV> nvs) throws ApplicationFault;
+	void toNVs(List<NV> nvs) throws ApplicationFault, SystemFault;
 	void cleanup();
 }

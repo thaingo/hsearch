@@ -23,18 +23,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.services.batch.BatchTask;
-import com.bizosys.oneline.util.StringUtils;
-
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.Record;
-import com.bizosys.hsearch.util.RecordScalar;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.services.batch.BatchTask;
+import com.bizosys.oneline.util.StringUtils;
 
+/**
+ * Defines various document types.
+ * To save indexing space, each document type is stored as a byte code.
+ * So totally 256 diffierent document codes can be defined in the existing index.  
+ * @author karan
+ *
+ */
 public class DocumentType implements BatchTask {
 	
 	public static String TYPE_KEY = "DOCUMENT_TYPE";
@@ -43,7 +49,7 @@ public class DocumentType implements BatchTask {
 	public static Byte NONE_TYPECODE = Byte.MIN_VALUE;
 	
 	public static DocumentType instance = null;
-	public static DocumentType getInstance() throws ApplicationFault {
+	public static DocumentType getInstance() throws SystemFault {
 		if ( null != instance ) return instance;
 		synchronized (DocumentType.class) {
 			if ( null != instance ) return instance;
@@ -54,7 +60,7 @@ public class DocumentType implements BatchTask {
 	
 	public Map<String, Byte> types = new HashMap<String, Byte>();
 	
-	private DocumentType() throws ApplicationFault {
+	private DocumentType() throws SystemFault {
 		this.process();
 	}
 	
@@ -88,8 +94,8 @@ public class DocumentType implements BatchTask {
 			}
 			NV nv = new NV(IOConstants.NAME_VALUE_BYTES, 
 				IOConstants.NAME_VALUE_BYTES, new Storable(bytes));
-			Record record = new Record(new Storable(TYPE_KEY_BYTES), nv);
-			HWriter.update(IOConstants.TABLE_CONFIG, record);
+			RecordScalar record = new RecordScalar(new Storable(TYPE_KEY_BYTES), nv);
+			HWriter.insertScalar(IOConstants.TABLE_CONFIG, record);
 		} catch (IOException e) {
 			e.printStackTrace(System.out);
 			throw e;
@@ -100,7 +106,7 @@ public class DocumentType implements BatchTask {
 		return "TermType";
 	}
 
-	public Object process() throws ApplicationFault {
+	public Object process() throws SystemFault {
 		NV nv = new NV(IOConstants.NAME_VALUE_BYTES, IOConstants.NAME_VALUE_BYTES);
 		
 		RecordScalar scalar = new RecordScalar(TYPE_KEY_BYTES, nv);

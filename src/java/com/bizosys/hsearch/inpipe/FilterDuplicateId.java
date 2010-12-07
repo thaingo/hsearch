@@ -28,6 +28,11 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 
+/**
+ * Delete an existing record before duplicating it.
+ * @author karan
+ *
+ */
 public class FilterDuplicateId implements PipeIn {
 	
 	public FilterDuplicateId() {}
@@ -44,7 +49,7 @@ public class FilterDuplicateId implements PipeIn {
 		return "FilterDuplicateId";
 	}
 
-	public boolean init(Configuration conf) throws ApplicationFault, SystemFault {
+	public boolean init(Configuration conf) {
 		return true;
 	}
 
@@ -57,7 +62,7 @@ public class FilterDuplicateId implements PipeIn {
 		
 		IdMapping mapping = IdMapping.load(teaser.id);
 		if ( null == mapping ) {
-			if ( L.l.isDebugEnabled() ) L.l.debug(
+			if ( InpipeLog.l.isDebugEnabled() ) InpipeLog.l.debug(
 				"FilterDuplicateId: Skipping delete - " + teaser.id);
 			return true;
 		}

@@ -19,6 +19,11 @@
 */
 package com.bizosys.hsearch.schema;
 
+/**
+ * Schema Constants
+ * @author karan
+ *
+ */
 public class IOConstants {
 
 	public static final String TABLE_DICTIONARY = "dictionary";

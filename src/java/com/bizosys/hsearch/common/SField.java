@@ -2,18 +2,57 @@ package com.bizosys.hsearch.common;
 
 import java.util.Date;
 
-import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 
+/**
+ * Serializable Field for document content.
+ * If using embedded in embedded mode use <code>HField</code> class.
+ * @see HField
+ */
 public class SField implements Field{
-	public boolean index = true;
-	public boolean analyze = true;
-	public boolean store = true;
+
+	/**
+	 *	Indexable field 
+	 */
+	private boolean index = true;
+	
+	/**
+	 * Is analyzable.
+	 */
+	private boolean analyze = true;
+	
+	/**
+	 * Requires storing
+	 */
+	private boolean store = true;
+	
+	/**
+	 * Field type. @See <code>Storable</code> for allowed types
+	 */
 	public byte type = Storable.BYTE_UNKNOWN;
+	
+	/**
+	 * Field name
+	 */
 	public String name;
+	
+	/**
+	 * Field Value
+	 */
 	public String value;
+	
 	
 	private ByteField bfl = null;
 	
+	/**
+	 * Default Constructor
+	 * @param index	Is Indexable
+	 * @param analyze	Is Anlyzed
+	 * @param store	Should Store
+	 * @param type	Data Type @See <code>Storable</code> for allowed types
+	 * @param name	Field Name
+	 * @param value	Field Value
+	 */
 	public SField(boolean index,boolean analyze,boolean store,
 		byte type, String name, String value) {
 		
@@ -25,7 +64,10 @@ public class SField implements Field{
 		this.value = value;
 	}
 	
-	public ByteField getByteField() throws ApplicationFault {
+	/**
+	 * @return ByteField	The ByteField representation of name-value 
+	 */
+	public ByteField getByteField() throws SystemFault {
 		if ( null != bfl) return bfl;
 		switch (type) {
 			case Storable.BYTE_BOOLEAN:
@@ -59,19 +101,31 @@ public class SField implements Field{
 				bfl = new ByteField(name,value);
 				break;
 			default:
-				throw new ApplicationFault("Unknown data type :" + type);
+				throw new SystemFault("Unknown data type :" + type);
 		}
 		return bfl;
 	}
 
+	/**
+	 * Specifies whether a field should be analyzed for extracting words.
+	 * @return	True if requires analysis
+	 */
 	public boolean isAnalyze() {
 		return this.analyze;
 	}
 
+	/**
+	 * Specifies whether a field should be indexed.
+	 * @return	True is Indexable
+	 */
 	public boolean isIndexable() {
 		return this.index;
 	}
 
+	/**
+	 * Specifies whether a field should be stored.
+	 * @return	True if storing
+	 */
 	public boolean isStore() {
 		return this.store;
 	}

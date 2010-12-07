@@ -27,12 +27,38 @@ import java.util.List;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
+/**
+ * Finds the documents containing the search terms. 
+ * It operates on the hash codec of the term.
+ * @author karan
+ *
+ */
 public class TermFilter implements Filter {
+	/**
+	 * All serialized bytes (Document Type, Term Type and others)
+	 */
 	public byte[]  B;
+	
+	/**
+	 * Hash code bytes
+	 */
 	public byte[]  H;
+	
+	/**
+	 * Matched term list bytes
+	 */
 	private byte[] matchedTLBytes = null;
 
+	/**
+	 * Default constructor
+	 *
+	 */
 	public TermFilter(){}
+	
+	/**
+	 * Constructor
+	 * @param bytes	Serialized bytes
+	 */
 	public TermFilter( byte[] bytes){
 		this.B=bytes;
 		this.H = new byte[]{B[0],B[1],B[2],B[3]};

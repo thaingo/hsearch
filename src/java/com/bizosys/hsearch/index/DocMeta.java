@@ -33,10 +33,12 @@ import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.util.StringUtils;
 
 /**
+ * It Stores meta information about the document.
+ * These meta section helps on dynamic filteration as well as ranking
+ * during searching mechanism.
  * An empty meta is currently only 6 byte length.
  * @author karan
  *
@@ -502,7 +504,7 @@ public class DocMeta implements IStorable, IDimension {
 			return writer.toString();
 			//   Closing a StringWriter has no effect.
 		} catch (Exception ex) {
-			L.l.fatal(ex);
+			IndexLog.l.fatal(ex);
 			return ex.getMessage();
 		}
 	}
@@ -533,7 +535,7 @@ public class DocMeta implements IStorable, IDimension {
 		writer.append("</m>");
 	}
 
-	public void toNVs(List<NV> nvs) throws ApplicationFault {
+	public void toNVs(List<NV> nvs) {
 		nvs.add(new NV(IOConstants.SEARCH_BYTES,IOConstants.META_BYTES, this));
 	}
 	

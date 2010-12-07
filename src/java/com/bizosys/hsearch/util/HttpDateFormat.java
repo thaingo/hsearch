@@ -25,10 +25,8 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 /**
- * class to handle HTTP dates.
- *
+ * Class to handle HTTP dates.
  * Modified from FastHttpDateFormat.java in jakarta-tomcat.
- *
  * @author John Xing
  */
 public class HttpDateFormat {

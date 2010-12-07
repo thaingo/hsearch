@@ -34,8 +34,14 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.util.StringUtils;
 
+/**
+ * Various file related utility operations.
+ * @author karan
+ *
+ */
 public class FileReaderUtil {
 	public static Logger l = Logger.getLogger(FileReaderUtil.class.getName());
 
@@ -43,11 +49,11 @@ public class FileReaderUtil {
 	 * Reads the complete file which is in the classpath
 	 * line by line. If the line has no text or commented out
 	 * it leaves the line. Pack all these lines in a list and gives back.
-	 * @param fileName
-	 * @return
+	 * @param fileName	File name
+	 * @return	List of lines
 	 * @throws ApplicationFault
 	 */
-	public static final List<String> toLines(String fileName) throws ApplicationFault {
+	public static final List<String> toLines(String fileName) throws  ApplicationFault, SystemFault {
 		
 		File aFile = getFile(fileName);
 		BufferedReader reader = null;
@@ -69,7 +75,7 @@ public class FileReaderUtil {
 			return lines;
 		} catch (Exception ex) {
 			l.fatal("util.FileReaderUtil", ex);			
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		} finally {
 			try {if ( null != reader ) reader.close();
 			} catch (Exception ex) {l.warn("util.FileReaderUtil", ex);}
@@ -78,7 +84,7 @@ public class FileReaderUtil {
 		}
 	}
 	
-	public static int getLineCount(String fileName) throws ApplicationFault {
+	public static int getLineCount(String fileName) throws ApplicationFault, SystemFault {
 		
 		File aFile = getFile(fileName);
 		BufferedReader reader = null;
@@ -93,7 +99,7 @@ public class FileReaderUtil {
 			return totalLine; 
 		} catch (Exception ex) {
 			l.fatal("util.FileReaderUtil", ex);			
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		} finally {
 			try {if ( null != reader ) reader.close();
 			} catch (Exception ex) {l.warn("util.FileReaderUtil", ex);}
@@ -104,8 +110,8 @@ public class FileReaderUtil {
 	
 	/**
 	 * Give the file in name values
-	 * @param lines
-	 * @return
+	 * @param lines	
+	 * @return	List of Names and corresponding values
 	 */
 	public static Map<String, String> toNameValues(List<String> lines) {
 		String[] division = null;
@@ -123,12 +129,12 @@ public class FileReaderUtil {
 	 * Parses the given file as a name value entity.
 	 * This helps in loading a file directly for processing.
 	 * TODO:// Move the loading process from the hadoop.
-	 * @param aFile
-	 * @return
+	 * @param fileName	Filename
+	 * @return	Given a file name, extract name-value pairs
 	 * @throws ApplicationFault
 	 */
 	public static Map<String, String> toNameValues(String fileName)
-	throws ApplicationFault {
+	throws ApplicationFault, SystemFault {
 		
 		File aFile = getFile(fileName);
 		
@@ -154,7 +160,7 @@ public class FileReaderUtil {
 			}
 			return mapNameValue;
 		} catch (Exception ex) {
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		} finally {
 			try {if ( null != reader ) reader.close();
 			} catch (Exception ex) {l.error("FileReaderUtil", ex);}
@@ -167,11 +173,11 @@ public class FileReaderUtil {
 	/**
 	 * Give in Strings
 	 * @param fileName
-	 * @return
+	 * @return	All content of the file comes as a String object
 	 * @throws ApplicationFault
 	 */
 	public static String toString(String fileName) 
-	throws ApplicationFault {
+	throws SystemFault, ApplicationFault {
 		
 		File aFile = getFile(fileName);
 		BufferedReader reader = null;
@@ -188,7 +194,7 @@ public class FileReaderUtil {
 			}
 			return sb.toString();
 		} catch (Exception ex) {
-			throw new ApplicationFault(ex);
+			throw new SystemFault(ex);
 		} finally {
 			try {if ( null != reader ) reader.close();
 			} catch (Exception ex) {l.error("FileReaderUtil", ex);}
@@ -200,7 +206,7 @@ public class FileReaderUtil {
 	/**
 	 * Returns the contents of the file in a byte array.
 	 */
-    public static byte[] getBytes(File file) throws ApplicationFault {
+    public static byte[] getBytes(File file) throws ApplicationFault, SystemFault {
     	
     	InputStream is = null;
     	try {
@@ -222,13 +228,13 @@ public class FileReaderUtil {
 	        }
 	        
 	        if (offset < bytes.length) { // Ensure all the bytes have been read in
-	            throw new ApplicationFault("Could not completely read file, " + file.getAbsolutePath());
+	            throw new SystemFault("Could not completely read file, " + file.getAbsolutePath());
 	        }
 	        
 	        return bytes;
         } catch (IOException ex) {
         	l.fatal("util.FileReaderUtil > ", ex);
-        	throw new ApplicationFault(ex);
+        	throw new SystemFault(ex);
         } finally {
         	try { if ( null != is ) is.close(); } 
         	catch (Exception ex) {l.warn("util.FileReaderUtil > ", ex);} 
@@ -237,8 +243,14 @@ public class FileReaderUtil {
 	
 	/**
 	 * Resolves a file from various location..
-	 * @param fileName
-	 * @return
+	 * <lu>
+	 * <li> Supplied location </li>
+	 * <li> conf directory </li>
+	 * <li> resources folder </li>
+	 * <li> Class loader </li>
+	 * </lu>
+	 * @param fileName	Name of the file
+	 * @return	File object
 	 * @throws ApplicationFault
 	 */
     public static File getFile(String fileName) throws ApplicationFault {

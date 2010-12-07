@@ -26,6 +26,12 @@ import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.index.Doc;
 
+/**
+ * Clears caches text from the index. If we have a preview section,
+ * cache term extraction may not be needed.
+ * @author karan
+ *
+ */
 public class RemoveCachedText implements PipeIn {
 
 	public boolean commit() throws ApplicationFault, SystemFault {

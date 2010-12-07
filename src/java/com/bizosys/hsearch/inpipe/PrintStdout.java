@@ -29,6 +29,11 @@ import com.bizosys.hsearch.index.DocTeaser;
 import com.bizosys.hsearch.index.DocTerms;
 import com.bizosys.hsearch.index.Term;
 
+/**
+ * Print the indexing details to console
+ * @author karan
+ *
+ */
 public class PrintStdout implements PipeIn {
 
 	public boolean commit() throws ApplicationFault, SystemFault {

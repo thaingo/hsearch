@@ -37,6 +37,11 @@ import com.bizosys.hsearch.query.QueryPlanner;
 import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.hsearch.query.QueryTerm;
 
+/**
+ * Static ranking is done based on term weight
+ * @author karan
+ *
+ */
 public class ComputeStaticRanking implements PipeOut{
 	
 	public ComputeStaticRanking() {
@@ -44,16 +49,16 @@ public class ComputeStaticRanking implements PipeOut{
 
 	public boolean visit(Object objQuery) throws ApplicationFault, SystemFault {
 		
-		L.l.debug("ComputeStaticRank ENTER");
+		OutpipeLog.l.debug("ComputeStaticRank ENTER");
 		HQuery query = (HQuery) objQuery;
 		QueryContext ctx = query.ctx;
 		QueryPlanner planner = query.planner;
 		QueryResult result = query.result;
 		
 		Map<String, DocWeight> sortedStaticMap = computeWeight(ctx, planner);
-		if ( L.l.isDebugEnabled()) {
-			if ( null == sortedStaticMap) L.l.debug("ComputeStaticRank NONE");
-			else L.l.debug("ComputeStaticRank TOTAL = " + sortedStaticMap.size());
+		if ( OutpipeLog.l.isDebugEnabled()) {
+			if ( null == sortedStaticMap) OutpipeLog.l.debug("ComputeStaticRank NONE");
+			else OutpipeLog.l.debug("ComputeStaticRank TOTAL = " + sortedStaticMap.size());
 		}
 		
 		result.sortedStaticWeights = sortedStaticMap.values().toArray();

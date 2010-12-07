@@ -32,6 +32,11 @@ import com.bizosys.hsearch.index.DocTerms;
 import com.bizosys.hsearch.index.TermStream;
 import com.bizosys.hsearch.inpipe.util.StemFilterWrap;
 
+/**
+ * Stem the terms
+ * @author karan
+ *
+ */
 public class FilterStem implements PipeIn {
 	
 	boolean isStemming = true;

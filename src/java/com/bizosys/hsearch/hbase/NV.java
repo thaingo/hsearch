@@ -22,40 +22,85 @@ package com.bizosys.hsearch.hbase;
 import com.bizosys.hsearch.common.IStorable;
 import com.bizosys.hsearch.common.Storable;
 
+/**
+ * Serialized name value objects
+ * @author karan
+ *
+ */
 public class NV {
 
+	/**
+	 * Column Family
+	 */
 	public IStorable family = null;
+	
+	/**
+	 * Column name
+	 */
 	public IStorable name = null;
+	
+	/**
+	 * Column data
+	 */
 	public IStorable data = null;
 
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 */
 	public NV(String family, String name) {
 		this.family = new Storable(family);
 		this.name = new Storable(name);
 	}
 	
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 */
 	public NV(byte[] family, byte[] name) {
 		this.family = new Storable(family);
 		this.name = new Storable(name);
 	}
 	
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 * @param data	Column Value
+	 */
 	public NV(byte[] family, byte[] name, IStorable data) {
 		this.family = new Storable(family);
 		this.name = new Storable(name);
 		this.data = data;
 	}
 	
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 * @param data	Column Value
+	 */
 	public NV(String family, String name, IStorable data ) {
 		this.family = new Storable(family);
 		this.name = new Storable(name);
 		this.data = data;
 	}
 
+	/**
+	 * Constructor
+	 * @param family	Column Family
+	 * @param name	Column Name / Qualifier
+	 * @param data	Column Value
+	 */
 	public NV(IStorable family, IStorable name, IStorable data ) {
 		this.family = family;
 		this.name = name;
 		this.data = data;
 	}
 	
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(50);
 		sb.append("  F:[").append(new String(family.toBytes())).

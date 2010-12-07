@@ -21,56 +21,156 @@ package com.bizosys.hsearch.common;
 
 import java.io.UnsupportedEncodingException;
 
+/**
+ * Forms a byte representation for a given java Data Type.
+ */
 public class Storable implements IStorable {
 
+	/**
+	 * Unknown data type
+	 */
 	public static final byte BYTE_UNKNOWN = -1;
+	
+	/**
+	 * String data type constant
+	 */
 	public static final byte BYTE_STRING = 2;
+
+	/**
+	 * Byte data type constant
+	 */
 	public static final byte BYTE_BYTE = 3;
+
+	/**
+	 * Short data type constant
+	 */
 	public static final byte BYTE_SHORT = 4;
+
+	/**
+	 * Integer data type constant
+	 */
 	public static final byte BYTE_INT = 5;
+
+	/**
+	 * Long data type constant
+	 */
 	public static final byte BYTE_LONG = 6;
+
+	/**
+	 * Boolean data type constant
+	 */
 	public static final byte BYTE_BOOLEAN = 7;
+
+	/**
+	 * Character data type constant
+	 */
 	public static final byte BYTE_CHAR = 8;
+
+	/**
+	 * Float data type constant
+	 */
 	public static final byte BYTE_FLOAT = 9;
+
+	/**
+	 * Double data type constant
+	 */
 	public static final byte BYTE_DOUBLE = 10;
+
+	/**
+	 * Date data type constant
+	 */
 	public static final byte BYTE_DATE = 11;
+
+	/**
+	 * SQL data type constant
+	 */
 	public static final byte BYTE_SQLDATE = 12;
+
+	/**
+	 * Storable data type constant
+	 */
 	public static final byte BYTE_STORABLE = 13;
 	
+	/**
+	 * As is object
+	 */
 	protected Object asIsObject = null;
+	
+	/**
+	 * The computed byte value
+	 */
 	protected byte[] byteValue = null;
+	
+	/**
+	 * The byte type defaulted to unknown
+	 */
 	public byte type = BYTE_UNKNOWN;
 	
+	/**
+	 * Constructor
+	 * @param origVal	A byte data
+	 */
 	public Storable(byte origVal) {
 		this.asIsObject = origVal;
 		this.byteValue = new byte[] {origVal};
 	}
 
+	/**
+	 * Constructor
+	 * @param origVal	bytes data
+	 */
 	public Storable(byte[] origVal) {
 		this.asIsObject = origVal;
 		this.byteValue = origVal;
 	}
 	
+	/**
+	 * Bytes with specified data type
+	 * @param inputBytes	Value as bytes array
+	 * @param type	Data Type
+	 */
 	public Storable(byte[] inputBytes, byte type) {
 		if ( null != inputBytes) 
 			setValueWithParsing(inputBytes, type, 0, inputBytes.length);
 	}
 	
+	/**
+	 * Bytes with specified data type
+	 * @param inputBytes	Value as bytes array
+	 * @param type	Data Type
+	 * @param startPos	Starting position to read from bytes array
+	 */
 	public Storable(byte[] inputBytes, byte type, int startPos) {
 		this(inputBytes,type,startPos,inputBytes.length);
 	}
 
+	/**
+	/**
+	 * Bytes with specified data type
+	 * @param inputBytes	Value as bytes array
+	 * @param type	Data Type
+	 * @param startPos	Starting position to read from bytes array
+	 * @param endPos	End position of bytes array reading
+	 */
 	public Storable(byte[] inputBytes, byte type, int startPos, int endPos ) {
 		if ( null != inputBytes) 
 			setValueWithParsing(inputBytes, type, startPos, endPos);
 	}
 
+	/**
+	 * Constructor
+	 * @param storable	Bytes Serializable data types
+	 */
 	public Storable(IStorable storable) {
 		this.asIsObject = storable;
 		if ( null == storable)  this.setValue(BYTE_STORABLE, null);
 		else this.setValue(BYTE_STORABLE, storable.toBytes());
 	}
 	
+	/**
+	 * Constructor
+	 * @param origVal	String data type
+	 */
 	public Storable(String origVal) {
 		if ( null != origVal) {
 			this.asIsObject = origVal;
@@ -82,11 +182,19 @@ public class Storable implements IStorable {
 		}
 	}
 
+	/**
+	 * Constructor
+	 * @param origVal	Byte data type
+	 */
 	public Storable(Byte origVal) {
 		this.asIsObject = origVal;
 		this.setValue(BYTE_BYTE, new byte[]{origVal});
 	}
 	
+	/**
+	 * Constructor
+	 * @param origVal	Short data type
+	 */
 	public Storable(Short origVal) {
 		this.asIsObject = origVal;
 		
@@ -96,48 +204,85 @@ public class Storable implements IStorable {
 			(byte)(temp & 0xff) });
 	}
 	
+	/**
+	 * Constructor
+	 * @param origVal	Integer data type
+	 */
 	public Storable(Integer origVal) {
 		this.asIsObject = origVal;
 		this.setValue(BYTE_INT, putInt(origVal) ) ;
 	}
 	
+	/**
+	 * Constructor
+	 * @param origVal	Long data type
+	 */
 	public Storable(Long origVal) {
 		this.asIsObject = origVal;
 		this.setValue(BYTE_LONG, putLong(origVal) ) ;
 	}
 	
+	/**
+	 * Constructor
+	 * @param origVal	Float data type
+	 */
 	public Storable(Float origVal) {
 		this.asIsObject = origVal;
 		this.setValue(BYTE_FLOAT, putInt(Float.floatToRawIntBits (origVal)) ) ;
 	}
 	
+	/**
+	 * Constructor
+	 * @param origVal	Double data type
+	 */
 	public Storable(Double origVal) {
 		this.asIsObject = origVal;
 		if ( null != origVal ) this.setValue(BYTE_DOUBLE, putLong(Double.doubleToRawLongBits(origVal)) ) ;
 	}
 	
+	/**
+	 * Constructor
+	 * @param bolVal	Boolean data type
+	 */
 	public Storable(Boolean bolVal) {
 		this.asIsObject = bolVal;
 		if ( true == bolVal) this.setValue(BYTE_BOOLEAN, new byte[]{1});
 		else this.setValue(BYTE_BOOLEAN, new byte[]{0});
 	}
 	
+	/**
+	 * Constructor
+	 * @param charVal	Character data type
+	 */
 	public Storable(Character charVal) {
 		this.asIsObject = charVal;
 		char temp = charVal.charValue();
 		this.setValue(BYTE_CHAR,  new byte[]{ (byte)(temp >> 8 & 0xff), (byte)(temp & 0xff) });
 	}
 
+	/**
+	 * Constructor
+	 * @param date	Date data type
+	 */
 	public Storable(java.util.Date date) {
 		this.asIsObject = date;
 		if ( null != date ) this.setValue(BYTE_DATE, putLong(date.getTime()) ) ;
 	}
 	
+	/**
+	 * Constructor
+	 * @param date	Date data type
+	 */
 	public Storable(java.sql.Date date) {
 		this.asIsObject = date;
 		this.setValue(BYTE_SQLDATE, putLong(date.getTime()) ) ;
 	}
 	
+	/**
+	 * Set the bytes data value with type information
+	 * @param type
+	 * @param byteA
+	 */
 	public void setValue(byte type, byte[] byteA) {
 		if ( null == byteA) return;
 		
@@ -145,6 +290,13 @@ public class Storable implements IStorable {
 		this.byteValue = byteA;
 	}
 	
+	/**
+	 * Set the value after parsing the bytes data
+	 * @param inputBytes	Data as bytes array
+	 * @param type	Data type
+	 * @param startPos	bytes-array read From position
+	 * @param endPos	bytes-array read To position
+	 */
 	protected void setValueWithParsing(byte[] inputBytes, byte type, int startPos, int endPos) {
 		this.byteValue = inputBytes;
 		this.type = type;
@@ -212,16 +364,28 @@ public class Storable implements IStorable {
 		}
 	}
 
-	
-	
+	/**
+	 * Get the As Is object data
+	 * @return	Data object
+	 */
 	public Object getValue() {
 		return this.asIsObject;
 	}
 	
+	/**
+	 * Serialize set data to bytes
+	 */
 	public byte[] toBytes() {
 		return this.byteValue;
 	}
 	
+	/**
+	 * Compare byte values
+	 * @param offset	Starting position of compare with Byte Array
+	 * @param inputBytes	Compare with Bytes
+	 * @param compareBytes	Compare to Bytes
+	 * @return	True if matches
+	 */
 	public static boolean compareBytes(int offset, 
 	byte[] inputBytes, byte[] compareBytes) {
 
@@ -297,58 +461,86 @@ public class Storable implements IStorable {
 		return true;
 	}
 
-	
+	/**
+	 *	Compare two bytes 
+	 * @param inputBytes	Compare with Bytes
+	 * @param compareBytes	Compare to Bytes
+	 * @return	True if matches
+	 */
 	public static boolean compareBytes(byte[] inputBytes, byte[] compareBytes) {
 		return compareBytes(0,inputBytes,compareBytes);
 	}
 	
 	
+	/**
+	 *	Compare two characters
+	 * @param inputBytes	Compare with character array
+	 * @param compareBytes	Compare to character array
+	 * @return	True if matches
+	 */
 	public static boolean compareBytes(char[] inputBytes, char[] compareBytes) {
 
-				int inputBytesT = inputBytes.length;
-				int compareBytesT = compareBytes.length;
-				if ( compareBytesT !=  inputBytesT) return false;
-				
-				if ( compareBytes[0] != inputBytes[0]) return false;
-				if ( compareBytes[compareBytesT - 1] != inputBytes[compareBytesT - 1] ) return false;
-				
-				switch (compareBytesT)
-				{
-					case 3:
-						return compareBytes[1] == inputBytes[1];
-					case 4:
-						return compareBytes[1] == inputBytes[1] && 
-							compareBytes[2] == inputBytes[2];
-					case 5:
-						return compareBytes[1] == inputBytes[1] && 
-							compareBytes[2] == inputBytes[2] && 
-							compareBytes[3] == inputBytes[3];
-					case 6:
-						return compareBytes[1] == inputBytes[1] && 
-						compareBytes[3] == inputBytes[3] && 
-						compareBytes[2] == inputBytes[2] && 
-						compareBytes[4] == inputBytes[4];
-					default:
-						compareBytesT--;
-						for ( int i=0; i< compareBytesT; i++) {
-							if ( compareBytes[i] != inputBytes[i]) return false;
-						}
+		int inputBytesT = inputBytes.length;
+		int compareBytesT = compareBytes.length;
+		if ( compareBytesT !=  inputBytesT) return false;
+		
+		if ( compareBytes[0] != inputBytes[0]) return false;
+		if ( compareBytes[compareBytesT - 1] != inputBytes[compareBytesT - 1] ) return false;
+		
+		switch (compareBytesT)
+		{
+			case 3:
+				return compareBytes[1] == inputBytes[1];
+			case 4:
+				return compareBytes[1] == inputBytes[1] && 
+					compareBytes[2] == inputBytes[2];
+			case 5:
+				return compareBytes[1] == inputBytes[1] && 
+					compareBytes[2] == inputBytes[2] && 
+					compareBytes[3] == inputBytes[3];
+			case 6:
+				return compareBytes[1] == inputBytes[1] && 
+				compareBytes[3] == inputBytes[3] && 
+				compareBytes[2] == inputBytes[2] && 
+				compareBytes[4] == inputBytes[4];
+			default:
+				compareBytesT--;
+				for ( int i=0; i< compareBytesT; i++) {
+					if ( compareBytes[i] != inputBytes[i]) return false;
 				}
-				return true;
-			}
+		}
+		return true;
+	}
 	
-
+	/**
+	 * Form a short value reading 2 bytes
+	 * @param startPos	Bytes read start position
+	 * @param inputBytes	Input Bytes
+	 * @return	Short representation
+	 */
 	public static short getShort(int startPos, byte[] inputBytes) {
 		return (short) (
 			(inputBytes[startPos] << 8 ) + ( inputBytes[++startPos] & 0xff ) );
 	}
 	
+	/**
+	 * Forms a byte array from a Short data
+	 * @param value	Short data
+	 * @return	2 bytes
+	 */
 	public static byte[] putShort( short value ) {
 
 		return new byte[] { 
 			(byte)(value >> 8 & 0xff), 
 			(byte)(value & 0xff) };
-	}	
+	}
+	
+	/**
+	 * Form a integer value reading 4 bytes
+	 * @param index	Bytes read start position
+	 * @param inputBytes	Input Bytes
+	 * @return	Integer representation
+	 */
 	public static int getInt(int index, byte[] inputBytes) {
 		
 		int intVal = (inputBytes[index] << 24 ) + 
@@ -358,6 +550,11 @@ public class Storable implements IStorable {
 		return intVal;
 	}
 	
+	/**
+	 * Forms a byte array from a Integer data
+	 * @param value	Integer data
+	 * @return	4 bytes
+	 */
 	public static byte[] putInt( int value ) {
 		return new byte[] { 
 			(byte)(value >> 24), 
@@ -366,6 +563,12 @@ public class Storable implements IStorable {
 			(byte)(value) }; 
 	}
 	
+	/**
+	 * Form a Long value reading 8 bytes
+	 * @param index	Bytes read start position
+	 * @param inputBytes	Input Bytes
+	 * @return	Long representation
+	 */
 	public static long getLong(int index, final byte[] inputBytes) {
 		
 		if ( 0 == inputBytes.length) return 0;
@@ -381,6 +584,11 @@ public class Storable implements IStorable {
 		return longVal;
 	}
 	
+	/**
+	 * Forms a byte array from a long data
+	 * @param value	Long data
+	 * @return	8 bytes
+	 */
 	public static byte[] putLong(long value) {
 		return new byte[]{
 			(byte)(value >> 56), 
@@ -393,6 +601,11 @@ public class Storable implements IStorable {
 			(byte)(value ) };		
 	}
 	
+	/**
+	 * Form a String value format UTF-8
+	 * @param inputObj	Input String
+	 * @return	bytes representation
+	 */
 	public static byte[] putString( String inputObj) {
 		try {
 			return inputObj.getBytes("UTF-8");
@@ -402,6 +615,11 @@ public class Storable implements IStorable {
 		
 	}
 	
+	/**
+	 * Parse a byte array to form a UTF-8 String
+	 * @param inputBytes	Input bytes array
+	 * @return	A UTF-8 String
+	 */
 	public static String getString(byte[] inputBytes) {
 		try {
 			return new String( inputBytes , "UTF-8");
@@ -410,6 +628,11 @@ public class Storable implements IStorable {
 		}
 	}
 	
+	/**
+	 * Get the size for a given data type
+	 * @param type	Data type
+	 * @return	The bytes-array size
+	 */
 	public static int getSize(byte type) {
 		int size = -1;
 		switch(type) {
@@ -446,7 +669,12 @@ public class Storable implements IStorable {
 		return size; 
 	}
 	
-    public static final boolean[] byteToBits(byte b) {
+    /**
+     * Convert a byte to a 8 bits
+     * @param b	A byte
+     * @return	8 bits
+     */
+	public static final boolean[] byteToBits(byte b) {
         boolean[] bits = new boolean[8];
         for (int i = 0; i < bits.length; i++) {
             bits[i] = ((b & (1 << i)) != 0);
@@ -454,11 +682,22 @@ public class Storable implements IStorable {
         return bits;
     }
 
-	public static byte bitsToByte(boolean[] bits) {
+	/**
+	 * Convert 8 bits to a Byte
+	 * @param bits	Bits array. Reading happens from position 0
+	 * @return	1 Byte
+	 */
+    public static byte bitsToByte(boolean[] bits) {
 		return bitsToByte(bits, 0);
     }
 	
-    public static byte bitsToByte(boolean[] bits, int offset) {
+    /**
+     * Converting 8 Bits to a Byte
+     * @param bits	array of bits
+     * @param offset	Read starting position
+     * @return	1 Byte
+     */
+	public static byte bitsToByte(boolean[] bits, int offset) {
 		int value = 0;
         for (int i = 0; i < 8; i++) {
 			if(bits[i] == true) {

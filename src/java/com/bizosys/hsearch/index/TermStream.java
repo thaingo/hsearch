@@ -21,6 +21,11 @@ package com.bizosys.hsearch.index;
 
 import org.apache.lucene.analysis.TokenStream;
 
+/**
+ * Wrapped Type TokenStream with sighting information.
+ * @author karan
+ *
+ */
 public class TermStream {
 	public Character sighting;
 	public TokenStream stream;

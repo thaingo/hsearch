@@ -23,13 +23,18 @@ import java.util.List;
 
 import com.bizosys.hsearch.hbase.NVBytes;
 import com.bizosys.hsearch.index.DocTeaser;
-import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 
+/**
+ * Weighted document teaser. Based on the 
+ * computed weight teasers are ordered for display. 
+ * @see DocTeaser 
+ * @author karan
+ */
 public class DocTeaserWeight extends DocTeaser {
 	public float weight;
 	
-	public DocTeaserWeight(byte[] id, List<NVBytes> inputBytes, float weight) throws ApplicationFault {
+	public DocTeaserWeight(byte[] id, List<NVBytes> inputBytes, float weight){
 		super(id,inputBytes);
 		this.weight = weight;
 	}

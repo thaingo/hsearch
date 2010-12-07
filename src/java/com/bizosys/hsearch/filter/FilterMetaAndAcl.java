@@ -23,31 +23,74 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * Match the Meta and ACL section of document
+ * @author karan
+ *
+ */
 public class FilterMetaAndAcl {
 	 
+	/**
+	 * Read access
+	 */
 	public AccessStorable userAcl;
-	public byte[] keyword = null; //[search in tags]
+	
+	/**
+	 * Check presence inside keywords
+	 */
+	public byte[] keyword = null;
+
+	/**
+	 * Is state matching
+	 */
 	public byte[] state = null;
+
+	/**
+	 * Is tenant matching
+	 */
 	public byte[] tenant = null;
+
+	/**
+	 * Created before the Given date
+	 */
 	public long createdBefore = -1;
+
+	/**
+	 * Created after the Given date
+	 */
 	public long createdAfter = -1;
+
+	/**
+	 * Modified before the Given date
+	 */
 	public long modifiedBefore = -1;
+
+	/**
+	 * Modified after the Given date
+	 */
 	public long modifiedAfter = -1;
-	 
+	
+	/**
+	 * Bytes array
+	 */
 	public byte[] bytesA = null;
 	 
+	/**
+	 * Default Constructor
+	 *
+	 */
 	public FilterMetaAndAcl() {
 	}
 	 
 	/**
-	 * The client creates this which eventually stores as a byte array
-	 * @param keyword
-	 * @param state
-	 * @param tenant
-	 * @param createdBefore
-	 * @param createdAfter
-	 * @param modifiedBefore
-	 * @param modifiedAfter
+	 * Default Constructor - Value object which eventually stored as a byte array
+	 * @param keyword	Tagged keywords
+	 * @param state	Document state
+	 * @param tenant	Tenant or Organization Unit
+	 * @param createdBefore	Created Before
+	 * @param createdAfter	Created After
+	 * @param modifiedBefore	Modified Before
+	 * @param modifiedAfter	Modified After
 	 */
 	public FilterMetaAndAcl(AccessStorable viewAcls, 
 		byte[] keyword, byte[] state ,byte[] tenant,
@@ -91,26 +134,21 @@ public class FilterMetaAndAcl {
 		this.bytesA = bytes;
 	}
 
-	private int writeLong(long variable, byte[] bytes, int index) {
-		System.arraycopy(putLong(variable),0, bytes, index, 8);
-		index = index + 8;
-		return index;
-	}
-
-	private int writeBytes(byte[] variableB, byte[] bytes, int index) {
-		short variableLen = (short) variableB.length;
-		bytes[index++] = (byte)(variableLen >> 8 & 0xff);
-		bytes[index++] = (byte)(variableLen & 0xff);
-		System.arraycopy(variableB, 0, bytes, index, variableLen);
-		index = index + variableLen;
-		return index;
-	}
-
+	/**
+	 * Write the header section
+	 * @param out
+	 * @throws IOException
+	 */
 	public void writeHeader(DataOutput out) throws IOException {
 		out.writeInt(this.bytesA.length);
 		out.write(this.bytesA);
 	}
 	 
+	/**
+	 * Read the header section and deserialized the input
+	 * @param in
+	 * @throws IOException
+	 */
 	public void readHeader(DataInput in) throws IOException {
 		int totalB = in.readInt();
 		this.bytesA = new byte[totalB];
@@ -118,6 +156,10 @@ public class FilterMetaAndAcl {
 		deserialize();
 	}
 
+	/**
+	 * Forms the object from the input byte array
+	 *
+	 */
 	public void deserialize() {
 		int index=0;
 		byte filterFlag = this.bytesA[index++];
@@ -178,8 +220,8 @@ public class FilterMetaAndAcl {
 	
 	/**
 	 * Never filter ACL is the information is not available
-	 * @param value
-	 * @return
+	 * @param value	The input bytes
+	 * @return	Is allowed
 	 */
 	public boolean allowAccess( byte[] value)  {
 		if ( null == value ) return true;
@@ -201,8 +243,8 @@ public class FilterMetaAndAcl {
 	
 	/**
 	 * Filter meta fields based on user supplied filtering criteria
-	 * @param storedB
-	 * @return
+	 * @param storedB	Stored bytes
+	 * @return	Is meta section matching
 	 */
 	public boolean allowMeta(byte[] storedB) {
 		
@@ -266,7 +308,7 @@ public class FilterMetaAndAcl {
 		return true;
 	}
 	
-	public static boolean compareBytes(int offset, 
+	private static boolean compareBytes(int offset, 
 		byte[] inputBytes, byte[] compareBytes) {
 		
 		int compareBytesT = compareBytes.length;
@@ -298,12 +340,12 @@ public class FilterMetaAndAcl {
 		return true;
 	}
 	
-	public static short getShort(int startPos, byte[] inputBytes) {
+	private static short getShort(int startPos, byte[] inputBytes) {
 		return (short) (
 			(inputBytes[startPos] << 8 ) + ( inputBytes[++startPos] & 0xff ) );
 	}    
 	
-	public static long getLong(int index, final byte[] inputBytes) {
+	private static long getLong(int index, final byte[] inputBytes) {
 		
 		if ( 0 == inputBytes.length) return 0;
 		
@@ -318,7 +360,7 @@ public class FilterMetaAndAcl {
 		return longVal;
 	}
 
-    public static byte bitsToByte(boolean[] bits) {
+	private static byte bitsToByte(boolean[] bits) {
 		int value = 0;
         for (int i = 0; i < 8; i++) {
 			if(bits[i] == true) {
@@ -328,7 +370,7 @@ public class FilterMetaAndAcl {
         return (byte)value;
 	}		
 
-    public static final boolean[] byteToBits(byte b) {
+	private static final boolean[] byteToBits(byte b) {
         boolean[] bits = new boolean[8];
         for (int i = 0; i < bits.length; i++) {
             bits[i] = ((b & (1 << i)) != 0);
@@ -336,7 +378,7 @@ public class FilterMetaAndAcl {
         return bits;
     }
     
-    public static byte[] putLong(long value) {
+	private static byte[] putLong(long value) {
 		return new byte[]{
 			(byte)(value >> 56), 
 			(byte)(value >> 48 ), 
@@ -346,7 +388,23 @@ public class FilterMetaAndAcl {
 			(byte)(value >> 16 ), 
 			(byte)(value >> 8 ), 
 			(byte)(value ) };		
-	}    
+	} 
+
+	private int writeLong(long variable, byte[] bytes, int index) {
+		System.arraycopy(putLong(variable),0, bytes, index, 8);
+		index = index + 8;
+		return index;
+	}
+
+	private int writeBytes(byte[] variableB, byte[] bytes, int index) {
+		short variableLen = (short) variableB.length;
+		bytes[index++] = (byte)(variableLen >> 8 & 0xff);
+		bytes[index++] = (byte)(variableLen & 0xff);
+		System.arraycopy(variableB, 0, bytes, index, variableLen);
+		index = index + variableLen;
+		return index;
+	}
+	
     
     static int indexOf(byte[] source, int startPosition, int endPosition,
     		byte[] target, int targetOffset, int targetCount ) {	

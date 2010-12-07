@@ -861,8 +861,8 @@ public class Stemmer {
 
 	/**
 	 * Returns the stemmed version of the given word.
-	 * 
-	 * @param word a string consisting of a single word
+	 * @param origWord a string consisting of a single word
+	 * @return stemmed word
 	 */
 	public String stem(String origWord) {
 		String stemmed = stem(origWord, false); 

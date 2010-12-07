@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.hsearch.inpipe.InpipeLog;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.services.Request;
@@ -34,8 +34,11 @@ import com.bizosys.oneline.services.ServiceMetaData;
 import com.bizosys.oneline.services.scheduler.ExpressionBuilder;
 import com.bizosys.oneline.services.scheduler.ScheduleTask;
 
-import com.bizosys.hsearch.inpipe.L;
-
+/**
+ * This service refreshes the stopwords in intervals.
+ * @author karan
+ *
+ */
 public class StopwordManager implements Service{
 	
 	protected Set<String> stopWords = null;
@@ -43,8 +46,8 @@ public class StopwordManager implements Service{
 	ScheduleTask scheduledRefresh = null;
 	
 	private static StopwordManager instance = null;
-	public static StopwordManager getInstance() throws ApplicationFault {
-		if ( null == instance) throw new ApplicationFault(
+	public static StopwordManager getInstance() throws SystemFault {
+		if ( null == instance) throw new SystemFault(
 			"StopwordManager is not initialized");
 		return instance;
 	}
@@ -61,7 +64,7 @@ public class StopwordManager implements Service{
 	 * Launches dictionry refresh task and initializes the dictionry.
 	 */
 	public boolean init(Configuration conf, ServiceMetaData arg1) {
-		L.l.info("StopwordManager > Initializing Stopword Service.");
+		InpipeLog.l.info("StopwordManager > Initializing Stopword Service.");
 		StopwordRefresh refreshTask = new StopwordRefresh();
 
 		int refreshInteral = conf.getInt("stopword.refresh", 30);
@@ -73,10 +76,10 @@ public class StopwordManager implements Service{
 			refreshTask.process();
 			scheduledRefresh = new ScheduleTask(refreshTask, expr.getExpression(), 
 				new Date(startTime), new Date(Long.MAX_VALUE));
-			L.l.info("StopwordManager > Stopword Refresh task is scheduled.");
+			InpipeLog.l.info("StopwordManager > Stopword Refresh task is scheduled.");
 			return true;
 		} catch (Exception ex) {
-			L.l.fatal("StopwordManager Initialization failed >", ex);
+			InpipeLog.l.fatal("StopwordManager Initialization failed >", ex);
 			return false;
 		}
 	}
@@ -108,7 +111,7 @@ public class StopwordManager implements Service{
 	
 	/**
 	 * This modifies local stopwords only
-	 * @param newStopWords
+	 * @param words New Stop Words
 	 * @throws SystemFault
 	 */
 	public void setLocalStopwords(List<String> words) throws SystemFault {

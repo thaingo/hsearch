@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.bizosys.hsearch.common.HDocument;
+import com.bizosys.hsearch.common.WhoAmI;
 import com.bizosys.hsearch.dictionary.DictEntry;
 import com.bizosys.hsearch.dictionary.DictionaryManager;
 import com.bizosys.hsearch.index.Doc;
@@ -37,7 +38,6 @@ import com.bizosys.hsearch.index.IndexWriter;
 import com.bizosys.hsearch.query.QueryContext;
 import com.bizosys.hsearch.query.QueryResult;
 import com.bizosys.hsearch.schema.SchemaManager;
-import com.bizosys.hsearch.security.WhoAmI;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;

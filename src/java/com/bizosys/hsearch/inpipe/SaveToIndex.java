@@ -30,19 +30,24 @@ import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeIn;
 
 import com.bizosys.hsearch.common.IStorable;
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.index.BucketIsFullException;
 import com.bizosys.hsearch.index.Doc;
 import com.bizosys.hsearch.index.IdMapping;
-import com.bizosys.hsearch.index.L;
+import com.bizosys.hsearch.index.IndexLog;
 import com.bizosys.hsearch.index.Term;
 import com.bizosys.hsearch.index.TermColumns;
 import com.bizosys.hsearch.index.TermFamilies;
 import com.bizosys.hsearch.index.TermTables;
 import com.bizosys.hsearch.schema.ILanguageMap;
 import com.bizosys.hsearch.schema.SchemaManager;
-import com.bizosys.hsearch.util.RecordScalar;
 
+/**
+ * Saves the term vector to the index table
+ * @author karan
+ *
+ */
 public class SaveToIndex implements PipeIn {
 
 	int docMergeFactor = 1000;
@@ -111,7 +116,7 @@ public class SaveToIndex implements PipeIn {
 			docPos = TermTables.createDocumentSerialIds(
 				currentBucket,newDocsCount);
 			
-			if ( L.l.isInfoEnabled()) L.l.info("StoreToIndex > Document Serial Position moved till :" + docPos);
+			if ( IndexLog.l.isInfoEnabled()) IndexLog.l.info("StoreToIndex > Document Serial Position moved till :" + docPos);
 			if ( docPos > docMergeFactor ) TermTables.createBucketId();
 			
 		} catch (BucketIsFullException ex) {
@@ -149,7 +154,7 @@ public class SaveToIndex implements PipeIn {
 			buildTermTables(mergedTermTables, docTermTable);
 		}
 		
-		if ( L.l.isDebugEnabled()) L.l.debug(printMergedTT(mergedTermTables));
+		if ( IndexLog.l.isDebugEnabled()) IndexLog.l.debug(printMergedTT(mergedTermTables));
 
 		/**
 		 * Persist Ids

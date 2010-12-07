@@ -23,24 +23,28 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bizosys.oneline.ApplicationFault;
-import com.bizosys.oneline.services.batch.BatchTask;
-
+import com.bizosys.hsearch.common.RecordScalar;
 import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.schema.IOConstants;
-import com.bizosys.hsearch.util.Record;
-import com.bizosys.hsearch.util.RecordScalar;
+import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
+import com.bizosys.oneline.services.batch.BatchTask;
 
+/**
+ * Configurable Term Sighting Score weights.
+ * @author karan
+ *
+ */
 public class TermWeight implements BatchTask {
 	
 	public static String TERM_SIGHT = "TERM_SIGHT";
 	public static byte[] TERM_SIGHT_BYTES = TERM_SIGHT.getBytes();
 	
 	public static TermWeight instance = null;
-	public static TermWeight getInstance() throws ApplicationFault {
+	public static TermWeight getInstance() throws SystemFault {
 		if ( null != instance ) return instance;
 		synchronized (TermWeight.class) {
 			if ( null != instance ) return instance;
@@ -51,7 +55,7 @@ public class TermWeight implements BatchTask {
 	
 	public Map<Character, Byte> weights = new HashMap<Character, Byte>();
 	
-	public TermWeight() throws ApplicationFault {
+	public TermWeight() throws SystemFault {
 		
 		this.process();
 	}
@@ -79,8 +83,8 @@ public class TermWeight implements BatchTask {
 			}
 			NV nv = new NV(IOConstants.NAME_VALUE_BYTES, 
 				IOConstants.NAME_VALUE_BYTES, new Storable(bytes));
-			Record record = new Record(new Storable(TERM_SIGHT_BYTES), nv);
-			HWriter.update(IOConstants.TABLE_CONFIG, record);
+			RecordScalar record = new RecordScalar(new Storable(TERM_SIGHT_BYTES), nv);
+			HWriter.insertScalar(IOConstants.TABLE_CONFIG, record);
 		} catch (IOException e) {
 			e.printStackTrace(System.out);
 			throw e;
@@ -91,7 +95,7 @@ public class TermWeight implements BatchTask {
 		return "TermWeight";
 	}
 
-	public Object process() throws ApplicationFault {
+	public Object process() throws SystemFault {
 		NV nv = new NV(IOConstants.NAME_VALUE_BYTES, IOConstants.NAME_VALUE_BYTES);
 		
 		RecordScalar scalar = new RecordScalar(TERM_SIGHT_BYTES, nv);

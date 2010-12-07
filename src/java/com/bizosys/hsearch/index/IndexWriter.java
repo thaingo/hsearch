@@ -46,7 +46,7 @@ import com.bizosys.oneline.pipes.PipeIn;
 import com.bizosys.oneline.util.StringUtils;
 
 /**
- * 
+ * Performs write operation on HSearch index
  * @author karan
  *
  */
@@ -130,16 +130,16 @@ public class IndexWriter {
 		
 	}
 	
-	public List<PipeIn> getPipes(String stepNames) throws ApplicationFault {
-		L.l.debug("IndexWriter: getPipes  = " + stepNames);
+	public List<PipeIn> getPipes(String stepNames) throws SystemFault {
+		IndexLog.l.debug("IndexWriter: getPipes  = " + stepNames);
 		if ( null == this.writePipes) createPipes();
 		String[] steps = StringUtils.getStrings(stepNames, ",");
 		List<PipeIn> anvils = new ArrayList<PipeIn>(steps.length);
 		for (String step : steps) {
 			PipeIn aPipe = writePipes.get(step).getInstance();
 			if ( null == aPipe) {
-				L.l.error("IndexWriter: getPipes Pipe not found =  " + step);
-				throw new ApplicationFault("Pipe Not Found: " + step);
+				IndexLog.l.error("IndexWriter: getPipes Pipe not found =  " + step);
+				throw new SystemFault("Pipe Not Found: " + step);
 			}
 			anvils.add(aPipe);
 		}
@@ -152,9 +152,9 @@ public class IndexWriter {
 	 * FilterDuplicateId,TokenizeStandard,FilterStopwords,
 	 * FilterTermLength,FilterLowercase,FilterStem,ComputeTokens,
 	 * SaveToIndex,SaveToDictionary,SaveToPreview,SaveToDetail
-	 * @return
+	 * @return	List of pipes
 	 */
-	public List<PipeIn> getStandardPipes() throws ApplicationFault{
+	public List<PipeIn> getStandardPipes() throws SystemFault {
 		if ( null == this.writePipes) createPipes();
 		return getPipes(
 			"FilterDuplicateId,TokenizeStandard,FilterStopwords,"+
@@ -183,19 +183,19 @@ public class IndexWriter {
 	public void insert(HDocument hdoc, List<PipeIn> localPipes) throws ApplicationFault, SystemFault{
 		
 		Doc doc = new Doc(hdoc);
-		L.l.info("Insert Step 1 > Value parsing is over.");
+		IndexLog.l.info("Insert Step 1 > Value parsing is over.");
 		
 		for (PipeIn in : localPipes) {
-			L.l.debug("IndexWriter.insert.visitting : " + in.getName());
+			IndexLog.l.debug("IndexWriter.insert.visitting : " + in.getName());
 			in.visit(doc);
 		}
-		L.l.info("Insert Step 2 >  Pipe processing is over.");
+		IndexLog.l.info("Insert Step 2 >  Pipe processing is over.");
 		
 		for (PipeIn in : localPipes) {
-			L.l.debug("IndexWriter.insert.comitting :" + in.getName());
+			IndexLog.l.debug("IndexWriter.insert.comitting :" + in.getName());
 			in.commit();
 		}
-		L.l.info("Insert Step 3 >  Commit is over.");
+		IndexLog.l.info("Insert Step 3 >  Commit is over.");
 
 	}
 
@@ -225,21 +225,21 @@ public class IndexWriter {
 			Doc doc = new Doc(hdoc);
 			docs.add(doc);
 		}
-		L.l.info("Insert Step 1 > Value parsing is over.");
+		IndexLog.l.info("Insert Step 1 > Value parsing is over.");
 		
 		for (Doc doc : docs) {
 			for (PipeIn in : pipes) {
-				L.l.debug("IndexWriter.insert.visitting : " + in.getName());
+				IndexLog.l.debug("IndexWriter.insert.visitting : " + in.getName());
 				in.visit(doc);
 			}
 		}
-		L.l.info("Insert Step 2 >  Pipe processing is over.");
+		IndexLog.l.info("Insert Step 2 >  Pipe processing is over.");
 		
 		for (PipeIn in : pipes) {
-			L.l.debug("IndexWriter.insert.comitting :" + in.getName());
+			IndexLog.l.debug("IndexWriter.insert.comitting :" + in.getName());
 			in.commit();
 		}
-		L.l.info("Insert Step 3 >  Commit is over.");
+		IndexLog.l.info("Insert Step 3 >  Commit is over.");
 	}
 	
 	/**
@@ -249,7 +249,7 @@ public class IndexWriter {
 	 */
 	public boolean delete(String documentId) throws ApplicationFault, SystemFault {
 		
-		L.l.info("IndexWriter.delete : " + documentId );
+		IndexLog.l.info("IndexWriter.delete : " + documentId );
 		
 		Doc origDoc = IndexReader.getInstance().get(documentId);
 		if ( null == origDoc.teaser) return false;
@@ -264,19 +264,19 @@ public class IndexWriter {
 			"FilterLowercase,FilterStem,ComputeTokens," +
 			"DeleteFromIndex,DeleteFromPreviewAndDetail,DeleteFromDictionary");
 		
-		L.l.info("Delete Step 1 > Value parsing is over.");
+		IndexLog.l.info("Delete Step 1 > Value parsing is over.");
 		
 		for (PipeIn in : deletePipe) {
-			L.l.debug("IndexWriter.delete.visit : " + in.getName());
+			IndexLog.l.debug("IndexWriter.delete.visit : " + in.getName());
 			in.visit(origDoc);
 		}
 		
-		L.l.info("Delete Step 2 >  Pipe processing is over.");
+		IndexLog.l.info("Delete Step 2 >  Pipe processing is over.");
 		for (PipeIn in : deletePipe) {
-			L.l.debug("IndexWriter.delete.commit : " + in.getName());
+			IndexLog.l.debug("IndexWriter.delete.commit : " + in.getName());
 			in.commit();
 		}
-		L.l.info("Delete Step 3 >  Commit is over.");
+		IndexLog.l.info("Delete Step 3 >  Commit is over.");
 		return true;
 	}
 }

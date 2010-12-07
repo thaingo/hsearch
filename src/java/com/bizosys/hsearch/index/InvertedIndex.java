@@ -29,6 +29,11 @@ import java.util.Set;
 
 import com.bizosys.hsearch.common.Storable;
 
+/**
+ * The inverted Index data structure and byte operations.
+ * @author karan
+ *
+ */
 public class InvertedIndex {
 	public int hash;
 	public byte[] dtc; //doc type code
@@ -54,8 +59,8 @@ public class InvertedIndex {
 	
 	/**
 	 * Reads the bytes to reconstruct the Inverted Index
-	 * @param bytes
-	 * @return
+	 * @param bytes	Input bytes
+	 * @return	inverted index entries 
 	 */
 	public static List<InvertedIndex> read(byte[] bytes) {
 		
@@ -115,8 +120,9 @@ public class InvertedIndex {
 	
 	/**
 	 * Remove the document at the specified position
-	 * @param bytes
-	 * @return
+	 * @param bytes	Input bytes
+	 * @param docPos 	Document position
+	 * @return	Document purged
 	 */
 	public static byte[] delete(byte[] bytes, short docPos) {
 		
@@ -154,8 +160,8 @@ public class InvertedIndex {
 			}
 			if ( Integer.MIN_VALUE != col ) rowcol.put(row,col);
 		}
-		if ( L.l.isDebugEnabled()) {
-			L.l.debug("InvertedIndex:delete Rows :" + rowcol.values().toString() + 
+		if ( IndexLog.l.isDebugEnabled()) {
+			IndexLog.l.debug("InvertedIndex:delete Rows :" + rowcol.values().toString() + 
 				"\tCols :" + rowcol.keySet().toString() );
 		}
 		
@@ -237,7 +243,7 @@ public class InvertedIndex {
 			}
 		}
 		int len = bb.position();
-		if ( L.l.isDebugEnabled() ) L.l.debug(
+		if ( IndexLog.l.isDebugEnabled() ) IndexLog.l.debug(
 			"InvertedIndex : Original / Cut Byte Size =" + bytes.length + "/" + len);
 		if ( 0 == len ) return null;
 		byte[] deletedB = new byte[len];
@@ -269,7 +275,7 @@ public class InvertedIndex {
 		byte docTyep=0,termTyep=0,termWeight=0,termFreq=0;
 		short termPos=0;
 		
-		if ( L.l.isDebugEnabled() ) L.l.debug("TermList Byte Marshalling: bytesT = " + bytesT);
+		if ( IndexLog.l.isDebugEnabled() ) IndexLog.l.debug("TermList Byte Marshalling: bytesT = " + bytesT);
 		while ( pos < bytesT) {
 			priorDocTerms.clear();
 			keywordHash = Storable.getInt(pos, existingB);
@@ -291,7 +297,7 @@ public class InvertedIndex {
 			shift = TermList.TERM_SIZE_NOVECTOR;
 			if ( TermList.termVectorStorageEnabled ) shift = TermList.TERM_SIZE_VECTOR;
 			for ( int i=0; i<termsT; i++) {
-				if ( L.l.isDebugEnabled() ) L.l.debug("pos:" + pos );
+				if ( IndexLog.l.isDebugEnabled() ) IndexLog.l.debug("pos:" + pos );
 				
 				readPos = pos + ((shift - 2) * termsT )+ (i * 2);
 				docPos = (short) ((existingB[readPos] << 8 ) + 
@@ -355,8 +361,8 @@ public class InvertedIndex {
 				freshDocs.add(docPos);
 			}
 		}
-		if ( L.l.isDebugEnabled() ) 
-			L.l.debug("Fresh Documents:" + freshDocs.toString());
+		if ( IndexLog.l.isDebugEnabled() ) 
+			IndexLog.l.debug("Fresh Documents:" + freshDocs.toString());
 		return freshDocs;
 	}
 

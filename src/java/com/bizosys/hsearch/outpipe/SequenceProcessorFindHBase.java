@@ -38,7 +38,7 @@ import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.index.DocumentType;
 import com.bizosys.hsearch.index.TermList;
 import com.bizosys.hsearch.index.TermType;
-import com.bizosys.hsearch.query.L;
+import com.bizosys.hsearch.query.QueryLog;
 import com.bizosys.hsearch.query.QueryTerm;
 
 /**
@@ -106,7 +106,7 @@ class SequenceProcessorFindHBase implements Callable<Object> {
 	 */
 	public Object call() throws Exception {
 		
-		L.l.debug("SequenceProcessorFindHBase > Call START");
+		QueryLog.l.debug("SequenceProcessorFindHBase > Call START");
 		if ( null == this.term) return null;
 		
 		/**
@@ -115,13 +115,13 @@ class SequenceProcessorFindHBase implements Callable<Object> {
 		char tableName = this.term.lang.getTableName(this.term.wordStemmed);
 		char familyName = this.term.lang.getColumnFamily(this.term.wordStemmed);
 		char colName = this.term.lang.getColumn(this.term.wordStemmed);
-		if ( L.l.isDebugEnabled()) {
+		if ( QueryLog.l.isDebugEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("SequenceProcessorFindHBase > Term:").append(this.term.wordOrig);
 			sb.append(" , Table [").append(tableName);
 			sb.append("] , Family [").append(familyName);
 			sb.append("] , Column [").append(colName).append(']');
-			L.l.debug(sb.toString());
+			QueryLog.l.debug(sb.toString());
 		}
 		
 		/**
@@ -196,7 +196,7 @@ class SequenceProcessorFindHBase implements Callable<Object> {
 			}
 			
 		} catch ( IOException ex) {
-			L.l.fatal("SequenceProcessorFindHBase:", ex);
+			QueryLog.l.fatal("SequenceProcessorFindHBase:", ex);
 			return null;
 		} finally {
 			if ( null != scanner) scanner.close();

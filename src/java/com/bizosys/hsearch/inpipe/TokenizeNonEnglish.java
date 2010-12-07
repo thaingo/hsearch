@@ -44,6 +44,12 @@ import com.bizosys.hsearch.index.TermStream;
 import com.bizosys.hsearch.inpipe.util.ReaderType;
 import com.bizosys.hsearch.util.LuceneConstants;
 
+/**
+ * A detail support is planned in future.
+ * Don't use this class.
+ * @author karan
+ *
+ */
 public class TokenizeNonEnglish extends TokenizeBase implements PipeIn {
 
 	public Map<String, Analyzer> languageMap = new HashMap<String, Analyzer>();
@@ -86,7 +92,7 @@ public class TokenizeNonEnglish extends TokenizeBase implements PipeIn {
 		try {
 	    	for (ReaderType reader : readers) {
 	    		Analyzer analyzer = languageMap.get(lang);
-	    		if ( null == analyzer) throw new ApplicationFault("TokenizeNonEnglish : Unsupported Lanugage > " + lang );
+	    		if ( null == analyzer) throw new SystemFault("TokenizeNonEnglish : Unsupported Lanugage > " + lang );
 	    		TokenStream stream = analyzer.tokenStream(reader.type, reader.reader);
 	    		TermStream ts = new TermStream(
 		    			reader.docSection, stream, reader.type); 
@@ -95,7 +101,7 @@ public class TokenizeNonEnglish extends TokenizeBase implements PipeIn {
 			}
 	    	return true;
     	} catch (Exception ex) {
-    		throw new ApplicationFault(ex);
+    		throw new SystemFault(ex);
     	}
 	}
 

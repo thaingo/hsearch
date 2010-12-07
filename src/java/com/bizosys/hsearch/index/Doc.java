@@ -31,22 +31,62 @@ import com.bizosys.hsearch.schema.IOConstants;
 import com.bizosys.oneline.ApplicationFault;
 import com.bizosys.oneline.SystemFault;
 
+/**
+ * Documents are the unit of indexing and search. 
+ * A Document consists of: 
+ * <lu>
+ * 	<li>Set of fields</li>
+ * 	<li>Access information</li>
+ * 	<li>Meta information</li>
+ * 	<li>Result Display Section</li>
+ * </lu>
+ * <br/> * A document is uniquely identified by the doc merging Id (Bucket) 
+ * and the document serial number inside the bucket.  
+ * @author karan
+ *
+ */
 public class Doc {
 	
+	/**
+	 * Term vectors created after parsing the document
+	 */
 	public DocTerms terms = null;
+	
+	/**
+	 * The document meta section
+	 */
 	public DocMeta meta = null;
+	
+	/**
+	 * Document view and edit access control settings
+	 */
 	public DocAcl acl = null;
+	
+	/**
+	 * The result display formats
+	 */
 	public DocTeaser teaser = null;
+	
+	/**
+	 * The content section which consists of fields
+	 */
 	public DocContent content = null;
 	
+	/**
+	 * From which machine the document is submitted
+	 */
 	public String ipAddress = null;
+	
+	/**
+	 * The 
+	 */
 	public Long bucketId = null;
 	public Short docSerialId = null;
 
 	public Doc() {
 	}
 	
-	public Doc(HDocument hDoc) throws ApplicationFault {
+	public Doc(HDocument hDoc) throws SystemFault, ApplicationFault{
 		this.bucketId = hDoc.bucketId;
 		this.docSerialId = hDoc.docSerialId;
 		this.ipAddress = hDoc.ipAddress;

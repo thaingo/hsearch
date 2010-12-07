@@ -30,7 +30,7 @@ import com.bizosys.hsearch.common.Storable;
 import com.bizosys.hsearch.schema.ILanguageMap;
 
 /**
- * Organization hint we will use for bucketting.
+ * Multiple terms grouped as termlist
  * @author karan
  *
  */
@@ -499,10 +499,10 @@ public class TermList implements IStorable {
 	
 	/**
 	 * Does this list contain the keyword.
-	 * @param bytes
-	 * @param keywordHash
-	 * @param pos
-	 * @return
+	 * @param bytes	Input bytes
+	 * @param keywordHash	search word hashcode in bytes
+	 * @param pos	starting read position
+	 * @return True if matched
 	 */
 	public static boolean isMatchedTerm(byte[] bytes, 
 			byte[] keywordHash, int pos) {

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import com.bizosys.hsearch.filter.AccessDefn;
 import com.bizosys.oneline.util.XmlUtils;
 
 public class HDocumentTest {

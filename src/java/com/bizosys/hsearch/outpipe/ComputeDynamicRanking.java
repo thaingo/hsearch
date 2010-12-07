@@ -34,6 +34,18 @@ import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.conf.Configuration;
 import com.bizosys.oneline.pipes.PipeOut;
 
+/**
+ * Ranks the document based on term and meta information.
+ * Following criterias are taken for finding the dynamic ranking
+ * <lu>
+ * <li>Freshness</li>
+ * <li>IP Proximity</li>
+ * <li>Sighting on author Tag words</li>
+ * <li>Sighting on User Tag words</li>
+ * </lu> 
+ * @author karan
+ *
+ */
 public class ComputeDynamicRanking implements PipeOut{
 	
 	public ComputeDynamicRanking() {
@@ -71,7 +83,7 @@ public class ComputeDynamicRanking implements PipeOut{
 		totalScore = 100 - (totalScore / 1170000000L);
 		int score = new Double(totalScore).intValue();
 		if ( score < 0 ) score = 0;
-		if ( L.l.isDebugEnabled()) L.l.debug("ComputeDynamicRanking:Freshness : " + score );
+		if ( OutpipeLog.l.isDebugEnabled()) OutpipeLog.l.debug("ComputeDynamicRanking:Freshness : " + score );
 		return score;
 	}
 	
@@ -84,7 +96,7 @@ public class ComputeDynamicRanking implements PipeOut{
 			ipScore = new Double(100 - (Math.log10(ipScore) / 9 * 100)).intValue();
 			ipScore = (ipScore < 0) ? ipScore * -1 : ipScore;
 		}
-		if ( L.l.isDebugEnabled()) L.l.debug("ComputeDynamicRanking:IpScopre :" + ipScore);
+		if ( OutpipeLog.l.isDebugEnabled()) OutpipeLog.l.debug("ComputeDynamicRanking:IpScopre :" + ipScore);
 		return ipScore; 
 	}
 	
@@ -115,7 +127,7 @@ public class ComputeDynamicRanking implements PipeOut{
 			}
 		}
 		
-		if ( L.l.isDebugEnabled()) L.l.debug("ComputeDynamicRanking:socialRanking : " + socialRanking );
+		if ( OutpipeLog.l.isDebugEnabled()) OutpipeLog.l.debug("ComputeDynamicRanking:socialRanking : " + socialRanking );
 		return socialRanking;
 	}
 	
@@ -145,7 +157,7 @@ public class ComputeDynamicRanking implements PipeOut{
 			}
 		}
 		
-		if ( L.l.isDebugEnabled()) L.l.debug("ComputeDynamicRanking:Tags : " + tagRanking );
+		if ( OutpipeLog.l.isDebugEnabled()) OutpipeLog.l.debug("ComputeDynamicRanking:Tags : " + tagRanking );
 		return tagRanking;
 	}
 

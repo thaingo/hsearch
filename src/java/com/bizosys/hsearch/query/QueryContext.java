@@ -24,10 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bizosys.hsearch.common.Storable;
-import com.bizosys.hsearch.security.WhoAmI;
+import com.bizosys.hsearch.common.WhoAmI;
 import com.bizosys.hsearch.util.GeoId;
 import com.bizosys.hsearch.util.IpUtil;
 import com.bizosys.oneline.ApplicationFault;
+import com.bizosys.oneline.SystemFault;
 import com.bizosys.oneline.util.StringUtils;
 
 public class QueryContext {
@@ -171,7 +172,7 @@ public class QueryContext {
 		this.geoId = geoId;
 	}
 	
-	public GeoId getGeoId() throws ApplicationFault {
+	public GeoId getGeoId() throws ApplicationFault, SystemFault {
 		if ( null != geoId) return geoId;
 		
 		if ( null == this.ipAddress 
@@ -186,8 +187,8 @@ public class QueryContext {
 		try {
 			loc = new GeoService().getLocation(ip);
 		} catch (Exception ex) {
-			L.l.fatal("outflow.QueryContext GeoService Invocation Failure", ex);
-			throw new ApplicationFault(ex);
+			QueryLog.l.fatal("outflow.QueryContext GeoService Invocation Failure", ex);
+			throw new SystemFault(ex);
 		}
 			
 		if ( null == loc) return null;
@@ -205,8 +206,8 @@ public class QueryContext {
 		if ( StringUtils.isEmpty(value)) return;
 		
 		value = value.replace('_', ' ').trim();
-		if ( L.l.isInfoEnabled())
-			L.l.info(value + " .. " + reserveWord);
+		if ( QueryLog.l.isInfoEnabled())
+			QueryLog.l.info(value + " .. " + reserveWord);
 		
 		switch (reserveWord) {
 		

@@ -28,31 +28,66 @@ import java.util.List;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
+/**
+ * This is a document specific filter gets applied
+ * in matching terms. Meta section and Access Control are the 
+ * two vital filtering steps after matching keywords.
+ * @author karan
+ *
+ */
 public class PreviewFilter implements Filter {
 	private static final byte META_BYTE = "m".getBytes()[0];
 	private static final byte ACL_BYTE = "a".getBytes()[0];
+	
+	/**
+	 * The implementation class
+	 */
 	FilterMetaAndAcl fma = null;
+	
+	/**
+	 * Bytes
+	 */
 	byte[] bytes = null;
 
+	/**
+	 * Default constructor
+	 *
+	 */
 	public PreviewFilter(){}
 	
+	/**
+	 * Initialized
+	 * @param fma
+	 */
 	public PreviewFilter(FilterMetaAndAcl fma){
 		this.fma = fma;
 	}
 	
+	/**
+	 * Get filtering class
+	 * @return	The Filter logic object
+	 */
 	public FilterMetaAndAcl getFma(){
 		return this.fma;
 	}
+	
+	/**
+	 * Set filtering class
+	 * @param fma
+	 */
 	public void setFma(FilterMetaAndAcl fma) {
 		this.fma = fma;
 	}
 
+	/**
+	 * Not necessary
+	 */
 	public boolean filterAllRemaining() {
 		return false;
 	}
 
 	/**
-	 *  true to drop this key/value
+	 *  True to drop this key/value
 	 */
 	public ReturnCode filterKeyValue(KeyValue kv) {
 		if ( ACL_BYTE == kv.getQualifier()[0]) { // Match ACL
@@ -67,12 +102,15 @@ public class PreviewFilter implements Filter {
 		return ReturnCode.INCLUDE;
 	}
 
+	/**
+	 * Not necessary
+	 */
 	public boolean filterRow() {
 		return false;
 	}
 
 	/**
-	 * last chance to drop entire row based on the sequence of filterValue() 
+	 * Last chance to drop entire row based on the sequence of filterValue() 
 	 * calls. Eg: filter a row if it doesn't contain a specified column
 	 */
 	public void filterRow(List<KeyValue> kvL) {
@@ -86,7 +124,7 @@ public class PreviewFilter implements Filter {
 	}
 	
 	/**
-	 * true to drop this row, if false, we will also call
+	 * True to drop this row, if false, we will also call
 	 */
 	public boolean filterRowKey(byte[] rowKey, int offset, int length) {
 		return false;
